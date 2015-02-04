@@ -1,5 +1,5 @@
 # Adverse Event Explorer
-The Adverse Event Explorer is an interactive tool that allows users to dynamically query adverse event (AE) data in real time.
+The Adverse Event Explorer is an interactive tool that allows users to dynamically query adverse event (AE) data in real time. Examples and additional documentation are available at the [Rho Graphics Site](http://graphics.rhoworld.com/tools/aeexplorer/ "Rho Graphics").
 
 ##Technical Details
 The Adverse Event Explorer is an open source project built using standard web technology and will run in any modern web browser. The displays created are all dynamically linked to raw adverse event data which allows the tool to work with data from any adverse event coding system. The charts are created using [D3](http://www.d3js.org "D3.js") and the interface is formatted with [Bootstrap](http://www.getbootstrap.com "Bootstrap").
