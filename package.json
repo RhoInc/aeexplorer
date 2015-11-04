@@ -2,7 +2,7 @@
   "name": "aeexplorer",
   "version": "0.0.0",
   "description": "An interactive tool that allows users to dynamically query adverse event data in real time",
-  "main": "aeexplorer.js",
+  "main": "table.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
