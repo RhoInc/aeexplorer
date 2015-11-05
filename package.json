@@ -25,9 +25,10 @@
   },
   "homepage": "https://github.com/rhoinc/aeexplorer#readme",
   "dependencies": {
-    "d3": "^3.5.6",
     "bootstrap": "^3.3.5",
     "bootstrap-multiselect": "^0.9.13",
-    "datatables": "^1.10.9"
+    "d3": "^3.5.6",
+    "datatables": "^1.10.9",
+    "jquery": "^2.1.4"
   }
 }
