@@ -940,7 +940,7 @@ var table = {
 		    	data_major.map(function(major){
 		    		return d3.merge(major.values.map(function(minor){
 		    			return  d3.merge(minor.values.map(function(group){
-		    				return group.values.per
+		    				return [group.values.per]
 		    			}))
 		    		}))
 		    	})
@@ -983,7 +983,7 @@ var table = {
 			    	data_minor.map(function(m){
 				    	return d3.merge(m.values.map(function(m2){
 				    		return d3.merge(
-				    			m2.differences.map(function(m3){return d3.merge([m3.upper, m3.lower]) })
+				    			m2.differences.map(function(m3){return d3.merge([[m3.upper], [m3.lower]]) })
 				    		)
 				    	}))
 				    	
@@ -992,7 +992,7 @@ var table = {
 
 				var diff_scale= d3.scale.linear()
 					.range([diffMargin.left,w-diffMargin.right])
-					.domain(d3.extent(d3.merge(minorDiffs,allDiffs)) ); 		
+					.domain(d3.extent(d3.merge([minorDiffs,allDiffs])) ); 		
 
 				//Difference Axis
 				var diffAxis = d3.svg.axis()
