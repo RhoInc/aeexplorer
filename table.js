@@ -290,7 +290,7 @@ var table = {
 					.data(function(d){return d.values.filter(function(d){return ["NA",""," "].indexOf(d)===-1})})
 					.enter()
 					.append("option")
-						.html(function(d){return "<span><i class='icon-remove icon-white glyphicon glyphicon-remove'></i></span>"+ (["NA",""," "].indexOf(d)>-1 ? "[None]" : d)})
+						.html(function(d){return "<span><i class='icon-remove icon-white fa fa-times'></i></span>"+ (["NA",""," "].indexOf(d)>-1 ? "[None]" : d)})
 						.attr("value",function(d){return d})
 						.attr("selected","selected")
 
@@ -313,7 +313,7 @@ var table = {
 				searchLabel.append("span")
 					.attr("class","search-count")
 				searchLabel.append("i")
-					.attr("class","clear-search icon-remove icon-white glyphicon glyphicon-remove")
+					.attr("class","clear-search icon-remove icon-white fa fa-times")
 				selector.append("input")
 					.attr("type","text")
 					.attr("class","searchBar search-query input-medium")
@@ -447,13 +447,13 @@ var table = {
 						d3.select(this).classed("show", false).text("Hide all nested rows");
 						canvas.selectAll(".SummaryTable table tbody").classed("minorHidden",false)
 						canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span.icon i")
-							.attr("class","icon-chevron-down glyphicon glyphicon-chevron-down")	
+							.attr("class","icon-chevron-down fa fa-chevron-down")	
 					}
 					else{
 						d3.select(this).classed("show", true).text("Show all nested rows");
 						canvas.selectAll(".SummaryTable table tbody").classed("minorHidden",true)
 						canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span.icon i")
-							.attr("class","icon-chevron-right glyphicon glyphicon-chevron-right")
+							.attr("class","icon-chevron-right fa fa-chevron-right")
 					}
 				}
 			})
@@ -652,7 +652,7 @@ var table = {
 					.text("   ")
 					.attr("class",function(){
 						toggle = canvas.select("a.toggleRows").text() == "Show all nested rows"
-						return toggle ? "icon-chevron-right glyphicon glyphicon-chevron-right" : "icon-chevron-down glyphicon glyphicon-chevron-down"
+						return toggle ? "icon-chevron-right fa fa-chevron-right" : "icon-chevron-down fa fa-chevron-down"
 					})
 				}
 
@@ -662,7 +662,7 @@ var table = {
 
 				// Cell with Label (System Organ Class or Preferred term name)
 				d3.select(this).append("td").attr("class","showDetails")
-				.append("span").attr("class","icon details transparent").append("i").attr("class","icon-list glyphicon glyphicon-list")
+				.append("span").attr("class","icon details transparent").append("i").attr("class","icon-list fa fa-list")
 
 
 				// Append Cells with rates and ns
@@ -1181,15 +1181,17 @@ var table = {
 
 			// Expand/collapse a section 
 			canvas.selectAll("td.controls i").on("click",function(d){
-				var current=$(this).parents("tbody")
-				var toggle=!(current.hasClass("minorHidden")) // True if we want to show the minor rows, false if we want to remove them. 
+				var current = d3.select(this.parentNode.parentNode.parentNode.parentNode);
+				var toggle = !(current.classed("minorHidden")) // True if we want to show the minor rows, false if we want to remove them. 
 				if(toggle){
-					current.addClass("minorHidden")
+					current.classed("minorHidden", true)
 				}else{
-					current.removeClass("minorHidden")
+					current.classed("minorHidden", false)
 				}
-				d3.select(this).attr("class",function(){return toggle ? 'icon-chevron-right glyphicon glyphicon-chevron-right':'icon-chevron-down glyphicon glyphicon-chevron-down'})
-			})
+				d3.select(this).attr("class",function(){
+					return toggle ? 'icon-chevron-right fa fa-chevron-right':'icon-chevron-down fa fa-chevron-down'
+				});
+			});
 
 			///////////////////////////
 			// Show the details table
@@ -1229,7 +1231,7 @@ var table = {
 			var minorToggle=canvas.select("a.toggleRows").text() === "Show all nested rows"
 			canvas.selectAll(".SummaryTable tbody").classed("minorHidden", minorToggle)
 			canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span.icon i")
-				.attr("class",minorToggle ? "icon-chevron-right glyphicon glyphicon-chevron-right":"icon-chevron-down glyphicon glyphicon-chevron-down")
+				.attr("class",minorToggle ? "icon-chevron-right fa fa-chevron-right":"icon-chevron-down fa fa-chevron-down")
 
 
 			//Toggle Difference plots
@@ -1285,7 +1287,7 @@ var table = {
 		closeButton=canvas.select("div.DetailTable").append("button")
 			.attr("class","closeDetailTable btn btn-primary");
 
-		closeButton.html("<i class='icon-backward icon-white glyphicon glyphicon-backward'></i>    Return to the Summary View");
+		closeButton.html("<i class='icon-backward icon-white fa fa-backward'></i>    Return to the Summary View");
 		
 		closeButton.on("click",function(){
 			canvas.select(".SummaryTable table").classed("summary",false);

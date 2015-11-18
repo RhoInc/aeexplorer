@@ -1,7 +1,9 @@
 /**************************************/
 /***** Controls and Table Layout ******/
 /**************************************/
-
+div.ig-aetable .hidden{
+	display: none;
+}
 
 /***Navbar***/
 
