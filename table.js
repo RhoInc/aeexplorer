@@ -349,25 +349,13 @@ var table = {
 				})
 		},
 		customFilters:function(canvas, path, data, vars, settings){	
-			var filterCustom = canvas.selectAll(".custom-filters ul li select")
+			var filterCustom = canvas.selectAll(".custom-filters ul li select");
+
+			//redraw table without bootstrap multiselect
+			filterCustom.on('change', function(){
+				table.AETable.redraw(canvas,path, data, vars, settings);
+			});
 			
-			//initialize bootstrap multiselect
-			filterCustom.each(function(d){
-				$(".custom-"+d.key+" select").multiselect({ //BugNote - Have to use jquery here for the multiselect plugin, but this *might* create a bug when 2 tables are on a page since selections here aren't canvas-specific
-					buttonText:function(){
-						var filterLabels=settings.filterSettings
-						var currentLabel=filterLabels.filter(function(e){return e.key==d.key})[0]
-						return currentLabel!== undefined ? currentLabel.label + " <b class='caret'></b>" : d.key + " <b class='caret'></b>";
-					},
-					onChange:function(element, checked){	
-						var numOptions = canvas.selectAll(".custom-"+d.key+" select option")[0].length //number total items
-						var numSelected = canvas.selectAll(".custom-"+d.key+" select option[selected='selected']")[0].length //number of selected items
-						canvas.selectAll(".custom-"+d.key).classed("active", false); //override some bootstrap bullsh*t
-						canvas.selectAll(".custom-"+d.key+" div.btn-group button.multiselect").classed("btn-inverse",numSelected < numOptions)
-						table.AETable.redraw(canvas,path, data, vars, settings)
-					}
-				})	
-			})
 		},
 
 		diffToggle:function(canvas, path, data, vars, settings){
@@ -553,19 +541,22 @@ var table = {
 			/////////////////////////////////////////////////////
 			// Filter the data based on the current selections
 			/////////////////////////////////////////////////////
-			
-			canvas.selectAll("li.filterCustom select")
+
+			//filter without bootstrap multiselect
+			canvas.select('.custom-filters').selectAll('select')
 				.each(function(dVar){
-					currentvar=dVar.key
+					var currentvar = dVar.key;
+
 					d3.select(this).selectAll("option")
-					.each(function(dItem){
-						currentitem=dItem;
-						if(d3.select(this).attr("selected")!=="selected"){
-							//console.log(currentvar + currentitem + "Filter")
-							sub=sub.filter(function(d){return d[currentvar]!=currentitem})
-						}
-					})
-				})
+						.each(function(dItem){
+							var currentitem = dItem;
+							if(!d3.select(this).property("selected")){
+								// console.log(currentvar + currentitem + "Filter")
+								sub = sub.filter(function(d){return d[currentvar] != currentitem; });
+							}
+						})
+				});
+
 			return sub;
 		},
 		///////////////////////////////////////////////////////////////
