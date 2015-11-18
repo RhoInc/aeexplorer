@@ -110,6 +110,7 @@ div.ig-aetable .navbar-search .search-query{
 
 div.ig-aetable .SummaryTable tr td{
 	text-align:left;
+	padding: 0.5em 5px;
 }
 
 /*Handles indentation for nested rows*/
@@ -126,11 +127,17 @@ div.ig-aetable .SummaryTable th span.group-num{
 	font-size: 9pt;
 }
 
+div.ig-aetable .SummaryTable thead tr:last-of-type th,
+div.ig-aetable .SummaryTable thead tr th[rowspan="2"]{
+	border-bottom: 1px solid #555;
+}
+
 div.ig-aetable .SummaryTable th,
 div.ig-aetable .SummaryTable tfoot td {
  	padding: 0 5px;
 	background-color:#eee;
 	font-weight: bold;
+	border: none;
 }
 
 /* alignment for column header/axes*/

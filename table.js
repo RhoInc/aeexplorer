@@ -164,33 +164,6 @@ var table = {
 			init:function(selector, settings){
 				selector.select("div.optionsButton").remove()
 
-				var optionsDrop=selector.append("div")
-				.attr("class","btn-group pull-right optionsButton")
-
-				optionsDrop.append("button")
-				.attr("class","btn btn-link dropdown-toggle")
-				.attr("data-toggle","dropdown")
-				.text("Options ")
-					.append("b")
-					.attr("class","caret")
-				
-				var dropdownOptions=optionsDrop.append("ul")
-				.attr("class","dropdown-menu")
-
-				//Row Toggle
-				var toggleRows=dropdownOptions.append("li")
-				.append("a")
-				.attr("class","toggleRows")
-				.classed("show", settings.defaults.prefTerms === "Show" ? false : true)
-		
-				//Column Toggle
-				var nGroups = settings["groups"].length 
-				var toggleDiff=dropdownOptions.append("li")
-				.append("a")
-				.attr("class","toggleDiff")
-				.classed("show", settings.defaults.diffCol === "Show" ? false : true)
-				.classed("disabled",(nGroups==2 || nGroups==3)? false : true)
-
 				//set initial values for row/column toggle
 				table.header.options.set(selector,settings)
 			},
@@ -346,33 +319,6 @@ var table = {
 		options: {
 			init:function(selector, settings){
 				selector.select("div.optionsButton").remove()
-
-				var optionsDrop=selector.append("div")
-				.attr("class","btn-group pull-right optionsButton")
-
-				optionsDrop.append("button")
-				.attr("class","btn btn-link dropdown-toggle")
-				.attr("data-toggle","dropdown")
-				.text("Options ")
-					.append("b")
-					.attr("class","caret")
-				
-				var dropdownOptions=optionsDrop.append("ul")
-				.attr("class","dropdown-menu")
-
-				//Row Toggle
-				var toggleRows=dropdownOptions.append("li")
-				.append("a")
-				.attr("class","toggleRows")
-				.classed("show", settings.defaults.prefTerms === "Show" ? false : true)
-		
-				//Column Toggle
-				var nGroups = settings["groups"].length 
-				var toggleDiff=dropdownOptions.append("li")
-				.append("a")
-				.attr("class","toggleDiff")
-				.classed("show", settings.defaults.diffCol === "Show" ? false : true)
-				.classed("disabled",(nGroups==2 || nGroups==3)? false : true)
 
 				//set initial values for row/column toggle
 				table.header.options.set(selector,settings)
@@ -651,7 +597,7 @@ var table = {
 					.append("i")
 					.text("   ")
 					.attr("class",function(){
-						toggle = canvas.select("a.toggleRows").text() == "Show all nested rows"
+						toggle = true//canvas.select("a.toggleRows").text() == "Show all nested rows"
 						return toggle ? "icon-chevron-right fa fa-chevron-right" : "icon-chevron-down fa fa-chevron-down"
 					})
 				}
@@ -680,7 +626,9 @@ var table = {
 				prev_plot=d3.select(this).append("td").classed("prevplot",true)
 					.append("svg")
 					.attr("height",h)
-					.attr("width",w)
+					.attr("width",w+10)
+					.append("svg:g")
+						.attr("transform", "translate(5,0)")
 
 				points=prev_plot.selectAll("g.points")
 				.data(d.values)
@@ -702,7 +650,9 @@ var table = {
 					var diff_plot=d3.select(this).append("td").classed("diffplot",true)
 						.append("svg")
 						.attr("height",h)
-						.attr("width",w)
+						.attr("width",w+10)
+					.append("svg:g")
+						.attr("transform", "translate(5,0)")
 
 					var diffpoints=diff_plot.selectAll("g")
 						.data(d.differences)
@@ -947,7 +897,7 @@ var table = {
 		    )
 
 			var percent_scale = d3.scale.linear()
-				.range([margin.left,w-margin.right])
+				.range([0,w])
 				.domain([0,d3.max(allPercents)]);
 			
 			
@@ -959,9 +909,9 @@ var table = {
 
 			prevAxis=canvas.select("th.prevHeader").append("svg")
 				.attr("height","34px")
-				.attr("width",w)
+				.attr("width",w+10)
 				.append("svg:g")
-					.attr("transform", "translate(0,34)") 		
+					.attr("transform", "translate(5,34)") 		
 					.attr("class", "axis percent")
 		    		.call(percentAxis)
 			
@@ -1002,9 +952,9 @@ var table = {
 
 				prevAxis=canvas.select("th.diffplot.axis").append("svg")
 					.attr("height","34px")
-					.attr("width",w)
+					.attr("width",w+10)
 					.append("svg:g")
-						.attr("transform", "translate(0,34)") 		
+						.attr("transform", "translate(5,34)") 		
 						.attr("class", "axis")
 			    		.attr("class","percent")
 			    		.call(diffAxis)
@@ -1228,14 +1178,14 @@ var table = {
 			// Apply basic Filters & Toggles //
 			///////////////////////////////////
 			//Toggle Minor rows
-			var minorToggle=canvas.select("a.toggleRows").text() === "Show all nested rows"
+			var minorToggle = true;//canvas.select("a.toggleRows").text() === "Show all nested rows"
 			canvas.selectAll(".SummaryTable tbody").classed("minorHidden", minorToggle)
 			canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span.icon i")
 				.attr("class",minorToggle ? "icon-chevron-right fa fa-chevron-right":"icon-chevron-down fa fa-chevron-down")
 
 
 			//Toggle Difference plots
-			var differenceToggle=canvas.select("a.toggleDiff").text() === "Show difference column"
+			var differenceToggle = false;//canvas.select("a.toggleDiff").text() === "Show difference column"
 			canvas.selectAll(".SummaryTable .diffplot").classed("hidden", differenceToggle)
 
 
@@ -1337,7 +1287,7 @@ var table = {
 					.append("td")
 					.html(function(d){return d});
 
-				$(table.node()).dataTable();
+				// $(table.node()).dataTable();
 			};
 		}
 		basicTable(".DetailTable", details);	
