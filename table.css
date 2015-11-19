@@ -119,6 +119,8 @@ div.ig-aetable tr.minor td.rowLabel{
 }
 
 div.ig-aetable .SummaryTable tr td.values,
+div.ig-aetable .SummaryTable tr td.prevplot,
+div.ig-aetable .SummaryTable tr td.diffplot,
 div.ig-aetable .SummaryTable th{
 	text-align:center;
 }
