@@ -11,6 +11,12 @@
 
 var table = {
 	init: function(canvas, path, vars, settings, onDataError){
+		// if group is missing just render 1 column		
+		if(vars.group==""){
+			vars.group="data_all"
+			settings.groups=[{"key":"All","n":1,"selected":true}]
+		}
+	
 		//reset canvas as a d3 selection here, rather than in the initial call
 		canvas = d3.select(canvas);
 		
