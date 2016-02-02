@@ -10,7 +10,7 @@
 (function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.aeTable = factory(root.d3);  }}(this, function(d3){
 
 var table = {
-	init: function(canvas, path, vars, settings, onDataError){
+	init: function(canvas, data, vars, settings, onDataError){
 		// if group is missing just render 1 column		
 		if(vars.group==""){
 			vars.group="data_all"
@@ -20,86 +20,72 @@ var table = {
 		//reset canvas as a d3 selection here, rather than in the initial call
 		canvas = d3.select(canvas);
 		
-		d3.csv(path, function(error, data){
-			/**error checking**/
-			function errorNote(msg){
-				canvas.append("div").attr("class", "alert alert-error alert-danger").text(msg);
-			};
-			//alert if specified dataset cannot be found
-			if(error){
-				if(onDataError)
-					onDataError(error);
+		function errorNote(msg){
+			canvas.append("div").attr("class", "alert alert-error alert-danger").text(msg);
+		};
+
+		for(x in vars){
+			var varlist = d3.keys(data[0])
+			varlist.push("data_all") //exception for situations with no group variable
+
+			if(varlist.indexOf(vars[x]) === -1){
+				if(vars[x] instanceof Array){
+					vars[x].forEach(function(e){
+						if(d3.keys(data[0]).indexOf(e) === -1){
+							errorNote("Error in variables object.");
+							throw new Error(x + " variable "+"(\""+e+"\") not found in dataset.");
+						}
+					})
+				}
 				else{
-					errorNote("Dataset could not be loaded.");
-					throw new Error("Dataset could not be loaded. Check provided path.");
+					errorNote("Error in variables object.");
+					throw new Error(x + " variable "+"(\""+vars[x]+"\") not found in dataset.");
 				}
 			}
-			else{
-				//check for errors in variables object
-				for(x in vars){
-					var varlist = d3.keys(data[0])
-					varlist.push("data_all") //exception for situations with no group variable
-
-					if(varlist.indexOf(vars[x]) === -1){
-						if(vars[x] instanceof Array){
-							vars[x].forEach(function(e){
-								if(d3.keys(data[0]).indexOf(e) === -1){
-									errorNote("Error in variables object.");
-									throw new Error(x + " variable "+"(\""+e+"\") not found in dataset.");
-								}
-							})
-						}
-						else{
-							errorNote("Error in variables object.");
-							throw new Error(x + " variable "+"(\""+vars[x]+"\") not found in dataset.");
-						}
-					}
-				};
-				//check that groups defined in settings are actually present in dataset
-				settings.groups.forEach(function(e){
-					varlist=d3.set(data.map(function(d){return d[vars.group]})).values()
-					varlist.push("All") //exception for situations with no group variable
-					if(varlist.indexOf(e.key) == -1){
-						errorNote("Error in settings object.");
-						throw new Error("\""+e.key +"\" in the Groups setting is not found in the dataset.");
-					}
-				});
-				//check that filterSettings defined in settings match the filters defined in vars
-				settings.filterSettings.forEach(function(e){
-					if(vars.filters.indexOf(e.key) == -1){
-						errorNote("Error in settings object.");
-						throw new Error("\""+e.key +"\" in the filterSettngs setting does not match the filters defined in variables object.");
-					}
-				})
+		};
+		//check that groups defined in settings are actually present in dataset
+		settings.groups.forEach(function(e){
+			varlist=d3.set(data.map(function(d){return d[vars.group]})).values()
+			varlist.push("All") //exception for situations with no group variable
+			if(varlist.indexOf(e.key) == -1){
+				errorNote("Error in settings object.");
+				throw new Error("\""+e.key +"\" in the Groups setting is not found in the dataset.");
 			}
-			/*+++++++++++++++++*/
-
-			//sort the groups so that they match the final data
-			settings.groups.sort(function(a,b){
-				var diff=b.n-a.n;
-				return diff==0 ? a.key > b.key : diff
-			})
-
-			//Set the domain for the color scale based on groups
-			table.colorScale.domain(settings.groups.map(function(e){return e.key}))
-			
-			//layout the table
-			table.layout(canvas)
-			//table.header.init(canvas, settings)
-
-			//Initialize UI (remove previous if any)
-			table.controls.init(canvas, data, vars, settings)
-
-			//Initialize Event Listeners
-			table.eventListeners.rateFilter(canvas)
-			table.eventListeners.search(canvas, path, data, vars, settings)
-			table.eventListeners.customFilters(canvas, path, data, vars, settings)
-			table.eventListeners.diffToggle(canvas, path, data, vars, settings)
-			table.eventListeners.rowToggle(canvas, path, data, vars, settings)
-
-			//Draw the table (remove previous if any)
-			table.AETable.redraw(canvas, path, data, vars, settings)
+		});
+		//check that filterSettings defined in settings match the filters defined in vars
+		settings.filterSettings.forEach(function(e){
+			if(vars.filters.indexOf(e.key) == -1){
+				errorNote("Error in settings object.");
+				throw new Error("\""+e.key +"\" in the filterSettngs setting does not match the filters defined in variables object.");
+			}
 		})
+			
+		//sort the groups so that they match the final data
+		settings.groups.sort(function(a,b){
+			var diff=b.n-a.n;
+			return diff==0 ? a.key > b.key : diff
+		})
+
+		//Set the domain for the color scale based on groups
+		table.colorScale.domain(settings.groups.map(function(e){return e.key}))
+		
+		//layout the table
+		table.layout(canvas)
+		//table.header.init(canvas, settings)
+
+		//Initialize UI (remove previous if any)
+		table.controls.init(canvas, data, vars, settings)
+
+		//Initialize Event Listeners
+		table.eventListeners.rateFilter(canvas)
+		table.eventListeners.search(canvas, data, data, vars, settings)
+		table.eventListeners.customFilters(canvas, data, data, vars, settings)
+		table.eventListeners.diffToggle(canvas, data, data, vars, settings)
+		table.eventListeners.rowToggle(canvas, data, data, vars, settings)
+
+		//Draw the table (remove previous if any)
+		table.AETable.redraw(canvas, data, data, vars, settings)
+
 	},
 	//Set constants for use throughout table.js
 	colorScale: d3.scale.ordinal()
@@ -354,17 +340,17 @@ var table = {
 					table.AETable.toggleRows(canvas) 
 				})
 		},
-		customFilters:function(canvas, path, data, vars, settings){	
+		customFilters:function(canvas, data, data, vars, settings){	
 			var filterCustom = canvas.selectAll(".custom-filters ul li select");
 
 			//redraw table without bootstrap multiselect
 			filterCustom.on('change', function(){
-				table.AETable.redraw(canvas,path, data, vars, settings);
+				table.AETable.redraw(canvas,data, data, vars, settings);
 			});
 			
 		},
 
-		diffToggle:function(canvas, path, data, vars, settings){
+		diffToggle:function(canvas, data, data, vars, settings){
 			//Toggle Difference Column
 			canvas.select("a.toggleDiff").on("click",function(){
 				if(d3.select(this).classed("disabled")==false){
@@ -380,7 +366,7 @@ var table = {
 			})
 		},
 
-		rowToggle:function(canvas, path, data, vars, settings){
+		rowToggle:function(canvas, data, data, vars, settings){
 			canvas.select("a.toggleRows").on("click",function(){
 				if(d3.select(this).classed("disabled")==false){
 					if(d3.select(this).classed("show")){
@@ -399,7 +385,7 @@ var table = {
 			})
 		},
 
-		search: function(canvas, path, data,vars,settings){
+		search: function(canvas, data, data,vars,settings){
 			canvas.select("input.searchBar").on("change",function(d){
 				var searchTerm=d3.select(this).property("value").toLowerCase()
 				if(searchTerm.length>0){
@@ -484,7 +470,7 @@ var table = {
 		////////////////////////////////////////////////
 		//Clear the current table and draw a new one
 		////////////////////////////////////////////////
-		redraw: function(canvas, path, data, vars, settings){
+		redraw: function(canvas, data, data, vars, settings){
 			table.controls.search.clear(canvas) //Reset the search bar
 			table.AETable.wipe(canvas) //clear previous tables
 			var data_filtered = table.AETable.prepareData(canvas, data,vars,settings) //get the data ready
@@ -673,7 +659,7 @@ var table = {
 						.interpolate("linear-closed");
 					
 					diffpoints
-					.append("svg:path")
+					.append("svg:data")
 					    .attr("d", function(d) { 
 					    	leftpoints = [
 					    		{x:diff_scale(d.diff)   ,y:h/2+r},//bottom
@@ -689,7 +675,7 @@ var table = {
 					    .attr("stroke-opacity",0.3)
 
 					diffpoints
-					.append("svg:path")
+					.append("svg:data")
 					    .attr("d", function(d) { 
 					    	rightpoints = [
 					    		{x:diff_scale(d.diff)   ,y:h/2+r},//bottom
@@ -1080,7 +1066,7 @@ var table = {
 			///////////////////////////////////////////////
 			// Mouseover/Mouseout for difference diamonds
 			///////////////////////////////////////////////
-			canvas.selectAll("td.diffplot svg g path.diamond").on("mouseover",function(d){
+			canvas.selectAll("td.diffplot svg g data.diamond").on("mouseover",function(d){
 				currentRow=canvas.selectAll(".SummaryTable tbody tr").filter(function(e){
 					return e.values[0].values.major == d.major &&  e.values[0].values.minor == d.minor
 				});
@@ -1098,7 +1084,7 @@ var table = {
 
 			}).on("mouseout",function(d){
 				//restore the other points
-				canvas.selectAll("td.diffplot svg g").selectAll("path")
+				canvas.selectAll("td.diffplot svg g").selectAll("data")
 				.attr("fill-opacity",function(d){return (d.sig==1) ? 1 : 0.1})
 				.attr("stroke-opacity", 0.3)
 
