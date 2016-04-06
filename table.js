@@ -11,7 +11,7 @@ var table = {
 	init: function(canvas, path, vars, settings, onDataError){
 		//reset canvas as a d3 selection here, rather than in the initial call
 		canvas = d3.select(canvas);
-		
+
 		d3.csv(path, function(error, data){
 			/**error checking**/
 			function errorNote(msg){
@@ -67,14 +67,11 @@ var table = {
 			/*+++++++++++++++++*/
 
 			//sort the groups so that they match the final data
-			settings.groups.sort(function(a,b){
-				var diff=b.n-a.n;
-				return diff==0 ? a.key > b.key : diff
-			})
+			settings.groups.sort()
 
 			//Set the domain for the color scale based on groups
 			table.colorScale.domain(settings.groups.map(function(e){return e.key}))
-			
+
 			//layout the table
 			table.layout(canvas)
 			//table.header.init(canvas, settings)
@@ -112,7 +109,7 @@ var table = {
 	header:{
 		init: function(canvas, settings){
 			var header=canvas.select("div.navbar")
-			
+
 			//clear previous header
 			header.select("div.navbar-inner").remove()
 
@@ -122,7 +119,7 @@ var table = {
 			var studyInfo = inner.append("ul").attr("class","nav titles")
 			studyInfo.append("li").attr("class","divider-vertical")
 
-			//Fill Project 
+			//Fill Project
 			if(settings!==undefined && settings.header!==undefined){
 				if(settings.header.project){
 					var header = studyInfo.append("li")
@@ -136,11 +133,11 @@ var table = {
 					header.append("span")
 					.attr("class","headingtext")
 					.text(settings.header.project)
-					
+
 					studyInfo.append("li").attr("class","divider-vertical")
-				}		
+				}
 				//Fill Study
-	
+
 				if(settings.header.study){
 					var header = studyInfo.append("li").append("a")
 					.attr("class","brand")
@@ -148,7 +145,7 @@ var table = {
 					header.append("span")
 					.text("Study: ")
 					.attr("class","labeltext")
-					
+
 					header.append("span")
 					.attr("class","headingtext")
 					.text(settings.header.study)
@@ -171,7 +168,7 @@ var table = {
 				.text("Options ")
 					.append("b")
 					.attr("class","caret")
-				
+
 				var dropdownOptions=optionsDrop.append("ul")
 				.attr("class","dropdown-menu")
 
@@ -180,9 +177,9 @@ var table = {
 				.append("a")
 				.attr("class","toggleRows")
 				.classed("show", settings.defaults.prefTerms === "Show" ? false : true)
-		
+
 				//Column Toggle
-				var nGroups = settings["groups"].length 
+				var nGroups = settings["groups"].length
 				var toggleDiff=dropdownOptions.append("li")
 				.append("a")
 				.attr("class","toggleDiff")
@@ -212,7 +209,7 @@ var table = {
 
 			//remove previous controls (if any)
 			controls.selectAll("*").remove()
-			
+
 			//layout the controls form
 			var rateFilter = controls.append("div").attr("class","rate-filter")
 			var optionsFilter = controls.append("div").attr("class","options-filter pull-right")
@@ -233,7 +230,7 @@ var table = {
 
 		filters: {
 			rate: {
-				init:function(selector){ 
+				init:function(selector){
 					//remove previous version (if any)
 					selector.select("span.filterLabel").remove()
 					selector.select("div.rateFilterDiv").remove()
@@ -272,7 +269,7 @@ var table = {
 
 					//Remove previous filters (if any)
 					selector.selectAll("ul.nav").remove()
-					
+
 					//Add filters for each selected variable
 					var filterCustomList=selector.append("ul").attr("class","nav")
 					var filterCustom=filterCustomList.selectAll("li")
@@ -283,7 +280,7 @@ var table = {
 						.append("select")
 							.attr("multiple",true)
 
-					//Add data-driven filter options 
+					//Add data-driven filter options
 					var filterItems=filterCustom.selectAll("option")
 					.data(function(d){return d.values.filter(function(d){return ["NA",""," "].indexOf(d)===-1})})
 					.enter()
@@ -297,7 +294,7 @@ var table = {
 				set: function(){}
 			}
 		},
-		
+
 		search:{
 			init:function(selector){
 				//clear previous search bar (if any)
@@ -327,7 +324,7 @@ var table = {
 				canvas.select("input.searchBar").property("value","")
 
 				//Remove search highlighting
-				canvas.selectAll("div.SummaryTable table tbody tr.search td.rowLabel").html(function(d){return d.values[0].values["label"]}) 
+				canvas.selectAll("div.SummaryTable table tbody tr.search td.rowLabel").html(function(d){return d.values[0].values["label"]})
 
 				//hide the "clear-search" icon and label
 				canvas.select("span.search-label").classed("hidden",true)
@@ -354,7 +351,7 @@ var table = {
 				.text("Options ")
 					.append("b")
 					.attr("class","caret")
-				
+
 				var dropdownOptions=optionsDrop.append("ul")
 				.attr("class","dropdown-menu")
 
@@ -363,9 +360,9 @@ var table = {
 				.append("a")
 				.attr("class","toggleRows")
 				.classed("show", settings.defaults.prefTerms === "Show" ? false : true)
-		
+
 				//Column Toggle
-				var nGroups = settings["groups"].length 
+				var nGroups = settings["groups"].length
 				var toggleDiff=dropdownOptions.append("li")
 				.append("a")
 				.attr("class","toggleDiff")
@@ -391,18 +388,18 @@ var table = {
 	eventListeners: {
 		rateFilter:function(canvas){
 				var rateFilter = canvas.select("input.rateFilter")
-				rateFilter.on("change",function(d){	
-					
+				rateFilter.on("change",function(d){
+
 					//remove all old filter flags
 					canvas.selectAll(".SummaryTable table tbody tr").classed("filter",false)
 
 					//add new filter flags as needed
-					table.AETable.toggleRows(canvas) 
+					table.AETable.toggleRows(canvas)
 				})
 		},
-		customFilters:function(canvas, path, data, vars, settings){	
+		customFilters:function(canvas, path, data, vars, settings){
 			var filterCustom = canvas.selectAll(".custom-filters ul li select")
-			
+
 			//initialize bootstrap multiselect
 			filterCustom.each(function(d){
 				$(".custom-"+d.key+" select").multiselect({ //BugNote - Have to use jquery here for the multiselect plugin, but this *might* create a bug when 2 tables are on a page since selections here aren't canvas-specific
@@ -411,14 +408,14 @@ var table = {
 						var currentLabel=filterLabels.filter(function(e){return e.key==d.key})[0]
 						return currentLabel!== undefined ? currentLabel.label + " <b class='caret'></b>" : d.key + " <b class='caret'></b>";
 					},
-					onChange:function(element, checked){	
+					onChange:function(element, checked){
 						var numOptions = canvas.selectAll(".custom-"+d.key+" select option")[0].length //number total items
 						var numSelected = canvas.selectAll(".custom-"+d.key+" select option[selected='selected']")[0].length //number of selected items
 						canvas.selectAll(".custom-"+d.key).classed("active", false); //override some bootstrap bullsh*t
 						canvas.selectAll(".custom-"+d.key+" div.btn-group button.multiselect").classed("btn-inverse",numSelected < numOptions)
 						table.AETable.redraw(canvas,path, data, vars, settings)
 					}
-				})	
+				})
 			})
 		},
 
@@ -428,11 +425,11 @@ var table = {
 				if(d3.select(this).classed("disabled")==false){
 					if(d3.select(this).classed("show")){
 						d3.select(this).classed("show", false).text("Hide difference column");
-						canvas.selectAll(".SummaryTable .diffplot").classed("hidden",false);	
+						canvas.selectAll(".SummaryTable .diffplot").classed("hidden",false);
 					}
 					else{
 						d3.select(this).classed("show", true).text("Show difference column");
-						canvas.selectAll(".SummaryTable .diffplot").classed("hidden",true);	
+						canvas.selectAll(".SummaryTable .diffplot").classed("hidden",true);
 					}
 				}
 			})
@@ -445,7 +442,7 @@ var table = {
 						d3.select(this).classed("show", false).text("Hide all nested rows");
 						canvas.selectAll(".SummaryTable table tbody").classed("minorHidden",false)
 						canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span.icon i")
-							.attr("class","icon-chevron-down glyphicon glyphicon-chevron-down")	
+							.attr("class","icon-chevron-down glyphicon glyphicon-chevron-down")
 					}
 					else{
 						d3.select(this).classed("show", true).text("Show all nested rows");
@@ -474,7 +471,7 @@ var table = {
 					canvas.select("div.SummaryTable").classed("search",false)
 					canvas.selectAll("div.SummaryTable table tbody").classed("search",false)
 					canvas.selectAll("div.SummaryTable table tbody tr").classed("search",false)
-					
+
 					//show the "clear-search" icon
 					canvas.select("span.search-label").classed("hidden",false)
 
@@ -490,13 +487,13 @@ var table = {
 						bodyCurrent.selectAll("tr").each(function(rowElement){
 							var rowCurrent = d3.select(this)
 							var rowData = rowCurrent.data()[0]
-							var rowText = rowCurrent.classed("major") ? bodyData.key.toLowerCase() : rowData.key.toLowerCase() 
+							var rowText = rowCurrent.classed("major") ? bodyData.key.toLowerCase() : rowData.key.toLowerCase()
 							if(rowText.search(searchTerm)>=0){
 
 								bodyCurrent.classed("search",true)
 								rowCurrent.classed("search",true)
 
-								//highlight the search text in the table cell. 
+								//highlight the search text in the table cell.
 								var currentText = rowCurrent.select("td.rowLabel").html()
 								var searchStart = currentText.toLowerCase().search(searchTerm)
 								var searchStop  = searchStart + searchTerm.length
@@ -524,13 +521,13 @@ var table = {
 						//reset the filters and row toggle
 						table.AETable.toggleRows(canvas) //show/hide table rows as needed
 					}
-					
+
 				}else{
 					table.controls.search.clear(canvas)
 				}
 
 
-			})		
+			})
 			canvas.select("i.clear-search").on("click",function(){
 				table.controls.search.clear(canvas)
 			})
@@ -593,7 +590,7 @@ var table = {
 			//Only keep rows from the selected groups
 			var groupNames=settings.groups.map(function(e){return e.key})                    //get list of group names
 			var sub=data.filter(function(e){return groupNames.indexOf(e[vars["group"]])>=0}) //filter out unselected groups
-			
+
 			////////////////////////////////////////////////////////////////////////////////
 			//Drop the placeholder rows for participants with no AEs from the data set
 			// NOTE: We can make this a lot cleaner if/when we move to loading 2 separate data sets.
@@ -605,7 +602,7 @@ var table = {
 			/////////////////////////////////////////////////////
 			// Filter the data based on the current selections
 			/////////////////////////////////////////////////////
-			
+
 			canvas.selectAll("li.filterCustom select")
 				.each(function(dVar){
 					currentvar=dVar.key
@@ -621,7 +618,7 @@ var table = {
 			return sub;
 		},
 		///////////////////////////////////////////////////////////////
-		// Call functions to collapse the raw data using the selected 
+		// Call functions to collapse the raw data using the selected
 		// categories and create the summary table
 		///////////////////////////////////////////////////////////////
 		init: function(canvas, data, vars, settings){
@@ -656,7 +653,7 @@ var table = {
 
 				// Cell with Label (System Organ Class or Preferred term name)
 				d3.select(this).append("td").attr("class","rowLabel")
-				.text(function(rowvalues){return rowvalues.values[0].values["label"]}) 
+				.text(function(rowvalues){return rowvalues.values[0].values["label"]})
 
 				// Cell with Label (System Organ Class or Preferred term name)
 				d3.select(this).append("td").attr("class","showDetails")
@@ -693,7 +690,7 @@ var table = {
 					.attr("r",r-2)
 					.attr("fill",function(d){return table.colorScale(d.values["group"])})
 
-				//Cells with Difference plots 
+				//Cells with Difference plots
 				if(settings.groups.length>1){
 
 					//add svg for difference plot
@@ -722,16 +719,16 @@ var table = {
 						.x(function(d) { return d.x; })
 						.y(function(d) { return d.y; })
 						.interpolate("linear-closed");
-					
+
 					diffpoints
 					.append("svg:path")
-					    .attr("d", function(d) { 
+					    .attr("d", function(d) {
 					    	leftpoints = [
 					    		{x:diff_scale(d.diff)   ,y:h/2+r},//bottom
 					    		{x:diff_scale(d.diff)-r ,y:h/2},//middle-left
 					    		{x:diff_scale(d.diff)   ,y:h/2-r},//top
 					    		];
-					    	return triangle(leftpoints); 
+					    	return triangle(leftpoints);
 					    })
 					    .attr("class","diamond")
 					    .attr("fill-opacity",function(d){return (d.sig==1) ? 1 : 0.1})
@@ -741,13 +738,13 @@ var table = {
 
 					diffpoints
 					.append("svg:path")
-					    .attr("d", function(d) { 
+					    .attr("d", function(d) {
 					    	rightpoints = [
 					    		{x:diff_scale(d.diff)   ,y:h/2+r},//bottom
 					    		{x:diff_scale(d.diff)+r ,y:h/2},//middle-right
 					    		{x:diff_scale(d.diff)   ,y:h/2-r},//top
 					    		];
-					    	return triangle(rightpoints); 
+					    	return triangle(rightpoints);
 					    })
 					    .attr("class","diamond")
 					    .attr("fill-opacity",function(d){return (d.sig==1) ? 1 : 0.1})
@@ -802,7 +799,7 @@ var table = {
 				var collapse = function(nested){
 					//Parse nested object into a flat object
 					var flat = nested.map(function(soc){
-						var allRows=soc.values.map(function(e){	
+						var allRows=soc.values.map(function(e){
 							var e_flat = {}
 							e_flat.cat_main='"'+e.values[0].values.major+'"';
 							e_flat.cat_sub ='"'+e.values[0].values.minor+'"';
@@ -835,7 +832,7 @@ var table = {
 					.sort(function(a,b){return a.cat_sub < b.cat_sub ? -1 : 1})
 					.sort(function(a,b){return a.cat_main < b.cat_main ? -1 : 1})
 
-				console.log("validating")	
+				console.log("validating")
 				console.log(full_v)
 
 				//Function from http://stackoverflow.com/questions/4130849/convert-json-format-to-csv-format-for-ms-excel
@@ -847,7 +844,7 @@ var table = {
 			        for (var index in array[0]) {
 			                line1 += index + ',';
 			            }
-			        line1.slice(0,line1.Length-1); 
+			        line1.slice(0,line1.Length-1);
 			        str += line1 + '\r\n';
 
 			        //now output the actual data
@@ -863,7 +860,7 @@ var table = {
 			            //    line += '"' + array[i][index] + '",';
 			            // }
 
-			            line.slice(0,line.Length-1); 
+			            line.slice(0,line.Length-1);
 			            str += line + '\r\n';
 			        }
 			        canvas.append("a")
@@ -877,7 +874,7 @@ var table = {
 
 			////////////////////////////////////
 			// Draw the summary table headers //
-			////////////////////////////////////			
+			////////////////////////////////////
 			tab=canvas.select(".SummaryTable").append("table")
 			n_groups=settings.groups.length
 			header1=tab.append("thead").append("tr")
@@ -888,7 +885,7 @@ var table = {
 			//Category
 			header1.append("th")
 				.attr("rowspan",2)
-				.text("Category")	
+				.text("Category")
 
 			//header for "control" column
 			header1.append("th").attr("rowspan",2)
@@ -914,11 +911,11 @@ var table = {
 			if(n_groups>1){
 				header1.append('th')
 				.text("Difference Between Groups")
-				.attr("class","diffplot")	
+				.attr("class","diffplot")
 				header2.append("th")
-				.attr("class","diffplot axis")	
+				.attr("class","diffplot axis")
 			}
-			
+
 			/////////////////////////////////////////////
 			// Set up layout and Scales for the plots //
 			////////////////////////////////////////////
@@ -931,14 +928,14 @@ var table = {
 			    margin={left:40,right:40},
 			    diffMargin={left:5,right:5},
 				r=7;
-				
+
 			//Prevalence scales
 			//get the range of the values - Probably a better way to do this manipulation?
 		    allPercents=d3.merge(
 		    	data_major.map(function(major){
 		    		return d3.merge(major.values.map(function(minor){
 		    			return  d3.merge(minor.values.map(function(group){
-		    				return group.values.per
+		    				return [group.values.per]
 		    			}))
 		    		}))
 		    	})
@@ -947,8 +944,8 @@ var table = {
 			var percent_scale = d3.scale.linear()
 				.range([margin.left,w-margin.right])
 				.domain([0,d3.max(allPercents)]);
-			
-			
+
+
 			// Add Prevalence Axis
 			var percentAxis = d3.svg.axis()
 				.scale(percent_scale)
@@ -959,14 +956,14 @@ var table = {
 				.attr("height","34px")
 				.attr("width",w)
 				.append("svg:g")
-					.attr("transform", "translate(0,34)") 		
+					.attr("transform", "translate(0,34)")
 					.attr("class", "axis percent")
 		    		.call(percentAxis)
-			
 
-			//Difference Scale 
+
+			//Difference Scale
 			if(settings.groups.length>1){	//Only run if there are 2+ groups
-				//Difference Scale 
+				//Difference Scale
 			    allDiffs=d3.merge(
 			    	data_major.map(function(major){
 			    		return d3.merge(major.values.map(function(minor){
@@ -981,16 +978,18 @@ var table = {
 			    	data_minor.map(function(m){
 				    	return d3.merge(m.values.map(function(m2){
 				    		return d3.merge(
-				    			m2.differences.map(function(m3){return d3.merge([m3.upper, m3.lower]) })
+				    			m2.differences.map(function(m3){
+                                    return [m3.upper, m3.lower]
+                                })
 				    		)
 				    	}))
-				    	
+
 				    })
 				);
 
 				var diff_scale= d3.scale.linear()
 					.range([diffMargin.left,w-diffMargin.right])
-					.domain(d3.extent(d3.merge(minorDiffs,allDiffs)) ); 		
+					.domain(d3.extent(d3.merge([minorDiffs,allDiffs])));
 
 				//Difference Axis
 				var diffAxis = d3.svg.axis()
@@ -1002,7 +1001,7 @@ var table = {
 					.attr("height","34px")
 					.attr("width",w)
 					.append("svg:g")
-						.attr("transform", "translate(0,34)") 		
+						.attr("transform", "translate(0,34)")
 						.attr("class", "axis")
 			    		.attr("class","percent")
 			    		.call(diffAxis)
@@ -1029,33 +1028,40 @@ var table = {
 				.enter()
 				.append("tbody")
 				.attr("class","minorHidden")
-				.attr("class",function(d){return "major-"+d.key.replace(/[^A-Za-z0-9]/g, '')}) //remove non character items
+				.attr("class",function(d){
+                    return "major-"+d.key.replace(/[^A-Za-z0-9]/g, '')
+                }) //remove non character items
 
 			//Append a row summarizing all pref terms for each Major category
 			major_rows=major_groups.selectAll("tr")
-				.data(function(d){return d.values},function(datum){return datum.key})   //data is the "all" row 
+				.data(function(d){
+                    return d.values
+                },
+                function(datum){
+                    return datum.key
+                })   //data is the "all" row
 				.enter()
 				.append("tr")
 					.attr("class","major")
 					.each(fillRow)
 
-			//Now Append rows for each Minor Category	
+			//Now Append rows for each Minor Category
 			//Important note: We are violating the typical D3 pattern a bit here in that that we do *not* want to .exit().remove() the rows that we already have ...
-			//link the Preferred Term Data 
+			//link the Preferred Term Data
 			major_groups=tab.selectAll("tbody")
 			.data(data_minor,function(d){return d.key})
-			
+
 			minor_rows=major_groups.selectAll("tr")
-			.data(function(d){return d.values},function(datum){return datum.key})   //data is the "all" row 
+			.data(function(d){return d.values},function(datum){return datum.key})   //data is the "all" row
 			.enter()
 			.append("tr")
 				.attr("class","minor")
-				.each(fillRow)	
+				.each(fillRow)
 
 			//add a footer for overall rates
 			tab.append("tfoot")
 				.selectAll("tr")
-				.data(data_any.length>0 ? data_any[0].values : [])				
+				.data(data_any.length>0 ? data_any[0].values : [])
 				.enter()
 				.append("tr")
 					.each(fillRow)
@@ -1082,12 +1088,12 @@ var table = {
 
 			function annoteDetails(row, group, position){
 				//add color for the selected group on all rows
-				allPoints=canvas.selectAll("td.prevplot svg g.points").filter(function(e){return e.key==group})		
+				allPoints=canvas.selectAll("td.prevplot svg g.points").filter(function(e){return e.key==group})
 				allPoints.select("circle")
 				.attr("fill",function(d){return table.colorScale(d.key)})
 				.attr("opacity",1)
 
-				allVals=canvas.selectAll("td.values").filter(function(e){return e.key==group})		
+				allVals=canvas.selectAll("td.values").filter(function(e){return e.key==group})
 				allVals.style("color",function(d){return table.colorScale(d.key)})
 
 				header=canvas.selectAll("th.values").filter(function(e){return e.key==group})
@@ -1100,11 +1106,11 @@ var table = {
 
 				row.select("td.prevplot").selectAll("g.points").filter(function(e){return e.key==group})
 				.append("svg:text")
-				.attr("x", function(d){return percent_scale(d.values["per"]) })   
-				.attr("dx", function(d){return position=="right" ? "1em" : "-1em"})   
+				.attr("x", function(d){return percent_scale(d.values["per"]) })
+				.attr("dx", function(d){return position=="right" ? "1em" : "-1em"})
 				.attr("y", h/2+5)
-				.attr("fill",function(d){return table.colorScale(d.values["group"])}) 
-				.attr("text-anchor", function(d){return position=="right" ? "start" : "end"})  
+				.attr("fill",function(d){return table.colorScale(d.values["group"])})
+				.attr("text-anchor", function(d){return position=="right" ? "start" : "end"})
 				.attr("class","annote")
 				.attr("font-size","10px")
 				.style("text-shadow", "1px 1px #fff")
@@ -1117,8 +1123,8 @@ var table = {
 			canvas.selectAll(".summaryTable th.values").on("mouseover",function(d){
 				//change colors for points and values to gray
 				canvas.selectAll("td.prevplot svg g.points circle").attr("fill","#555").attr("opacity",0.1)
-				canvas.selectAll(".values").style("color","#ccc")	
-				
+				canvas.selectAll(".values").style("color","#ccc")
+
 				//highlight the selected group
 				annoteDetails(canvas.selectAll(".SummaryTable tr"), d.key ,"right")
 			}).on("mouseout",function(d){
@@ -1177,10 +1183,10 @@ var table = {
 				d3.select(this).selectAll("span.icon.details").classed("transparent",true)
 			})
 
-			// Expand/collapse a section 
+			// Expand/collapse a section
 			canvas.selectAll("td.controls i").on("click",function(d){
 				var current=$(this).parents("tbody")
-				var toggle=!(current.hasClass("minorHidden")) // True if we want to show the minor rows, false if we want to remove them. 
+				var toggle=!(current.hasClass("minorHidden")) // True if we want to show the minor rows, false if we want to remove them.
 				if(toggle){
 					current.addClass("minorHidden")
 				}else{
@@ -1194,11 +1200,11 @@ var table = {
 			///////////////////////////
 			canvas.selectAll("i.icon-list").on("click",function(d){
 				//Update classes (row visibility handeled via css)
-				toggle=!(canvas.select(".SummaryTable table").classed("summary")) // True if we want to draw the participant table, false if we want to remove it. 
+				toggle=!(canvas.select(".SummaryTable table").classed("summary")) // True if we want to draw the participant table, false if we want to remove it.
 				canvas.select(".SummaryTable table").classed("summary",toggle)
-				canvas.select("div.controls").classed("hidden",toggle)				
+				canvas.select("div.controls").classed("hidden",toggle)
 
-				//create/remove the participant level table		
+				//create/remove the participant level table
 				if(toggle){
 					major=d.values[0].values["major"]
 					minor=d.values[0].values["minor"]
@@ -1214,7 +1220,7 @@ var table = {
 				}
 			})
 		}, //end AETable.init()
-	
+
 
 		eventListeners: function(data, vars, settings){
 		},
@@ -1240,7 +1246,7 @@ var table = {
 			canvas.selectAll("div.SummaryTable table tbody").each(function(d){
 				var allRows = d3.select(this).selectAll("tr")
 				var filterRows = allRows.filter(function(d){
-					var maxVal= d3.max(d.values.map(function(element){return element.values.per}))	
+					var maxVal= d3.max(d.values.map(function(element){return element.values.per}))
 					return maxVal < filterVal
 				})
 				filterRows.classed("filter","true")
@@ -1278,13 +1284,13 @@ var table = {
 		})
 
 		canvas.select("div.table-wrapper").append("div").attr("class","DetailTable");//.attr("class","span10")
-		
+
 		//button to close return to standard view
 		closeButton=canvas.select("div.DetailTable").append("button")
 			.attr("class","closeDetailTable btn btn-primary");
 
 		closeButton.html("<i class='icon-backward icon-white glyphicon glyphicon-backward'></i>    Return to the Summary View");
-		
+
 		closeButton.on("click",function(){
 			canvas.select(".SummaryTable table").classed("summary",false);
 			canvas.select("div.controls").classed("hidden",false);
@@ -1307,9 +1313,9 @@ var table = {
 					var current = {}
 					colList.forEach(function(colName){current[colName]=e[colName]})
 					return current;
-				}) 
+				})
 				var rowStart = 0
-				var rowCount = data.length 
+				var rowCount = data.length
 				var subRows = subCols.slice(rowStart, rowStart+rowCount)
 				return subRows
 			};
@@ -1317,7 +1323,7 @@ var table = {
 			draw(canvas,sub);
 			function draw(canvas, data){
 				//add table
-				var table = canvas.select("div.ig-basicTable").insert("table", "button").attr("class","table").datum(settings) 
+				var table = canvas.select("div.ig-basicTable").insert("table", "button").attr("class","table").datum(settings)
 
 				headerRow = table.append("thead").append("tr")
 				headerRow.selectAll("th").data(d3.keys(data[0])).enter().append("th").html(function(d){return d});
@@ -1336,7 +1342,7 @@ var table = {
 				$(table.node()).dataTable();
 			};
 		}
-		basicTable(".DetailTable", details);	
+		basicTable(".DetailTable", details);
 	}
 }
 
@@ -1351,10 +1357,10 @@ util = {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// cross(data, major, minor, group)	- Creates an object that is ready to be plotted in AETable(). 		//
 	// Function that returns a full nested major*minor*group structure **including groups with 0 incidence**//
-	//                                          
-	// Note: this is still a bit messy and could use some more documentation, but it seems to work ... 
 	//
-	// Based on the example outlined by Mike Bostock here: 
+	// Note: this is still a bit messy and could use some more documentation, but it seems to work ...
+	//
+	// Based on the example outlined by Mike Bostock here:
 	// https://groups.google.com/d/topic/d3-js/0zNu-oVVtwk/discussion
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1372,17 +1378,17 @@ util = {
 			n=ids.length;
 			//Also record the total number of events
 			n_recs=d.length;
-			
+
 			//get the total number of people in the current treatment group using the groups arguement
 			currentgroup=groups.filter(function(e){return (e.key==d[0][group])})
 			tot=currentgroup[0].n;
 			per=Math.round(n/tot*1000)/10; //simple prevelance caluclation
 
-			//get the rest of the needed information from the raw data		
+			//get the rest of the needed information from the raw data
 			current_major= major=="All" ? "All" : d[0][major]
 			current_minor= minor=="All" ? "All" : d[0][minor]
 			current_group= d[0][group];
-			
+
 			current_obj={
 				major:current_major,
 				minor:current_minor,
@@ -1392,18 +1398,18 @@ util = {
 				n:n,
 				tot:tot,
 				per:per
-				} 
+				}
 			return(current_obj)
 
 			})
 		.entries(data);
 
-		//Now fill in the gaps for categories (Major*Minor) where there are groups with 0 incidence. 
-		data_nested.forEach(function(eMajor){ 
+		//Now fill in the gaps for categories (Major*Minor) where there are groups with 0 incidence.
+		data_nested.forEach(function(eMajor){
 			eMajor.values.forEach(function(eMinor){
 				currentGroupList=eMinor.values.map(function(e){return e.key})
-				groupNames.forEach(function(eGroup,groupIndex){			
-					//Check to see if each group level has an object, if it doesn't, splice in an element fill of 0s				
+				groupNames.forEach(function(eGroup,groupIndex){
+					//Check to see if each group level has an object, if it doesn't, splice in an element fill of 0s
 					if(currentGroupList.indexOf(eGroup)==-1){
 						//get group size
 						currentgroup=groups.filter(function(e){return (e.key==eGroup)})
@@ -1424,10 +1430,12 @@ util = {
 						}
 						eMinor.values.push(newObj)
 						//eMinor.values.splice(groupIndex,0,newObj)
-						
+
 					}
 				})
 			eMinor.values.sort(function(a,b){
+                return  groups.map(function(group) { return group.key; }).indexOf(a.key) -
+                        groups.map(function(group) { return group.key; }).indexOf(b.key);
 				diff=b.values.tot-a.values.tot
 				return diff==0 ? a.key > b.key : diff
 				})
@@ -1492,17 +1500,17 @@ util = {
 				})
 			})
 		}
-		return data; 
+		return data;
 	},
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Various Sort functions
 	//////////////////////////////////////////////////////////////////////////////////
 	//Alphabetical
-	sort: { 
+	sort: {
 		//Max Rate
 		maxPer: function(a,b){
-			max_a = 
+			max_a =
 					a.values.map(function(minor){
 						return d3.max(
 							minor.values.map(function(groups){
@@ -1510,7 +1518,7 @@ util = {
 							})
 						)
 					})[0]
-			max_b = 
+			max_b =
 
 			b.values.map(function(minor){
 				return d3.max(
@@ -1518,8 +1526,8 @@ util = {
 						return groups.values.per
 					})
 				)
-			})[0]	
+			})[0]
 			return max_a < max_b ? 1 : max_a > max_b ?-1 : 0;
 		}
-	}	
+	}
 }
