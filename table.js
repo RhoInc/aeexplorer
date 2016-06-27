@@ -61,10 +61,7 @@ var table = {
 		})
 			
 		//sort the groups so that they match the final data
-		settings.groups.sort(function(a,b){
-			var diff=b.n-a.n;
-			return diff==0 ? a.key > b.key : diff
-		})
+		settings.groups.sort()
 
 		//Set the domain for the color scale based on groups
 		table.colorScale.domain(settings.groups.map(function(e){return e.key}))
