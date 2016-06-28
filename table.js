@@ -273,8 +273,9 @@ var table = {
 					.attr("class","search-label label hidden")
 				searchLabel.append("span")
 					.attr("class","search-count")
-				searchLabel.append("i")
-					.attr("class","clear-search icon-remove icon-white fa fa-times")
+				searchLabel.append("span")
+					.attr("class","clear-search")
+					.html("&#9747;")
 				selector.append("input")
 					.attr("type","text")
 					.attr("class","searchBar search-query input-medium")
@@ -458,7 +459,7 @@ var table = {
 
 
 			})		
-			canvas.select("i.clear-search").on("click",function(){
+			canvas.select("span.clear-search").on("click",function(){
 				table.controls.search.clear(canvas)
 			})
 		}

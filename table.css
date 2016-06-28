@@ -80,6 +80,14 @@ div.ig-aetable span.search-label{
 	margin-right:5px;
 }
 
+div.ig-aetable span.search-label span.clear-search{
+	color:red;
+	padding-left:5px;
+	cursor:pointer;
+}
+
+
+
 div.ig-aetable .navbar-search .search-query{
 	float:right;
 	line-height: 1.3em;
