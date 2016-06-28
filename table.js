@@ -77,8 +77,7 @@ var table = {
 		table.eventListeners.rateFilter(canvas)
 		table.eventListeners.search(canvas, data, data, vars, settings)
 		table.eventListeners.customFilters(canvas, data, data, vars, settings)
-		table.eventListeners.diffToggle(canvas, data, data, vars, settings)
-		table.eventListeners.rowToggle(canvas, data, data, vars, settings)
+
 
 		//Draw the table (remove previous if any)
 		table.AETable.redraw(canvas, data, data, vars, settings)
@@ -94,79 +93,8 @@ var table = {
 		var wrapper = canvas
 		.append("div").attr("class","ig-aetable row-fluid")
 		.append("div").attr("class","table-wrapper")
-		//wrapper.append("div").attr("class","navbar")
 		wrapper.append("div").attr("class","controls form-inline row-fluid")
 		wrapper.append("div").attr("class","SummaryTable")
-	},
-
-	//Draw the header based on the titles specified in settings - currently this component has been disabled
-	header:{
-		init: function(canvas, settings){
-			var header=canvas.select("div.navbar")
-			
-			//clear previous header
-			header.select("div.navbar-inner").remove()
-
-			//Draw new header
-			var inner = header.append("div").attr("class","navbar-inner")
-			inner.append("a").attr("class","brand").text(table.pageTitle)
-			var studyInfo = inner.append("ul").attr("class","nav titles")
-			studyInfo.append("li").attr("class","divider-vertical")
-
-			//Fill Project 
-			if(settings!==undefined && settings.header!==undefined){
-				if(settings.header.project){
-					var header = studyInfo.append("li")
-					.append("a")
-					.attr("class","brand")
-
-					header.append("span")
-					.text("Project: ")
-					.attr("class","labeltext")
-
-					header.append("span")
-					.attr("class","headingtext")
-					.text(settings.header.project)
-					
-					studyInfo.append("li").attr("class","divider-vertical")
-				}		
-				//Fill Study
-	
-				if(settings.header.study){
-					var header = studyInfo.append("li").append("a")
-					.attr("class","brand")
-
-					header.append("span")
-					.text("Study: ")
-					.attr("class","labeltext")
-					
-					header.append("span")
-					.attr("class","headingtext")
-					.text(settings.header.study)
-					studyInfo.append("li").attr("class","divider-vertical")
-				}
-			}
-			//Create options button
-			table.header.options.init(inner,settings)
-		},
-		options: {
-			init:function(selector, settings){
-				selector.select("div.optionsButton").remove()
-
-				//set initial values for row/column toggle
-				table.header.options.set(selector,settings)
-			},
-			get: function(){},
-			set: function(canvas, settings){
-				//set Row Toggle
-				canvas.select("a.toggleRows")
-				.text(settings.defaults.prefTerms=="Hide"?"Show all nested rows":"Hide All nested rows")
-
-				//set Diff Column
-				canvas.select("a.toggleDiff")
-				.text(settings.defaults.diffCol=="Hide"?"Show difference column":"Hide difference Column")
-			},
-		},
 	},
 
 	controls: {
@@ -179,7 +107,6 @@ var table = {
 			
 			//layout the controls form
 			var rateFilter = controls.append("div").attr("class","rate-filter")
-			var optionsFilter = controls.append("div").attr("class","options-filter pull-right")
 			var searchBox = controls.append("form")
 			.attr("class","searchForm navbar-search pull-right")
 			.attr("onsubmit","return false;")
@@ -187,7 +114,6 @@ var table = {
 
 			//draw UI components
 			table.controls.filters.rate.init(rateFilter)
-			table.controls.options.init(optionsFilter, settings)
 			table.controls.filters.custom.init(customFilters, data,vars,settings)
 			table.controls.search.init(searchBox)
 
@@ -305,24 +231,6 @@ var table = {
 				table.AETable.toggleRows(canvas) //show/hide table rows as needed
 			}
 		},
-		options: {
-			init:function(selector, settings){
-				selector.select("div.optionsButton").remove()
-
-				//set initial values for row/column toggle
-				table.header.options.set(selector,settings)
-			},
-			get: function(){},
-			set: function(canvas, settings){
-				//set Row Toggle
-				canvas.select("a.toggleRows")
-				.text(settings.defaults.prefTerms=="Hide"?"Show all nested rows":"Hide All nested rows")
-
-				//set Diff Column
-				canvas.select("a.toggleDiff")
-				.text(settings.defaults.diffCol=="Hide"?"Show difference column":"Hide difference Column")
-			},
-		}
 	}, //end Controls{}
 
 	eventListeners: {
@@ -345,41 +253,6 @@ var table = {
 				table.AETable.redraw(canvas,data, data, vars, settings);
 			});
 			
-		},
-
-		diffToggle:function(canvas, data, data, vars, settings){
-			//Toggle Difference Column
-			canvas.select("a.toggleDiff").on("click",function(){
-				if(d3.select(this).classed("disabled")==false){
-					if(d3.select(this).classed("show")){
-						d3.select(this).classed("show", false).text("Hide difference column");
-						canvas.selectAll(".SummaryTable .diffplot").classed("hidden",false);	
-					}
-					else{
-						d3.select(this).classed("show", true).text("Show difference column");
-						canvas.selectAll(".SummaryTable .diffplot").classed("hidden",true);	
-					}
-				}
-			})
-		},
-
-		rowToggle:function(canvas, data, data, vars, settings){
-			canvas.select("a.toggleRows").on("click",function(){
-				if(d3.select(this).classed("disabled")==false){
-					if(d3.select(this).classed("show")){
-						d3.select(this).classed("show", false).text("Hide all nested rows");
-						canvas.selectAll(".SummaryTable table tbody").classed("minorHidden",false)
-						canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span.icon i")
-							.attr("class","icon-chevron-down fa fa-chevron-down")	
-					}
-					else{
-						d3.select(this).classed("show", true).text("Show all nested rows");
-						canvas.selectAll(".SummaryTable table tbody").classed("minorHidden",true)
-						canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span.icon i")
-							.attr("class","icon-chevron-right fa fa-chevron-right")
-					}
-				}
-			})
 		},
 
 		search: function(canvas, data, data,vars,settings){
