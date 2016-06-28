@@ -203,15 +203,14 @@ var table = {
 					selector.select("div.rateFilterDiv").remove()
 
 					//Add new rate filter
-					selector.append("span").attr("class","sectionhead").text("Filter by Prevalence:")
+					selector.append("span").html("Prevalence &#8805;&nbsp;")
 
 					var filterRate=selector.append("div")
-					.attr("class","input-prepend input-append input-medium rateFilterDiv")
-					filterRate.append("span").attr("class","add-on before").html("&#8805;")
+					.attr("class","rateFilterDiv")
 					filterRate.append("input")
-						.attr("class","appendedPrependedInput rateFilter")
+						.attr("class","rateFilter")
 						.attr("type","text")
-					filterRate.append("span").attr("class","add-on after").text("%")
+					selector.append("span").text("%")
 				},
 				get: function(){},
 				set: function(canvas, settings){

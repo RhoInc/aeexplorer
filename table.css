@@ -1,9 +1,6 @@
 /**************************************/
 /***** Controls and Table Layout ******/
 /**************************************/
-div.ig-aetable .hidden{
-	display: none;
-}
 
 /***Navbar***/
 
@@ -73,27 +70,8 @@ div.ig-aetable .controls .rate-filter input{
 	padding: 3px;
 	border: 1px solid #ccc;
 }
-div.ig-aetable .controls .rate-filter span.add-on{
-	height: auto;
-	float: left;
-	display: inline-block;
-	padding: 3px;
-	background: #eee;
-	text-align: center;
-	text-shadow: 0 1px 0 #fff;
-	border: 1px solid #ccc;
-}
-div.ig-aetable .controls .rate-filter span.add-on.before{
-	margin-right: -1px;
-	-webkit-border-radius: 4px 0 0 4px;
-	-moz-border-radius: 4px 0 0 4px;
-	border-radius: 4px 0 0 4px;
-}
-div.ig-aetable .controls .rate-filter span.add-on.after{
-	margin-left: -1px;
-	-webkit-border-radius: 0 4px 4px 0;
-	-moz-border-radius: 0 4px 4px 0;
-	border-radius: 0 4px 4px 0;
+div.ig-aetable .controls .rate-filter span{
+ 	vertical-align: middle
 }
 
 div.ig-aetable span.search-label{
@@ -101,6 +79,7 @@ div.ig-aetable span.search-label{
 }
 
 div.ig-aetable .navbar-search .search-query{
+	float:right;
 	line-height: 1.3em;
 }
 
@@ -108,6 +87,9 @@ div.ig-aetable .navbar-search .search-query{
 /***** Summary Table Formatting ******/
 /*************************************/
 
+div.ig-aetable .SummaryTable table{
+	border-collapse:collapse;
+}
 div.ig-aetable .SummaryTable tr td{
 	text-align:left;
 	padding: 0.5em 5px;
@@ -118,10 +100,11 @@ td.rowLabel.highlight{
 	cursor:pointer;
 }
 
-/*Handles indentation for nested rows*/
 div.ig-aetable tr.major td.controls:hover{
 	cursor:pointer;
 }
+
+/*Handles indentation for nested rows*/
 
 div.ig-aetable tr.minor td.rowLabel{
 	padding-left:15px;
@@ -190,6 +173,10 @@ div.ig-aetable .SummaryTable table tbody.minorHidden tr.minor,
 div.ig-aetable .SummaryTable tr.inactive,
 div.ig-aetable .SummaryTable table.summary{
 	display:none; 
+}
+
+div.ig-aetable .hidden{
+	display: none;
 }
 
 /*using set widths to avoid funky behavior on mouseover - could maybe make the width interactive based on the data? */
