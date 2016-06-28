@@ -7,91 +7,74 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
+(function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.aeTable = factory(root.d3);  }}(this, function(d3){
+
 var table = {
-	init: function(canvas, path, vars, settings, onDataError){
+	init: function(canvas, data, vars, settings, onDataError){
+		// if group is missing just render 1 column		
+		if(vars.group==""){
+			vars.group="data_all"
+			settings.groups=[{"key":"All","n":1,"selected":true}]
+		}
+	
 		//reset canvas as a d3 selection here, rather than in the initial call
 		canvas = d3.select(canvas);
 		
-		d3.csv(path, function(error, data){
-			/**error checking**/
-			function errorNote(msg){
-				canvas.append("div").attr("class", "alert alert-error alert-danger").text(msg);
-			};
-			//alert if specified dataset cannot be found
-			if(error){
-				if(onDataError)
-					onDataError(error);
+		function errorNote(msg){
+			canvas.append("div").attr("class", "alert alert-error alert-danger").text(msg);
+		};
+
+		for(x in vars){
+			var varlist = d3.keys(data[0])
+			varlist.push("data_all") //exception for situations with no group variable
+
+			if(varlist.indexOf(vars[x]) === -1){
+				if(vars[x] instanceof Array){
+					vars[x].forEach(function(e){
+						if(d3.keys(data[0]).indexOf(e) === -1){
+							errorNote("Error in variables object.");
+							throw new Error(x + " variable "+"(\""+e+"\") not found in dataset.");
+						}
+					})
+				}
 				else{
-					errorNote("Dataset could not be loaded.");
-					throw new Error("Dataset could not be loaded. Check provided path.");
+					errorNote("Error in variables object.");
+					throw new Error(x + " variable "+"(\""+vars[x]+"\") not found in dataset.");
 				}
 			}
-			else{
-				//check for errors in variables object
-				for(x in vars){
-					var varlist = d3.keys(data[0])
-					varlist.push("data_all") //exception for situations with no group variable
-
-					if(varlist.indexOf(vars[x]) === -1){
-						if(vars[x] instanceof Array){
-							vars[x].forEach(function(e){
-								if(d3.keys(data[0]).indexOf(e) === -1){
-									errorNote("Error in variables object.");
-									throw new Error(x + " variable "+"(\""+e+"\") not found in dataset.");
-								}
-							})
-						}
-						else{
-							errorNote("Error in variables object.");
-							throw new Error(x + " variable "+"(\""+vars[x]+"\") not found in dataset.");
-						}
-					}
-				};
-				//check that groups defined in settings are actually present in dataset
-				settings.groups.forEach(function(e){
-					varlist=d3.set(data.map(function(d){return d[vars.group]})).values()
-					varlist.push("All") //exception for situations with no group variable
-					if(varlist.indexOf(e.key) == -1){
-						errorNote("Error in settings object.");
-						throw new Error("\""+e.key +"\" in the Groups setting is not found in the dataset.");
-					}
-				});
-				//check that filterSettings defined in settings match the filters defined in vars
-				settings.filterSettings.forEach(function(e){
-					if(vars.filters.indexOf(e.key) == -1){
-						errorNote("Error in settings object.");
-						throw new Error("\""+e.key +"\" in the filterSettngs setting does not match the filters defined in variables object.");
-					}
-				})
+		};
+		//check that groups defined in settings are actually present in dataset
+		settings.groups.forEach(function(e){
+			varlist=d3.set(data.map(function(d){return d[vars.group]})).values()
+			varlist.push("All") //exception for situations with no group variable
+			if(varlist.indexOf(e.key) == -1){
+				errorNote("Error in settings object.");
+				throw new Error("\""+e.key +"\" in the Groups setting is not found in the dataset.");
 			}
-			/*+++++++++++++++++*/
+		});
 
-			//sort the groups so that they match the final data
-			settings.groups.sort(function(a,b){
-				var diff=b.n-a.n;
-				return diff==0 ? a.key > b.key : diff
-			})
+		//sort the groups so that they match the final data
+		settings.groups.sort()
 
-			//Set the domain for the color scale based on groups
-			table.colorScale.domain(settings.groups.map(function(e){return e.key}))
-			
-			//layout the table
-			table.layout(canvas)
-			//table.header.init(canvas, settings)
+		//Set the domain for the color scale based on groups
+		table.colorScale.domain(settings.groups.map(function(e){return e.key}))
+		
+		//layout the table
+		table.layout(canvas)
+		//table.header.init(canvas, settings)
 
-			//Initialize UI (remove previous if any)
-			table.controls.init(canvas, data, vars, settings)
+		//Initialize UI (remove previous if any)
+		table.controls.init(canvas, data, vars, settings)
 
-			//Initialize Event Listeners
-			table.eventListeners.rateFilter(canvas)
-			table.eventListeners.search(canvas, path, data, vars, settings)
-			table.eventListeners.customFilters(canvas, path, data, vars, settings)
-			table.eventListeners.diffToggle(canvas, path, data, vars, settings)
-			table.eventListeners.rowToggle(canvas, path, data, vars, settings)
+		//Initialize Event Listeners
+		table.eventListeners.rateFilter(canvas)
+		table.eventListeners.search(canvas, data, data, vars, settings)
+		table.eventListeners.customFilters(canvas, data, data, vars, settings)
 
-			//Draw the table (remove previous if any)
-			table.AETable.redraw(canvas, path, data, vars, settings)
-		})
+
+		//Draw the table (remove previous if any)
+		table.AETable.redraw(canvas, data, data, vars, settings)
+
 	},
 	//Set constants for use throughout table.js
 	colorScale: d3.scale.ordinal()
@@ -103,106 +86,8 @@ var table = {
 		var wrapper = canvas
 		.append("div").attr("class","ig-aetable row-fluid")
 		.append("div").attr("class","table-wrapper")
-		//wrapper.append("div").attr("class","navbar")
 		wrapper.append("div").attr("class","controls form-inline row-fluid")
 		wrapper.append("div").attr("class","SummaryTable")
-	},
-
-	//Draw the header based on the titles specified in settings - currently this component has been disabled
-	header:{
-		init: function(canvas, settings){
-			var header=canvas.select("div.navbar")
-			
-			//clear previous header
-			header.select("div.navbar-inner").remove()
-
-			//Draw new header
-			var inner = header.append("div").attr("class","navbar-inner")
-			inner.append("a").attr("class","brand").text(table.pageTitle)
-			var studyInfo = inner.append("ul").attr("class","nav titles")
-			studyInfo.append("li").attr("class","divider-vertical")
-
-			//Fill Project 
-			if(settings!==undefined && settings.header!==undefined){
-				if(settings.header.project){
-					var header = studyInfo.append("li")
-					.append("a")
-					.attr("class","brand")
-
-					header.append("span")
-					.text("Project: ")
-					.attr("class","labeltext")
-
-					header.append("span")
-					.attr("class","headingtext")
-					.text(settings.header.project)
-					
-					studyInfo.append("li").attr("class","divider-vertical")
-				}		
-				//Fill Study
-	
-				if(settings.header.study){
-					var header = studyInfo.append("li").append("a")
-					.attr("class","brand")
-
-					header.append("span")
-					.text("Study: ")
-					.attr("class","labeltext")
-					
-					header.append("span")
-					.attr("class","headingtext")
-					.text(settings.header.study)
-					studyInfo.append("li").attr("class","divider-vertical")
-				}
-			}
-			//Create options button
-			table.header.options.init(inner,settings)
-		},
-		options: {
-			init:function(selector, settings){
-				selector.select("div.optionsButton").remove()
-
-				var optionsDrop=selector.append("div")
-				.attr("class","btn-group pull-right optionsButton")
-
-				optionsDrop.append("button")
-				.attr("class","btn btn-link dropdown-toggle")
-				.attr("data-toggle","dropdown")
-				.text("Options ")
-					.append("b")
-					.attr("class","caret")
-				
-				var dropdownOptions=optionsDrop.append("ul")
-				.attr("class","dropdown-menu")
-
-				//Row Toggle
-				var toggleRows=dropdownOptions.append("li")
-				.append("a")
-				.attr("class","toggleRows")
-				.classed("show", settings.defaults.prefTerms === "Show" ? false : true)
-		
-				//Column Toggle
-				var nGroups = settings["groups"].length 
-				var toggleDiff=dropdownOptions.append("li")
-				.append("a")
-				.attr("class","toggleDiff")
-				.classed("show", settings.defaults.diffCol === "Show" ? false : true)
-				.classed("disabled",(nGroups==2 || nGroups==3)? false : true)
-
-				//set initial values for row/column toggle
-				table.header.options.set(selector,settings)
-			},
-			get: function(){},
-			set: function(canvas, settings){
-				//set Row Toggle
-				canvas.select("a.toggleRows")
-				.text(settings.defaults.prefTerms=="Hide"?"Show all nested rows":"Hide All nested rows")
-
-				//set Diff Column
-				canvas.select("a.toggleDiff")
-				.text(settings.defaults.diffCol=="Hide"?"Show difference column":"Hide difference Column")
-			},
-		},
 	},
 
 	controls: {
@@ -215,7 +100,6 @@ var table = {
 			
 			//layout the controls form
 			var rateFilter = controls.append("div").attr("class","rate-filter")
-			var optionsFilter = controls.append("div").attr("class","options-filter pull-right")
 			var searchBox = controls.append("form")
 			.attr("class","searchForm navbar-search pull-right")
 			.attr("onsubmit","return false;")
@@ -223,7 +107,6 @@ var table = {
 
 			//draw UI components
 			table.controls.filters.rate.init(rateFilter)
-			table.controls.options.init(optionsFilter, settings)
 			table.controls.filters.custom.init(customFilters, data,vars,settings)
 			table.controls.search.init(searchBox)
 
@@ -239,15 +122,14 @@ var table = {
 					selector.select("div.rateFilterDiv").remove()
 
 					//Add new rate filter
-					selector.append("span").attr("class","sectionhead").text("Filter by Prevalence:")
+					selector.append("span").html("Prevalence &#8805;&nbsp;")
 
 					var filterRate=selector.append("div")
-					.attr("class","input-prepend input-append input-medium rateFilterDiv")
-					filterRate.append("span").attr("class","add-on before").html("&#8805;")
+					.attr("class","rateFilterDiv")
 					filterRate.append("input")
-						.attr("class","appendedPrependedInput rateFilter")
+						.attr("class","rateFilter")
 						.attr("type","text")
-					filterRate.append("span").attr("class","add-on after").text("%")
+					selector.append("span").text("%")
 				},
 				get: function(){},
 				set: function(canvas, settings){
@@ -275,20 +157,24 @@ var table = {
 					
 					//Add filters for each selected variable
 					var filterCustomList=selector.append("ul").attr("class","nav")
-					var filterCustom=filterCustomList.selectAll("li")
+					var filterCustom_li=filterCustomList.selectAll("li")
 						.data(filterVars)
 						.enter()
 						.append("li")
 						.attr("class",function(d){return "custom-"+d.key+" filterCustom"})
-						.append("select")
-							.attr("multiple",true)
+					var filterLabel = filterCustom_li.append("span")
+						.attr("class","filterLabel")
+						.text(function(d){return d.key})
+
+					var filterCustom = filterCustom_li.append("select")
+						.attr("multiple",true)
 
 					//Add data-driven filter options 
 					var filterItems=filterCustom.selectAll("option")
 					.data(function(d){return d.values.filter(function(d){return ["NA",""," "].indexOf(d)===-1})})
 					.enter()
 					.append("option")
-						.html(function(d){return "<span><i class='icon-remove icon-white glyphicon glyphicon-remove'></i></span>"+ (["NA",""," "].indexOf(d)>-1 ? "[None]" : d)})
+						.html(function(d){return "<span><i class='icon-remove icon-white fa fa-times'></i></span>"+ (["NA",""," "].indexOf(d)>-1 ? "[None]" : d)})
 						.attr("value",function(d){return d})
 						.attr("selected","selected")
 
@@ -310,8 +196,9 @@ var table = {
 					.attr("class","search-label label hidden")
 				searchLabel.append("span")
 					.attr("class","search-count")
-				searchLabel.append("i")
-					.attr("class","clear-search icon-remove icon-white glyphicon glyphicon-remove")
+				searchLabel.append("span")
+					.attr("class","clear-search")
+					.html("&#9747;")
 				selector.append("input")
 					.attr("type","text")
 					.attr("class","searchBar search-query input-medium")
@@ -341,51 +228,6 @@ var table = {
 				table.AETable.toggleRows(canvas) //show/hide table rows as needed
 			}
 		},
-		options: {
-			init:function(selector, settings){
-				selector.select("div.optionsButton").remove()
-
-				var optionsDrop=selector.append("div")
-				.attr("class","btn-group pull-right optionsButton")
-
-				optionsDrop.append("button")
-				.attr("class","btn btn-link dropdown-toggle")
-				.attr("data-toggle","dropdown")
-				.text("Options ")
-					.append("b")
-					.attr("class","caret")
-				
-				var dropdownOptions=optionsDrop.append("ul")
-				.attr("class","dropdown-menu")
-
-				//Row Toggle
-				var toggleRows=dropdownOptions.append("li")
-				.append("a")
-				.attr("class","toggleRows")
-				.classed("show", settings.defaults.prefTerms === "Show" ? false : true)
-		
-				//Column Toggle
-				var nGroups = settings["groups"].length 
-				var toggleDiff=dropdownOptions.append("li")
-				.append("a")
-				.attr("class","toggleDiff")
-				.classed("show", settings.defaults.diffCol === "Show" ? false : true)
-				.classed("disabled",(nGroups==2 || nGroups==3)? false : true)
-
-				//set initial values for row/column toggle
-				table.header.options.set(selector,settings)
-			},
-			get: function(){},
-			set: function(canvas, settings){
-				//set Row Toggle
-				canvas.select("a.toggleRows")
-				.text(settings.defaults.prefTerms=="Hide"?"Show all nested rows":"Hide All nested rows")
-
-				//set Diff Column
-				canvas.select("a.toggleDiff")
-				.text(settings.defaults.diffCol=="Hide"?"Show difference column":"Hide difference Column")
-			},
-		}
 	}, //end Controls{}
 
 	eventListeners: {
@@ -400,64 +242,17 @@ var table = {
 					table.AETable.toggleRows(canvas) 
 				})
 		},
-		customFilters:function(canvas, path, data, vars, settings){	
-			var filterCustom = canvas.selectAll(".custom-filters ul li select")
+		customFilters:function(canvas, data, data, vars, settings){	
+			var filterCustom = canvas.selectAll(".custom-filters ul li select");
+
+			//redraw table without bootstrap multiselect
+			filterCustom.on('change', function(){
+				table.AETable.redraw(canvas,data, data, vars, settings);
+			});
 			
-			//initialize bootstrap multiselect
-			filterCustom.each(function(d){
-				$(".custom-"+d.key+" select").multiselect({ //BugNote - Have to use jquery here for the multiselect plugin, but this *might* create a bug when 2 tables are on a page since selections here aren't canvas-specific
-					buttonText:function(){
-						var filterLabels=settings.filterSettings
-						var currentLabel=filterLabels.filter(function(e){return e.key==d.key})[0]
-						return currentLabel!== undefined ? currentLabel.label + " <b class='caret'></b>" : d.key + " <b class='caret'></b>";
-					},
-					onChange:function(element, checked){	
-						var numOptions = canvas.selectAll(".custom-"+d.key+" select option")[0].length //number total items
-						var numSelected = canvas.selectAll(".custom-"+d.key+" select option[selected='selected']")[0].length //number of selected items
-						canvas.selectAll(".custom-"+d.key).classed("active", false); //override some bootstrap bullsh*t
-						canvas.selectAll(".custom-"+d.key+" div.btn-group button.multiselect").classed("btn-inverse",numSelected < numOptions)
-						table.AETable.redraw(canvas,path, data, vars, settings)
-					}
-				})	
-			})
 		},
 
-		diffToggle:function(canvas, path, data, vars, settings){
-			//Toggle Difference Column
-			canvas.select("a.toggleDiff").on("click",function(){
-				if(d3.select(this).classed("disabled")==false){
-					if(d3.select(this).classed("show")){
-						d3.select(this).classed("show", false).text("Hide difference column");
-						canvas.selectAll(".SummaryTable .diffplot").classed("hidden",false);	
-					}
-					else{
-						d3.select(this).classed("show", true).text("Show difference column");
-						canvas.selectAll(".SummaryTable .diffplot").classed("hidden",true);	
-					}
-				}
-			})
-		},
-
-		rowToggle:function(canvas, path, data, vars, settings){
-			canvas.select("a.toggleRows").on("click",function(){
-				if(d3.select(this).classed("disabled")==false){
-					if(d3.select(this).classed("show")){
-						d3.select(this).classed("show", false).text("Hide all nested rows");
-						canvas.selectAll(".SummaryTable table tbody").classed("minorHidden",false)
-						canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span.icon i")
-							.attr("class","icon-chevron-down glyphicon glyphicon-chevron-down")	
-					}
-					else{
-						d3.select(this).classed("show", true).text("Show all nested rows");
-						canvas.selectAll(".SummaryTable table tbody").classed("minorHidden",true)
-						canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span.icon i")
-							.attr("class","icon-chevron-right glyphicon glyphicon-chevron-right")
-					}
-				}
-			})
-		},
-
-		search: function(canvas, path, data,vars,settings){
+		search: function(canvas, data, data,vars,settings){
 			canvas.select("input.searchBar").on("change",function(d){
 				var searchTerm=d3.select(this).property("value").toLowerCase()
 				if(searchTerm.length>0){
@@ -475,6 +270,9 @@ var table = {
 					canvas.selectAll("div.SummaryTable table tbody").classed("search",false)
 					canvas.selectAll("div.SummaryTable table tbody tr").classed("search",false)
 					
+					//change exapand/collapse cell to blank
+					canvas.selectAll("div.SummaryTable table tbody tr td.controls span").classed("hidden",true)
+
 					//show the "clear-search" icon
 					canvas.select("span.search-label").classed("hidden",false)
 
@@ -531,7 +329,7 @@ var table = {
 
 
 			})		
-			canvas.select("i.clear-search").on("click",function(){
+			canvas.select("span.clear-search").on("click",function(){
 				table.controls.search.clear(canvas)
 			})
 		}
@@ -542,7 +340,7 @@ var table = {
 		////////////////////////////////////////////////
 		//Clear the current table and draw a new one
 		////////////////////////////////////////////////
-		redraw: function(canvas, path, data, vars, settings){
+		redraw: function(canvas, data, data, vars, settings){
 			table.controls.search.clear(canvas) //Reset the search bar
 			table.AETable.wipe(canvas) //clear previous tables
 			var data_filtered = table.AETable.prepareData(canvas, data,vars,settings) //get the data ready
@@ -605,19 +403,22 @@ var table = {
 			/////////////////////////////////////////////////////
 			// Filter the data based on the current selections
 			/////////////////////////////////////////////////////
-			
-			canvas.selectAll("li.filterCustom select")
+
+			//filter without bootstrap multiselect
+			canvas.select('.custom-filters').selectAll('select')
 				.each(function(dVar){
-					currentvar=dVar.key
+					var currentvar = dVar.key;
+
 					d3.select(this).selectAll("option")
-					.each(function(dItem){
-						currentitem=dItem;
-						if(d3.select(this).attr("selected")!=="selected"){
-							//console.log(currentvar + currentitem + "Filter")
-							sub=sub.filter(function(d){return d[currentvar]!=currentitem})
-						}
-					})
-				})
+						.each(function(dItem){
+							var currentitem = dItem;
+							if(!d3.select(this).property("selected")){
+								// console.log(currentvar + currentitem + "Filter")
+								sub = sub.filter(function(d){return d[currentvar] != currentitem; });
+							}
+						})
+				});
+
 			return sub;
 		},
 		///////////////////////////////////////////////////////////////
@@ -645,23 +446,15 @@ var table = {
 				controlCell=d3.select(this).append("td").attr("class","controls")
 				if(d.key=="All"){
 					controlCell.append("span")
-					.attr("class","icon toggle")
-					.append("i")
-					.text("   ")
-					.attr("class",function(){
-						toggle = canvas.select("a.toggleRows").text() == "Show all nested rows"
-						return toggle ? "icon-chevron-right glyphicon glyphicon-chevron-right" : "icon-chevron-down glyphicon glyphicon-chevron-down"
+					.text(function(){
+						toggle = true//canvas.select("a.toggleRows").text() == "Show all nested rows"
+						return toggle ? "+" : "-"
 					})
 				}
 
 				// Cell with Label (System Organ Class or Preferred term name)
-				d3.select(this).append("td").attr("class","rowLabel")
+				d3.select(this).append("td").attr("class","rowLabel").append("a")
 				.text(function(rowvalues){return rowvalues.values[0].values["label"]}) 
-
-				// Cell with Label (System Organ Class or Preferred term name)
-				d3.select(this).append("td").attr("class","showDetails")
-				.append("span").attr("class","icon details transparent").append("i").attr("class","icon-list glyphicon glyphicon-list")
-
 
 				// Append Cells with rates and ns
 				var values=d3.select(this).selectAll("td.values") //Add a cell for every group (regardless of if there is an AE)
@@ -678,7 +471,9 @@ var table = {
 				prev_plot=d3.select(this).append("td").classed("prevplot",true)
 					.append("svg")
 					.attr("height",h)
-					.attr("width",w)
+					.attr("width",w+10)
+					.append("svg:g")
+						.attr("transform", "translate(5,0)")
 
 				points=prev_plot.selectAll("g.points")
 				.data(d.values)
@@ -700,7 +495,9 @@ var table = {
 					var diff_plot=d3.select(this).append("td").classed("diffplot",true)
 						.append("svg")
 						.attr("height",h)
-						.attr("width",w)
+						.attr("width",w+10)
+					.append("svg:g")
+						.attr("transform", "translate(5,0)")
 
 					var diffpoints=diff_plot.selectAll("g")
 						.data(d.differences)
@@ -890,9 +687,6 @@ var table = {
 				.attr("rowspan",2)
 				.text("Category")	
 
-			//header for "control" column
-			header1.append("th").attr("rowspan",2)
-
 			//Groups
 			header1.append('th')
 				.attr("colspan",n_groups)
@@ -938,14 +732,14 @@ var table = {
 		    	data_major.map(function(major){
 		    		return d3.merge(major.values.map(function(minor){
 		    			return  d3.merge(minor.values.map(function(group){
-		    				return group.values.per
+		    				return [group.values.per]
 		    			}))
 		    		}))
 		    	})
 		    )
 
 			var percent_scale = d3.scale.linear()
-				.range([margin.left,w-margin.right])
+				.range([0,w])
 				.domain([0,d3.max(allPercents)]);
 			
 			
@@ -957,9 +751,9 @@ var table = {
 
 			prevAxis=canvas.select("th.prevHeader").append("svg")
 				.attr("height","34px")
-				.attr("width",w)
+				.attr("width",w+10)
 				.append("svg:g")
-					.attr("transform", "translate(0,34)") 		
+					.attr("transform", "translate(5,34)") 		
 					.attr("class", "axis percent")
 		    		.call(percentAxis)
 			
@@ -981,7 +775,7 @@ var table = {
 			    	data_minor.map(function(m){
 				    	return d3.merge(m.values.map(function(m2){
 				    		return d3.merge(
-				    			m2.differences.map(function(m3){return d3.merge([m3.upper, m3.lower]) })
+				    			m2.differences.map(function(m3){return d3.merge([[m3.upper], [m3.lower]]) })
 				    		)
 				    	}))
 				    	
@@ -990,7 +784,7 @@ var table = {
 
 				var diff_scale= d3.scale.linear()
 					.range([diffMargin.left,w-diffMargin.right])
-					.domain(d3.extent(d3.merge(minorDiffs,allDiffs)) ); 		
+					.domain(d3.extent(d3.merge([minorDiffs,allDiffs])) ); 		
 
 				//Difference Axis
 				var diffAxis = d3.svg.axis()
@@ -1000,9 +794,9 @@ var table = {
 
 				prevAxis=canvas.select("th.diffplot.axis").append("svg")
 					.attr("height","34px")
-					.attr("width",w)
+					.attr("width",w+10)
 					.append("svg:g")
-						.attr("transform", "translate(0,34)") 		
+						.attr("transform", "translate(5,34)") 		
 						.attr("class", "axis")
 			    		.attr("class","percent")
 			    		.call(diffAxis)
@@ -1063,7 +857,7 @@ var table = {
 			//remove unwanted elements from the footer
 			tab.selectAll("tfoot svg").remove()
 			tab.select("tfoot i").remove();
-			tab.select("tfoot td.controls i").remove()
+			tab.select("tfoot td.controls span").text("")
 
 			// Hide the rows covering missing data (we could convert this to an option later)
 			 tab.selectAll("tbody").filter(function(e){return e.key=="None/Unknown"}).classed("hidden",true)
@@ -1171,28 +965,28 @@ var table = {
 			//make controls visible on mouseover
 			canvas.selectAll(".SummaryTable tbody tr")
 			.on("mouseover",function(d){
-				d3.select(this).selectAll("span.icon.details").classed("transparent",false)
+				d3.select(this).select("td.rowLabel").classed("highlight",true)
 			})
 			.on("mouseout",function(d){
-				d3.select(this).selectAll("span.icon.details").classed("transparent",true)
+				d3.select(this).select("td.rowLabel").classed("highlight",false)
 			})
 
 			// Expand/collapse a section 
-			canvas.selectAll("td.controls i").on("click",function(d){
-				var current=$(this).parents("tbody")
-				var toggle=!(current.hasClass("minorHidden")) // True if we want to show the minor rows, false if we want to remove them. 
+			canvas.selectAll("tr.major").selectAll("td.controls").on("click",function(d){
+				var current = d3.select(this.parentNode.parentNode);
+				var toggle = !(current.classed("minorHidden")) // True if we want to show the minor rows, false if we want to remove them. 
 				if(toggle){
-					current.addClass("minorHidden")
+					current.classed("minorHidden", true)
 				}else{
-					current.removeClass("minorHidden")
+					current.classed("minorHidden", false)
 				}
-				d3.select(this).attr("class",function(){return toggle ? 'icon-chevron-right glyphicon glyphicon-chevron-right':'icon-chevron-down glyphicon glyphicon-chevron-down'})
-			})
+				d3.select(this).select("span").text(function(){return toggle ? '+':'-'});
+			});
 
 			///////////////////////////
 			// Show the details table
 			///////////////////////////
-			canvas.selectAll("i.icon-list").on("click",function(d){
+			canvas.selectAll("td.rowLabel").on("click",function(d){
 				//Update classes (row visibility handeled via css)
 				toggle=!(canvas.select(".SummaryTable table").classed("summary")) // True if we want to draw the participant table, false if we want to remove it. 
 				canvas.select(".SummaryTable table").classed("summary",toggle)
@@ -1224,14 +1018,14 @@ var table = {
 			// Apply basic Filters & Toggles //
 			///////////////////////////////////
 			//Toggle Minor rows
-			var minorToggle=canvas.select("a.toggleRows").text() === "Show all nested rows"
+			var minorToggle = true;//canvas.select("a.toggleRows").text() === "Show all nested rows"
 			canvas.selectAll(".SummaryTable tbody").classed("minorHidden", minorToggle)
-			canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span.icon i")
-				.attr("class",minorToggle ? "icon-chevron-right glyphicon glyphicon-chevron-right":"icon-chevron-down glyphicon glyphicon-chevron-down")
+			canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span")
+				.text(minorToggle ? "+":"-")
 
 
 			//Toggle Difference plots
-			var differenceToggle=canvas.select("a.toggleDiff").text() === "Show difference column"
+			var differenceToggle = false;//canvas.select("a.toggleDiff").text() === "Show difference column"
 			canvas.selectAll(".SummaryTable .diffplot").classed("hidden", differenceToggle)
 
 
@@ -1247,11 +1041,10 @@ var table = {
 				var currentBody=d3.select(this);
 
 				// show/hide arrows
-				if(filterRows[0].length + 1 >= allRows[0].length){ // +1 accounts for the major category
-					currentBody.select("tr.major td.controls span.icon.toggle").classed("transparent",true)
-				} else {
-					currentBody.select("tr.major td.controls span.icon.toggle").classed("transparent",false)
-				}
+				currentBody.select("tr.major td.controls span").classed("hidden",
+					filterRows[0].length + 1 >= allRows[0].length
+				)
+		
 			})
 		},
 	}, //end AETable
@@ -1283,7 +1076,7 @@ var table = {
 		closeButton=canvas.select("div.DetailTable").append("button")
 			.attr("class","closeDetailTable btn btn-primary");
 
-		closeButton.html("<i class='icon-backward icon-white glyphicon glyphicon-backward'></i>    Return to the Summary View");
+		closeButton.html("<i class='icon-backward icon-white fa fa-backward'></i>    Return to the Summary View");
 		
 		closeButton.on("click",function(){
 			canvas.select(".SummaryTable table").classed("summary",false);
@@ -1333,7 +1126,7 @@ var table = {
 					.append("td")
 					.html(function(d){return d});
 
-				$(table.node()).dataTable();
+				// $(table.node()).dataTable();
 			};
 		}
 		basicTable(".DetailTable", details);	
@@ -1523,3 +1316,9 @@ util = {
 		}
 	}	
 }
+
+var aeTable = table;
+
+return aeTable;
+ 
+}));
