@@ -2,6 +2,7 @@
 /***** Controls and Table Layout ******/
 /**************************************/
 
+
 /***Navbar***/
 
 div.ig-aetable div.navbar{
@@ -56,8 +57,12 @@ div.ig-aetable  .controls .custom-filters ul li:hover > a > label{
 
 div.ig-aetable .controls .custom-filters ul li.filterCustom{
 	display:inline-block ;
+	padding-right:5px;
 }
 
+div.ig-aetable .controls .custom-filters ul li.filterCustom *{
+	display:block ;
+}
 div.ig-aetable .controls .rate-filter > *{
 	float: left;
 }

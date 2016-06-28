@@ -164,13 +164,17 @@ var table = {
 					
 					//Add filters for each selected variable
 					var filterCustomList=selector.append("ul").attr("class","nav")
-					var filterCustom=filterCustomList.selectAll("li")
+					var filterCustom_li=filterCustomList.selectAll("li")
 						.data(filterVars)
 						.enter()
 						.append("li")
 						.attr("class",function(d){return "custom-"+d.key+" filterCustom"})
-						.append("select")
-							.attr("multiple",true)
+					var filterLabel = filterCustom_li.append("span")
+						.attr("class","filterLabel")
+						.text(function(d){return d.key})
+
+					var filterCustom = filterCustom_li.append("select")
+						.attr("multiple",true)
 
 					//Add data-driven filter options 
 					var filterItems=filterCustom.selectAll("option")
