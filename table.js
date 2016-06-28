@@ -573,12 +573,9 @@ var table = {
 				controlCell=d3.select(this).append("td").attr("class","controls")
 				if(d.key=="All"){
 					controlCell.append("span")
-					.attr("class","icon toggle")
-					.append("i")
-					.text("   ")
-					.attr("class",function(){
+					.text(function(){
 						toggle = true//canvas.select("a.toggleRows").text() == "Show all nested rows"
-						return toggle ? "icon-chevron-right fa fa-chevron-right" : "icon-chevron-down fa fa-chevron-down"
+						return toggle ? "+" : "-"
 					})
 				}
 
@@ -990,7 +987,7 @@ var table = {
 			//remove unwanted elements from the footer
 			tab.selectAll("tfoot svg").remove()
 			tab.select("tfoot i").remove();
-			tab.select("tfoot td.controls i").remove()
+			tab.select("tfoot td.controls").text("")
 
 			// Hide the rows covering missing data (we could convert this to an option later)
 			 tab.selectAll("tbody").filter(function(e){return e.key=="None/Unknown"}).classed("hidden",true)
@@ -1105,17 +1102,15 @@ var table = {
 			})
 
 			// Expand/collapse a section 
-			canvas.selectAll("td.controls i").on("click",function(d){
-				var current = d3.select(this.parentNode.parentNode.parentNode.parentNode);
+			canvas.selectAll("td.controls").on("click",function(d){
+				var current = d3.select(this.parentNode.parentNode);
 				var toggle = !(current.classed("minorHidden")) // True if we want to show the minor rows, false if we want to remove them. 
 				if(toggle){
 					current.classed("minorHidden", true)
 				}else{
 					current.classed("minorHidden", false)
 				}
-				d3.select(this).attr("class",function(){
-					return toggle ? 'icon-chevron-right fa fa-chevron-right':'icon-chevron-down fa fa-chevron-down'
-				});
+				d3.select(this).text(function(){return toggle ? '+':'-'});
 			});
 
 			///////////////////////////
