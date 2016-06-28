@@ -399,6 +399,9 @@ var table = {
 					canvas.selectAll("div.SummaryTable table tbody").classed("search",false)
 					canvas.selectAll("div.SummaryTable table tbody tr").classed("search",false)
 					
+					//change exapand/collapse cell to blank
+					canvas.selectAll("div.SummaryTable table tbody tr td.controls span").classed("hidden",true)
+
 					//show the "clear-search" icon
 					canvas.select("span.search-label").classed("hidden",false)
 
@@ -983,7 +986,7 @@ var table = {
 			//remove unwanted elements from the footer
 			tab.selectAll("tfoot svg").remove()
 			tab.select("tfoot i").remove();
-			tab.select("tfoot td.controls").text("")
+			tab.select("tfoot td.controls span").text("")
 
 			// Hide the rows covering missing data (we could convert this to an option later)
 			 tab.selectAll("tbody").filter(function(e){return e.key=="None/Unknown"}).classed("hidden",true)
@@ -1098,7 +1101,7 @@ var table = {
 			})
 
 			// Expand/collapse a section 
-			canvas.selectAll("td.controls").on("click",function(d){
+			canvas.selectAll("tr.major").selectAll("td.controls").on("click",function(d){
 				var current = d3.select(this.parentNode.parentNode);
 				var toggle = !(current.classed("minorHidden")) // True if we want to show the minor rows, false if we want to remove them. 
 				if(toggle){
@@ -1106,7 +1109,7 @@ var table = {
 				}else{
 					current.classed("minorHidden", false)
 				}
-				d3.select(this).text(function(){return toggle ? '+':'-'});
+				d3.select(this).select("span").text(function(){return toggle ? '+':'-'});
 			});
 
 			///////////////////////////
@@ -1146,8 +1149,8 @@ var table = {
 			//Toggle Minor rows
 			var minorToggle = true;//canvas.select("a.toggleRows").text() === "Show all nested rows"
 			canvas.selectAll(".SummaryTable tbody").classed("minorHidden", minorToggle)
-			canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span.icon i")
-				.attr("class",minorToggle ? "icon-chevron-right fa fa-chevron-right":"icon-chevron-down fa fa-chevron-down")
+			canvas.selectAll(".SummaryTable table tbody").select("tr.major td.controls span")
+				.text(minorToggle ? "+":"-")
 
 
 			//Toggle Difference plots
@@ -1167,11 +1170,10 @@ var table = {
 				var currentBody=d3.select(this);
 
 				// show/hide arrows
-				if(filterRows[0].length + 1 >= allRows[0].length){ // +1 accounts for the major category
-					currentBody.select("tr.major td.controls span.icon.toggle").classed("transparent",true)
-				} else {
-					currentBody.select("tr.major td.controls span.icon.toggle").classed("transparent",false)
-				}
+				currentBody.select("tr.major td.controls span").classed("hidden",
+					filterRows[0].length + 1 >= allRows[0].length
+				)
+		
 			})
 		},
 	}, //end AETable
