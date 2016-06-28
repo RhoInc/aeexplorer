@@ -648,7 +648,7 @@ var table = {
 						.interpolate("linear-closed");
 					
 					diffpoints
-					.append("svg:data")
+					.append("svg:path")
 					    .attr("d", function(d) { 
 					    	leftpoints = [
 					    		{x:diff_scale(d.diff)   ,y:h/2+r},//bottom
@@ -664,7 +664,7 @@ var table = {
 					    .attr("stroke-opacity",0.3)
 
 					diffpoints
-					.append("svg:data")
+					.append("svg:path")
 					    .attr("d", function(d) { 
 					    	rightpoints = [
 					    		{x:diff_scale(d.diff)   ,y:h/2+r},//bottom
@@ -1052,7 +1052,7 @@ var table = {
 			///////////////////////////////////////////////
 			// Mouseover/Mouseout for difference diamonds
 			///////////////////////////////////////////////
-			canvas.selectAll("td.diffplot svg g data.diamond").on("mouseover",function(d){
+			canvas.selectAll("td.diffplot svg g path.diamond").on("mouseover",function(d){
 				currentRow=canvas.selectAll(".SummaryTable tbody tr").filter(function(e){
 					return e.values[0].values.major == d.major &&  e.values[0].values.minor == d.minor
 				});
@@ -1070,7 +1070,7 @@ var table = {
 
 			}).on("mouseout",function(d){
 				//restore the other points
-				canvas.selectAll("td.diffplot svg g").selectAll("data")
+				canvas.selectAll("td.diffplot svg g").selectAll("path")
 				.attr("fill-opacity",function(d){return (d.sig==1) ? 1 : 0.1})
 				.attr("stroke-opacity", 0.3)
 
