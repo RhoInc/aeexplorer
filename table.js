@@ -583,13 +583,8 @@ var table = {
 				}
 
 				// Cell with Label (System Organ Class or Preferred term name)
-				d3.select(this).append("td").attr("class","rowLabel")
+				d3.select(this).append("td").attr("class","rowLabel").append("a")
 				.text(function(rowvalues){return rowvalues.values[0].values["label"]}) 
-
-				// Cell with Label (System Organ Class or Preferred term name)
-				d3.select(this).append("td").attr("class","showDetails")
-				.append("span").attr("class","icon details transparent").append("i").attr("class","icon-list fa fa-list")
-
 
 				// Append Cells with rates and ns
 				var values=d3.select(this).selectAll("td.values") //Add a cell for every group (regardless of if there is an AE)
@@ -1103,10 +1098,10 @@ var table = {
 			//make controls visible on mouseover
 			canvas.selectAll(".SummaryTable tbody tr")
 			.on("mouseover",function(d){
-				d3.select(this).selectAll("span.icon.details").classed("transparent",false)
+				d3.select(this).select("td.rowLabel").classed("highlight",true)
 			})
 			.on("mouseout",function(d){
-				d3.select(this).selectAll("span.icon.details").classed("transparent",true)
+				d3.select(this).select("td.rowLabel").classed("highlight",false)
 			})
 
 			// Expand/collapse a section 
@@ -1126,7 +1121,7 @@ var table = {
 			///////////////////////////
 			// Show the details table
 			///////////////////////////
-			canvas.selectAll("i.icon-list").on("click",function(d){
+			canvas.selectAll("td.rowLabel").on("click",function(d){
 				//Update classes (row visibility handeled via css)
 				toggle=!(canvas.select(".SummaryTable table").classed("summary")) // True if we want to draw the participant table, false if we want to remove it. 
 				canvas.select(".SummaryTable table").classed("summary",toggle)

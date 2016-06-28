@@ -113,6 +113,11 @@ div.ig-aetable .SummaryTable tr td{
 	padding: 0.5em 5px;
 }
 
+td.rowLabel.highlight{
+	text-decoration:underline;
+	cursor:pointer;
+}
+
 /*Handles indentation for nested rows*/
 div.ig-aetable tr.minor td.rowLabel{
 	padding-left:15px;
@@ -189,9 +194,6 @@ div.ig-aetable .SummaryTable tr td.values{
 	white-space: nowrap;
 }
 
-div.ig-aetable .SummaryTable table tbody tr td.showDetails{
-	width:15px;
-}
 
 div.ig-aetable .SummaryTable table tr:hover {
 	background-color:#eee;
