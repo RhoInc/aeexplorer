@@ -814,9 +814,6 @@ var table = {
 				.attr("rowspan",2)
 				.text("Category")	
 
-			//header for "control" column
-			header1.append("th").attr("rowspan",2)
-
 			//Groups
 			header1.append('th')
 				.attr("colspan",n_groups)
