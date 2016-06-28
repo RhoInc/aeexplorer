@@ -52,14 +52,7 @@ var table = {
 				throw new Error("\""+e.key +"\" in the Groups setting is not found in the dataset.");
 			}
 		});
-		//check that filterSettings defined in settings match the filters defined in vars
-		settings.filterSettings.forEach(function(e){
-			if(vars.filters.indexOf(e.key) == -1){
-				errorNote("Error in settings object.");
-				throw new Error("\""+e.key +"\" in the filterSettngs setting does not match the filters defined in variables object.");
-			}
-		})
-			
+
 		//sort the groups so that they match the final data
 		settings.groups.sort()
 
