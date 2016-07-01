@@ -986,7 +986,7 @@ var table = {
 			///////////////////////////
 			// Show the details table
 			///////////////////////////
-			canvas.selectAll("td.rowLabel").on("click",function(d){
+			canvas.selectAll("tbody td.rowLabel").on("click",function(d){
 				//Update classes (row visibility handeled via css)
 				toggle=!(canvas.select(".SummaryTable table").classed("summary")) // True if we want to draw the participant table, false if we want to remove it. 
 				canvas.select(".SummaryTable table").classed("summary",toggle)
@@ -1221,8 +1221,8 @@ util = {
 					}
 				})
 			eMinor.values.sort(function(a,b){
-				diff=b.values.tot-a.values.tot
-				return diff==0 ? a.key > b.key : diff
+				return  groups.map(function(group) { return group.key; }).indexOf(a.key) -
+		                groups.map(function(group) { return group.key; }).indexOf(b.key);
 				})
 			})
 		})
