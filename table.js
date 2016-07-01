@@ -1221,8 +1221,8 @@ util = {
 					}
 				})
 			eMinor.values.sort(function(a,b){
-				diff=b.values.tot-a.values.tot
-				return diff==0 ? a.key > b.key : diff
+				return  groups.map(function(group) { return group.key; }).indexOf(a.key) -
+		                groups.map(function(group) { return group.key; }).indexOf(b.key);
 				})
 			})
 		})
