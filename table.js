@@ -986,7 +986,7 @@ var table = {
 			///////////////////////////
 			// Show the details table
 			///////////////////////////
-			canvas.selectAll("td.rowLabel").on("click",function(d){
+			canvas.selectAll("tbody td.rowLabel").on("click",function(d){
 				//Update classes (row visibility handeled via css)
 				toggle=!(canvas.select(".SummaryTable table").classed("summary")) // True if we want to draw the participant table, false if we want to remove it. 
 				canvas.select(".SummaryTable table").classed("summary",toggle)
