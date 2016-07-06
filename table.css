@@ -110,7 +110,7 @@ div.ig-aetable .SummaryTable tr td{
 	padding: 0.5em 5px;
 }
 
-td.rowLabel.highlight{
+div.ig-aetable td.rowLabel.highlight{
 	text-decoration:underline;
 	cursor:pointer;
 }
