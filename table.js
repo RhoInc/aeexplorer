@@ -963,7 +963,7 @@ var table = {
 			// Click Control for table rows //
 			//////////////////////////////////
 			//make controls visible on mouseover
-			canvas.selectAll(".SummaryTable tbody tr")
+			canvas.selectAll(".SummaryTable tr")
 			.on("mouseover",function(d){
 				d3.select(this).select("td.rowLabel").classed("highlight",true)
 			})
@@ -986,7 +986,7 @@ var table = {
 			///////////////////////////
 			// Show the details table
 			///////////////////////////
-			canvas.selectAll("tbody td.rowLabel").on("click",function(d){
+			canvas.selectAll("td.rowLabel").on("click",function(d){
 				//Update classes (row visibility handeled via css)
 				toggle=!(canvas.select(".SummaryTable table").classed("summary")) // True if we want to draw the participant table, false if we want to remove it. 
 				canvas.select(".SummaryTable table").classed("summary",toggle)
@@ -1055,7 +1055,7 @@ var table = {
 
 		// Filter the raw data set based on the major and minor categories
 		var details=data.filter(function(e){
-			majorMatch= (major===e[vars["major"]])
+			majorMatch= major=="All" ? true : (major===e[vars["major"]])
 			minorMatch= minor==="All" ? true : (minor===e[vars["minor"]])
 			return majorMatch && minorMatch;
 		})
