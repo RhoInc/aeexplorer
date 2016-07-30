@@ -482,19 +482,29 @@
               //////////////////////////////////////////////////////////////////////
 
                 function fillRow(d) {
-                  // Cell with row 'controls'
-                    controlCell=d3.select(this).append('td').attr('class','controls')
-                    if (d.key=='All') {
-                        controlCell.append('span')
-                        .text(function() {
-                            toggle = true//canvas.select('a.toggleRows').text() == 'Show all nested rows'
-                            return toggle ? '+' : '-'
-                        })
+                  //Cell with row 'controls'
+                    var controlCell = d3.select(this)
+                        .append('td')
+                        .attr('class','controls');
+
+                    if (d.key === 'All') {
+                        controlCell
+                            .append('span')
+                            .attr('title', 'Expand')
+                            .text('+');
                     }
 
                   // Cell with Label (System Organ Class or Preferred term name)
-                    d3.select(this).append('td').attr('class','rowLabel').append('a')
-                    .text(function(rowvalues) {return rowvalues.values[0].values['label']})
+                    var category = d3.select(this)
+                        .append('td')
+                        .attr(
+                            {'class': 'rowLabel'
+                            ,'title': 'Show listing'});
+                    category
+                        .append('a')
+                        .text(function(rowValues) {
+                            return rowValues.values[0].values['label'];
+                        });
 
                   // Append Cells with rates and ns
                     if (settings.defaults.totalCol === 'Show') {
@@ -513,54 +523,71 @@
                             ,values: total};
                     }
 
-                    var values=d3.select(this).selectAll('td.values') //Add a cell for every group (regardless of if there is an AE)
-                        .data(d.values,function(d) {return d.key})
+                    var values = d3.select(this).selectAll('td.values') //Add a cell for every group (regardless of if there is an AE)
+                        .data(d.values,function(d) {
+                            return d.key; })
                         .enter()
                         .append('td')
-                        .attr('class','values')
-                        .text(function(d) {return fixed1(d['values'].per)+'%'})
-                      //+ ') '<span class='vals'><sup>'+d['values'].n+'</sup>&frasl;<sub>'+d['values'].tot+'</sub></span>'})
-                        .style('color',function(d) {return table.colorScale(d.key)})
+                        .attr('class', 'values')
+                        .attr('title', function(d) {
+                            return d.values.n + '/' + d.values.tot; })
+                        .text(function(d) {
+                            return fixed1(d['values'].per)+'%'; })
+                        .style('color', function(d) {
+                            return table.colorScale(d.key); });
 
                   //Cell with Prevalence Plot
-                    prev_plot=d3.select(this).append('td').classed('prevplot',true)
-                        .append('svg')
-                        .attr('height',h)
-                        .attr('width',w+10)
-                        .append('svg:g')
-                            .attr('transform', 'translate(5,0)')
+                    var prev_plot = d3.select(this)
+                        .append('td')
+                        .classed('prevplot', true)
+                            .append('svg')
+                            .attr('height',h)
+                            .attr('width',w+10)
+                                .append('svg:g')
+                                .attr('transform', 'translate(5,0)')
 
-                    points=prev_plot.selectAll('g.points')
-                    .data(d.values)
-                    .enter()
-                    .append('g')
-                    .attr('class','points')
+                    var points = prev_plot.selectAll('g.points')
+                        .data(d.values)
+                        .enter()
+                        .append('g')
+                        .attr('class','points');
 
                     points
-                    .append('svg:circle')
-                        .attr('cx', function(d) {return percent_scale(d.values['per'])})
+                        .append('svg:circle')
+                        .attr('cx', function(d) {
+                            return percent_scale(d.values['per']); })
                         .attr('cy', h/2)
-                        .attr('r',r-2)
-                        .attr('fill',function(d) {return table.colorScale(d.values['group'])})
+                        .attr('r', r-2)
+                        .attr('fill', function(d) {
+                            return table.colorScale(d.values['group']); })
+                            .append('title')
+                            .text(function(d) {
+                                return d.key + ': ' + d3.format(',.1%')(d.values.per/100); });
 
                   //Cells with Difference plots
                     if (settings.groups.length>1) {
 
                       //add svg for difference plot
-                        var diff_plot=d3.select(this).append('td').classed('diffplot',true)
-                            .append('svg')
-                            .attr('height',h)
-                            .attr('width',w+10)
-                        .append('svg:g')
-                            .attr('transform', 'translate(5,0)')
+                        var diff_plot = d3.select(this)
+                            .append('td')
+                            .classed('diffplot',true)
+                                .append('svg')
+                                .attr('height',h)
+                                .attr('width',w+10)
+                                    .append('svg:g')
+                                    .attr('transform', 'translate(5,0)');
 
-                        var diffpoints=diff_plot.selectAll('g')
+                        var diffPoints = diff_plot.selectAll('g')
                             .data(d.differences)
                             .enter()
-                            .append('svg:g')
+                            .append('svg:g');
+                        diffPoints
+                            .append('title')
+                            .text(function(d) {
+                                return d.group1 + ' vs. ' + d.group2 + ': ' + d3.format(',.1%')(d.diff/100); });
 
                       //show CIs if there are 2 groups (otherwise we'll add when you mouseover a diamond)
-                        diffpoints.append('svg:line')
+                        diffPoints.append('svg:line')
                             .attr('x1', function(d) {return diff_scale(d.upper); })
                             .attr('x2', function(d) {return diff_scale(d.lower); })
                             .attr('y1', h/2)
@@ -575,8 +602,8 @@
                             .y(function(d) { return d.y; })
                             .interpolate('linear-closed');
 
-                        diffpoints
-                        .append('svg:path')
+                        diffPoints
+                            .append('svg:path')
                             .attr('d', function(d) {
                                 leftpoints = [
                                     {x:diff_scale(d.diff)   ,y:h/2+r},//bottom
@@ -591,8 +618,8 @@
                             .attr('stroke',function(d) {return d.diff<0 ? table.colorScale(d.group1) : table.colorScale(d.group2)})
                             .attr('stroke-opacity',0.3)
 
-                        diffpoints
-                        .append('svg:path')
+                        diffPoints
+                            .append('svg:path')
                             .attr('d', function(d) {
                                 rightpoints = [
                                     {x:diff_scale(d.diff)   ,y:h/2+r},//bottom
@@ -936,10 +963,13 @@
 
                 function annoteDetails(row, group, position) {
                   //add color for the selected group on all rows
-                    allPoints=canvas.selectAll('td.prevplot svg g.points').filter(function(e) {return e.key==group})
+                    allPoints = canvas.selectAll('td.prevplot svg g.points')
+                        .filter(function(e) {
+                            return e.key === group; })
                     allPoints.select('circle')
-                    .attr('fill',function(d) {return table.colorScale(d.key)})
-                    .attr('opacity',1)
+                        .attr('fill', function(d) {
+                            return table.colorScale(d.key); })
+                        .attr('opacity', 1)
 
                     allVals=canvas.selectAll('td.values').filter(function(e) {return e.key==group})
                     allVals.style('color',function(d) {return table.colorScale(d.key)})
@@ -1040,7 +1070,12 @@
                     } else {
                         current.classed('minorHidden', false)
                     }
-                    d3.select(this).select('span').text(function() {return toggle ? '+':'-'});
+                    d3.select(this)
+                        .select('span')
+                        .attr('title', toggle ? 'Expand' : 'Collapse')
+                        .text(function() {
+                            return toggle ? '+' : '-';
+                        });
                 });
 
               ///////////////////////////
