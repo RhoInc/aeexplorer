@@ -1,5 +1,5 @@
 export function layout(canvas) {
-    const wrapper = canvas
+    var wrapper = canvas
         .append("div").attr("class","ig-aetable row-fluid")
         .append("div").attr("class","table-wrapper");
     wrapper.append("div").attr("class","controls form-inline row-fluid");

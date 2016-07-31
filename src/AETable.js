@@ -105,11 +105,11 @@ export const AETable = {
 
         function fillRow(d) {
           // Cell with row "controls"
-            controlCell=d3.select(this).append("td").attr("class","controls")
+            var controlCell=d3.select(this).append("td").attr("class","controls")
             if(d.key=="All") {
                 controlCell.append("span")
                 .text(function() {
-                    toggle = true//canvas.select("a.toggleRows").text() == "Show all nested rows"
+                    var toggle = true//canvas.select("a.toggleRows").text() == "Show all nested rows"
                     return toggle ? "+" : "-"
                 })
             }
@@ -130,14 +130,14 @@ export const AETable = {
 
 
           //Cell with Prevalence Plot
-            prev_plot=d3.select(this).append("td").classed("prevplot",true)
+            var prev_plot=d3.select(this).append("td").classed("prevplot",true)
                 .append("svg")
                 .attr("height",h)
                 .attr("width",w+10)
                 .append("svg:g")
                     .attr("transform", "translate(5,0)")
 
-            points=prev_plot.selectAll("g.points")
+            var points=prev_plot.selectAll("g.points")
             .data(d.values)
             .enter()
             .append("g")
@@ -185,7 +185,7 @@ export const AETable = {
                 diffpoints
                 .append("svg:path")
                     .attr("d", function(d) { 
-                        leftpoints = [
+                        var leftpoints = [
                             {x:diff_scale(d.diff)   ,y:h/2+r},//bottom
                             {x:diff_scale(d.diff)-r ,y:h/2},//middle-left
                             {x:diff_scale(d.diff)   ,y:h/2-r},//top
@@ -201,7 +201,7 @@ export const AETable = {
                 diffpoints
                 .append("svg:path")
                     .attr("d", function(d) { 
-                        rightpoints = [
+                        var rightpoints = [
                             {x:diff_scale(d.diff)   ,y:h/2+r},//bottom
                             {x:diff_scale(d.diff)+r ,y:h/2},//middle-right
                             {x:diff_scale(d.diff)   ,y:h/2-r},//top
@@ -220,10 +220,10 @@ export const AETable = {
       /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       //Create 1 nested data set each at System Organ Class and preferred term level with group-level prevalence data//
       ///////////////////////////////////////////////////////	/////////////////////////////////////////////////////////
-        data_major=util.cross(data, settings.groups, vars["id"], vars["major"], "All",         vars["group"], settings.groups)
-        data_minor=util.cross(data, settings.groups, vars["id"], vars["major"], vars["minor"], vars["group"], settings.groups)
+        var data_major=util.cross(data, settings.groups, vars["id"], vars["major"], "All",         vars["group"], settings.groups)
+        var data_minor=util.cross(data, settings.groups, vars["id"], vars["major"], vars["minor"], vars["group"], settings.groups)
         var sub = data.filter(function(e) {return e.flag==0}) //subset so that the total column ignores missing values
-        data_any=  util.cross(sub, settings.groups, vars["id"], "All"        , "All",         vars["group"], settings.groups)
+        var data_any=  util.cross(sub, settings.groups, vars["id"], "All"        , "All",         vars["group"], settings.groups)
 
       ////////////////////////////////////////////
       // Add a "differences" object to each row //
@@ -238,13 +238,13 @@ export const AETable = {
         data_major=data_major.sort(util.sort.maxPer) //System organ classes
         data_minor.forEach(function(major) {
             major.values.sort(function(a,b) {
-                max_a= d3.max(
+                var max_a= d3.max(
                     a.values.map(function(groups) {
                         return groups.values.per
                     })
                 )
 
-                max_b= d3.max(
+                var max_b= d3.max(
                     b.values.map(function(groups) {
                         return groups.values.per
                     })
@@ -334,9 +334,9 @@ export const AETable = {
       ////////////////////////////////////
       // Draw the summary table headers //
       ////////////////////////////////////			
-        tab=canvas.select(".SummaryTable").append("table")
-        n_groups=settings.groups.length
-        header1=tab.append("thead").append("tr")
+        var tab=canvas.select(".SummaryTable").append("table")
+        var n_groups=settings.groups.length
+        var header1=tab.append("thead").append("tr")
 
       //header for "control" column
         header1.append("th").attr("rowspan",2)
@@ -354,7 +354,7 @@ export const AETable = {
         header1.append('th')
             .text("AE Rate by group")
 
-        header2=tab.select("thead").append("tr")
+        var header2=tab.select("thead").append("tr")
         header2.selectAll("td.values")
         .data(settings.groups)
         .enter()
@@ -387,7 +387,7 @@ export const AETable = {
             
       //Prevalence scales
       //get the range of the values - Probably a better way to do this manipulation?
-        allPercents=d3.merge(
+        var allPercents=d3.merge(
             data_major.map(function(major) {
                 return d3.merge(major.values.map(function(minor) {
                     return  d3.merge(minor.values.map(function(group) {
@@ -408,7 +408,7 @@ export const AETable = {
             .orient("top")
             .ticks(6);
 
-        prevAxis=canvas.select("th.prevHeader").append("svg")
+        var prevAxis=canvas.select("th.prevHeader").append("svg")
             .attr("height","34px")
             .attr("width",w+10)
             .append("svg:g")
@@ -420,7 +420,7 @@ export const AETable = {
       //Difference Scale 
         if(settings.groups.length>1) {	//Only run if there are 2+ groups
           //Difference Scale 
-            allDiffs=d3.merge(
+            var allDiffs=d3.merge(
                 data_major.map(function(major) {
                     return d3.merge(major.values.map(function(minor) {
                         return  d3.merge(minor.differences.map(function(diff) {
@@ -451,7 +451,7 @@ export const AETable = {
                 .orient("top")
                 .ticks(8);
 
-            prevAxis=canvas.select("th.diffplot.axis").append("svg")
+            var prevAxis=canvas.select("th.diffplot.axis").append("svg")
                 .attr("height","34px")
                 .attr("width",w+10)
                 .append("svg:g")
@@ -477,7 +477,7 @@ export const AETable = {
         }
 
       //Append a group of rows (<tbody>) for each System Organ Class
-        major_groups=tab.selectAll("tbody")
+        var major_groups=tab.selectAll("tbody")
             .data(data_major,function(d) {return d.key})
             .enter()
             .append("tbody")
@@ -485,7 +485,7 @@ export const AETable = {
             .attr("class",function(d) {return "major-"+d.key.replace(/[^A-Za-z0-9]/g, '')}) //remove non character items
 
       //Append a row summarizing all pref terms for each Major category
-        major_rows=major_groups.selectAll("tr")
+        var major_rows=major_groups.selectAll("tr")
             .data(function(d) {return d.values},function(datum) {return datum.key}) //data is the "all" row 
             .enter()
             .append("tr")
@@ -495,10 +495,10 @@ export const AETable = {
       //Now Append rows for each Minor Category	
       //Important note: We are violating the typical D3 pattern a bit here in that that we do *not* want to .exit().remove() the rows that we already have ...
       //link the Preferred Term Data 
-        major_groups=tab.selectAll("tbody")
+        var major_groups=tab.selectAll("tbody")
         .data(data_minor,function(d) {return d.key})
         
-        minor_rows=major_groups.selectAll("tr")
+        var minor_rows=major_groups.selectAll("tr")
         .data(function(d) {return d.values},function(datum) {return datum.key}) //data is the "all" row 
         .enter()
         .append("tr")
@@ -535,15 +535,15 @@ export const AETable = {
 
         function annoteDetails(row, group, position) {
           //add color for the selected group on all rows
-            allPoints=canvas.selectAll("td.prevplot svg g.points").filter(function(e) {return e.key==group})		
+            var allPoints=canvas.selectAll("td.prevplot svg g.points").filter(function(e) {return e.key==group})		
             allPoints.select("circle")
             .attr("fill",function(d) {return table.colorScale(d.key)})
             .attr("opacity",1)
 
-            allVals=canvas.selectAll("td.values").filter(function(e) {return e.key==group})		
+            var allVals=canvas.selectAll("td.values").filter(function(e) {return e.key==group})		
             allVals.style("color",function(d) {return table.colorScale(d.key)})
 
-            header=canvas.selectAll("th.values").filter(function(e) {return e.key==group})
+            var header=canvas.selectAll("th.values").filter(function(e) {return e.key==group})
             header.style("color",function(d) {return table.colorScale(d.key)})
 
           //Add raw numbers for the current row
@@ -585,11 +585,11 @@ export const AETable = {
       // Mouseover/Mouseout for difference diamonds
       ///////////////////////////////////////////////
         canvas.selectAll("td.diffplot svg g path.diamond").on("mouseover",function(d) {
-            currentRow=canvas.selectAll(".SummaryTable tbody tr").filter(function(e) {
+            var currentRow=canvas.selectAll(".SummaryTable tbody tr").filter(function(e) {
                 return e.values[0].values.major == d.major &&  e.values[0].values.minor == d.minor
             });
 
-            sameGroups=canvas.selectAll("td.diffplot svg g").filter(function(e) {
+            var sameGroups=canvas.selectAll("td.diffplot svg g").filter(function(e) {
                 return e.group1==d.group1 && e.group2 == d.group2;
             });
 
@@ -647,14 +647,14 @@ export const AETable = {
       ///////////////////////////
         canvas.selectAll("td.rowLabel").on("click",function(d) {
           //Update classes (row visibility handeled via css)
-            toggle=!(canvas.select(".SummaryTable table").classed("summary")) // True if we want to draw the participant table, false if we want to remove it. 
+            var toggle=!(canvas.select(".SummaryTable table").classed("summary")) // True if we want to draw the participant table, false if we want to remove it. 
             canvas.select(".SummaryTable table").classed("summary",toggle)
             canvas.select("div.controls").classed("hidden",toggle)				
 
           //create/remove the participant level table		
             if(toggle) {
-                major=d.values[0].values["major"]
-                minor=d.values[0].values["minor"]
+                var major=d.values[0].values["major"]
+                var minor=d.values[0].values["minor"]
                 table.detailTable(
                     canvas,
                     data,

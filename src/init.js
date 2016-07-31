@@ -12,7 +12,7 @@ export function init(canvas, data, settings, onDataError) {
         canvas.append("div").attr("class", "alert alert-error alert-danger").text(msg);
     };
 
-    for(x in settings.variables){
+    for (var x in settings.variables) {
         var varlist = d3.keys(data[0])
         varlist.push("data_all") //exception for situations with no group variable
 
@@ -57,9 +57,9 @@ export function init(canvas, data, settings, onDataError) {
 
   //Initialize Event Listeners
     table.eventListeners.rateFilter(canvas)
-    table.eventListeners.search(canvas, data, data, settings.variables, settings)
-    table.eventListeners.customFilters(canvas, data, data, settings.variables, settings)
+    table.eventListeners.search(canvas, data, settings.variables, settings)
+    table.eventListeners.customFilters(canvas, data, settings.variables, settings)
 
   //Draw the table (remove previous if any)
-    table.AETable.redraw(canvas, data, data, settings.variables, settings)
+    table.AETable.redraw(canvas, data, settings.variables, settings)
 }

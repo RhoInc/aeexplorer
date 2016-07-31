@@ -1,9 +1,9 @@
 export function detailTable(canvas, data, vars, settings) {
-    const major = settings.detailTable.major;
-    const minor = settings.detailTable.minor;
+    var major = settings.detailTable.major;
+    var minor = settings.detailTable.minor;
 
   //Filter the raw data set based on the major and minor categories
-    const details = data.filter(function(e) {
+    var details = data.filter(function(e) {
         majorMatch = major === "All" ? true : (major === e[vars["major"]]);
         minorMatch = minor === "All" ? true : (minor === e[vars["minor"]]);
         return majorMatch && minorMatch;
@@ -17,7 +17,7 @@ export function detailTable(canvas, data, vars, settings) {
     }
 
   //subset to the selected columns
-    const detailVars = vars.details
+    var detailVars = vars.details
         .map(function(e) {
             current = {};
             detailVars.forEach(function(currentVar) {
@@ -48,33 +48,33 @@ export function detailTable(canvas, data, vars, settings) {
 
   //function to make table - taken from basicTable.js
     function basicTable(element, predata) { //REQUIRED
-        const canvas = d3.select(element)
-        const wrapper = canvas.append("div").attr("class","ig-basicTable") //REQUIRED
+        var canvas = d3.select(element)
+        var wrapper = canvas.append("div").attr("class","ig-basicTable") //REQUIRED
 
         function transform(data) {
-            const colList = d3.keys(data[0]);
+            var colList = d3.keys(data[0]);
 
-            const subCols = data.map(function(e) {
-                const current = {};
+            var subCols = data.map(function(e) {
+                var current = {};
                 colList.forEach(function(colName) {
                     current[colName] = e[colName];
                 });
                 return current;
             }) 
 
-            const rowStart = 0;
-            const rowCount = data.length ;
-            const subRows = subCols.slice(rowStart, rowStart+rowCount);
+            var rowStart = 0;
+            var rowCount = data.length ;
+            var subRows = subCols.slice(rowStart, rowStart+rowCount);
 
             return subRows;
         };
 
-        const sub = transform(predata);
+        var sub = transform(predata);
         draw(canvas,sub);
 
         function draw(canvas, data) {
           //add table
-            const table = canvas.select("div.ig-basicTable")
+            var table = canvas.select("div.ig-basicTable")
                 .insert("table", "button")
                 .attr("class","table")
                 .datum(settings);
@@ -86,11 +86,11 @@ export function detailTable(canvas, data, vars, settings) {
                 .append("th").html(function(d) { return d; });
 
           //add table rows (1 per svg row)
-            const tbody = table.append("tbody");
-            const rows = tbody.selectAll("tr").data(data).enter().append("tr");
+            var tbody = table.append("tbody");
+            var rows = tbody.selectAll("tr").data(data).enter().append("tr");
 
           //add columns (once per row)
-            const cols = rows.selectAll("tr")
+            var cols = rows.selectAll("tr")
                 .data(function(d) { return d3.values(d); })
                 .enter()
                 .append("td")
