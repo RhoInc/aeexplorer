@@ -46,20 +46,21 @@ export function init(canvas, data, settings, onDataError) {
     settings.groups.sort()
 
   //Set the domain for the color scale based on groups
-    table.colorScale.domain(settings.groups.map(function(e){return e.key}))
+    this.colorScale.domain(settings.groups.map(function(e){return e.key}))
+    this.colorScale.range()[settings.groups.length] = '#777';
     
   //layout the table
-    table.layout(canvas)
+    this.layout(canvas)
   //table.header.init(canvas, settings)
 
   //Initialize UI (remove previous if any)
-    table.controls.init(canvas, data, settings.variables, settings)
+    this.controls.init(this, canvas, data, settings.variables, settings)
 
   //Initialize Event Listeners
-    table.eventListeners.rateFilter(canvas)
-    table.eventListeners.search(canvas, data, settings.variables, settings)
-    table.eventListeners.customFilters(canvas, data, settings.variables, settings)
+    this.eventListeners.rateFilter(this, canvas)
+    this.eventListeners.search(this, canvas, data, settings.variables, settings)
+    this.eventListeners.customFilters(this, canvas, data, settings.variables, settings)
 
   //Draw the table (remove previous if any)
-    table.AETable.redraw(canvas, data, settings.variables, settings)
+    this.AETable.redraw(this, canvas, data, settings.variables, settings)
 }

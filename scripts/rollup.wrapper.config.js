@@ -4,5 +4,5 @@ module.exports = {
   globals: {
     d3: 'd3'
   },
-  moduleName: 'aeTable'
+  moduleName: 'aeExplorer'
 }; 

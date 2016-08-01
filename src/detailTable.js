@@ -4,8 +4,8 @@ export function detailTable(canvas, data, vars, settings) {
 
   //Filter the raw data set based on the major and minor categories
     var details = data.filter(function(e) {
-        majorMatch = major === "All" ? true : (major === e[vars["major"]]);
-        minorMatch = minor === "All" ? true : (minor === e[vars["minor"]]);
+        var majorMatch = major === "All" ? true : (major === e[vars["major"]]);
+        var minorMatch = minor === "All" ? true : (minor === e[vars["minor"]]);
         return majorMatch && minorMatch;
     });
 
@@ -17,19 +17,19 @@ export function detailTable(canvas, data, vars, settings) {
     }
 
   //subset to the selected columns
-    var detailVars = vars.details
-        .map(function(e) {
-            current = {};
-            detailVars.forEach(function(currentVar) {
-                current[currentVar] = e[currentVar];
-            })
-            return current;
-        });
+    var detailVars = vars.details;
+    var details = details.map(function(e) {
+        var current={};
+        detailVars.forEach(function(currentVar) {
+            current[currentVar] = e[currentVar]
+        })
+        return current;
+    });
 
     canvas.select("div.table-wrapper").append("div").attr("class","DetailTable");
     
   //button to close return to standard view
-    closeButton = canvas.select("div.DetailTable").append("button")
+    var closeButton = canvas.select("div.DetailTable").append("button")
         .attr("class","closeDetailTable btn btn-primary");
 
     closeButton.html("<i class='icon-backward icon-white fa fa-backward'></i>    Return to the Summary View");
@@ -79,7 +79,7 @@ export function detailTable(canvas, data, vars, settings) {
                 .attr("class","table")
                 .datum(settings);
 
-            headerRow = table.append("thead").append("tr");
+            var headerRow = table.append("thead").append("tr");
             headerRow.selectAll("th")
                 .data(d3.keys(data[0]))
                 .enter()
