@@ -1,15 +1,7 @@
 {
   "name": "aeexplorer",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "An interactive tool that allows users to dynamically query adverse event data in real time",
-  "main": "table.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rhoinc/aeexplorer.git"
-  },
   "keywords": [
     "adverse",
     "events",
@@ -18,13 +10,27 @@
     "data",
     "visualization"
   ],
-  "author": "Rho, Inc.",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/rhoinc/aeexplorer/issues"
-  },
   "homepage": "https://github.com/rhoinc/aeexplorer#readme",
+  "license": "ISC",
+  "author": "Rho, Inc.",
+  "main": "build/table.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rhoinc/aeexplorer.git"
+  },
+  "scripts": {
+    "build": "rollup -c ./scripts/rollup.wrapper.config.js | babel > ./build/table.js"
+  },
+  "devDependencies": {
+    "babel": "^5.8.35",
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "rollup": "^0.25.1",
+    "rollup-plugin-babel": "^2.4.0"
+  },
   "dependencies": {
     "d3": "~3.5"
+  },
+  "bugs": {
+    "url": "https://github.com/rhoinc/aeexplorer/issues"
   }
 }

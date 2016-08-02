@@ -120,7 +120,6 @@ div.ig-aetable tr.major td.controls:hover{
 }
 
 /*Handles indentation for nested rows*/
-
 div.ig-aetable tr.minor td.rowLabel{
 	padding-left:15px;
 }
