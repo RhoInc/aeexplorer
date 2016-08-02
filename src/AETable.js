@@ -1,3 +1,7 @@
+/*------------------------------------------------------------------------------------------------\
+  Define AETable object (the meat and potatoes).
+\------------------------------------------------------------------------------------------------*/
+
 import { redraw } from './AETable/redraw';
 import { wipe } from './AETable/wipe';
 import { prepareData } from './AETable/prepareData';

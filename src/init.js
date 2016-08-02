@@ -1,66 +1,80 @@
+/*------------------------------------------------------------------------------------------------\
+  Initialize adverse event explorer.
+\------------------------------------------------------------------------------------------------*/
+
 export function init(canvas, data, settings, onDataError) {
-  // if group is missing just render 1 column
-    if(settings.variables.group==""){
-        settings.variables.group="data_all"
-        settings.groups=[{"key":"All","n":1,"selected":true}]
+  //Render single column if no group variable is specified.
+    if (!(settings.variables.group) || ['', ' '].indexOf(settings.variables.group) > -1) {
+        settings.variables.group = 'data_all';
+        settings.defaults.totalCol = '';
+        settings.groups = [{'key':'All'}];
     }
 
-  //reset canvas as a d3 selection here, rather than in the initial call
+  //Convert the canvas argument to a d3 selection.
     canvas = d3.select(canvas);
-    
-    function errorNote(msg){
-        canvas.append("div").attr("class", "alert alert-error alert-danger").text(msg);
+
+    function errorNote(msg) {
+        canvas.append('div').attr('class', 'alert alert-error alert-danger').text(msg);
     };
 
+  //Check that variables specified in settings exist in data.
     for (var x in settings.variables) {
-        var varlist = d3.keys(data[0])
-        varlist.push("data_all") //exception for situations with no group variable
+        var varList = d3.keys(data[0]).concat('data_all');
 
-        if(varlist.indexOf(settings.variables[x]) === -1){
-            if(settings.variables[x] instanceof Array){
-                settings.variables[x].forEach(function(e){
-                    if(d3.keys(data[0]).indexOf(e) === -1){
-                        errorNote("Error in variables object.");
-                        throw new Error(x + " variable "+"(\""+e+"\") not found in dataset.");
+        if (varList.indexOf(settings.variables[x]) === -1) {
+            if (settings.variables[x] instanceof Array) {
+                settings.variables[x].forEach(function(e) {
+                    if (d3.keys(data[0]).indexOf(e) === -1) {
+                        errorNote('Error in variables object.');
+                        throw new Error(x + ' variable ' + '(\'' + e + '\') not found in dataset.');
                     }
-                })
-            }
-            else{
-                errorNote("Error in variables object.");
-                throw new Error(x + " variable "+"(\""+settings.variables[x]+"\") not found in dataset.");
+                });
+            } else {
+                errorNote('Error in variables object.');
+                throw new Error(x + ' variable ' + '(\'' + settings.variables[x] + '\') not found in dataset.');
             }
         }
-    };
+    }
 
-  //check that groups defined in settings are actually present in dataset
-    settings.groups.forEach(function(e){
-        varlist=d3.set(data.map(function(d){return d[settings.variables.group]})).values()
-        varlist.push("All") //exception for situations with no group variable
-        if(varlist.indexOf(e.key) == -1){
-            errorNote("Error in settings object.");
-            throw new Error("\""+e.key +"\" in the Groups setting is not found in the dataset.");
+  //Check that group values defined in settings are actually present in dataset.
+    if (!(settings.groups) || settings.groups.length === 0) {
+        var groups = [];
+        data.forEach(function(d) {
+            if (groups.indexOf(d[settings.variables.group]) === -1)
+                groups.push(d[settings.variables.group]);
+        });
+        var groupsObject = groups.map(function(d) { return {'key': d}; });
+        settings.groups = groupsObject;
+    }
+
+    settings.groups.forEach(function(e) {
+        var varList = d3.set(
+            data.map(function(d) {
+                return d[settings.variables.group];
+            })).values().concat('All');
+
+        if (varList.indexOf(e.key) === -1) {
+            errorNote('Error in settings object.');
+            throw new Error('\'' + e.key + '\' in the Groups setting is not found in the dataset.');
         }
     });
 
-  //sort the groups so that they match the final data
-    settings.groups.sort()
+  //Set the domain for the color scale based on groups.
+    settings.groups.sort();
+    this.colorScale.domain(
+        settings.groups.map(function(e) {
+            return e.key;
+        }));
 
-  //Set the domain for the color scale based on groups
-    this.colorScale.domain(settings.groups.map(function(e){return e.key}))
-    this.colorScale.range()[settings.groups.length] = '#777';
-    
-  //layout the table
-    this.layout(canvas)
-  //table.header.init(canvas, settings)
+  //Set 'Total' column color to #777.
+    if (settings.defaults.totalCol === 'Show')
+        this.colorScale.range()[settings.groups.length] = '#777';
 
-  //Initialize UI (remove previous if any)
-    this.controls.init(this, canvas, data, settings.variables, settings)
-
-  //Initialize Event Listeners
-    this.eventListeners.rateFilter(this, canvas)
-    this.eventListeners.search(this, canvas, data, settings.variables, settings)
-    this.eventListeners.customFilters(this, canvas, data, settings.variables, settings)
-
-  //Draw the table (remove previous if any)
+  //Initialize adverse event eplorer.
+    this.layout(canvas);
+    this.controls.init(this, canvas, data, settings.variables, settings);
+    this.eventListeners.rateFilter(this, canvas);
+    this.eventListeners.search(this, canvas, data, settings.variables, settings);
+    this.eventListeners.customFilters(this, canvas, data, settings.variables, settings);
     this.AETable.redraw(this, canvas, data, settings.variables, settings)
 }

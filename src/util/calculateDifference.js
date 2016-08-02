@@ -1,9 +1,13 @@
+/*------------------------------------------------------------------------------------------------\
+  Calculate differences between groups.
+\------------------------------------------------------------------------------------------------*/
+
 export function calculateDifference(major, minor, group1, group2, n1, tot1, n2, tot2) {
     var zCrit = 1.96;
     var p1 = n1/tot1;
     var p2 = n2/tot2;
     var diff = (p1 - p2);
-    var se = Math.sqrt(p1*(1-p1)/tot1 + p2*(1-p2)/tot2)
+    var se = Math.sqrt(p1*(1-p1)/tot1 + p2*(1-p2)/tot2);
     var lower = (diff - 1.96*se);
     var upper = (diff + 1.96*se);
     var sig = (lower > 0 | upper < 0) ? 1: 0;

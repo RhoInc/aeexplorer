@@ -1,11 +1,16 @@
+/*------------------------------------------------------------------------------------------------\
+  Define rate filter event listener.
+\------------------------------------------------------------------------------------------------*/
+
 export function rateFilter(table, canvas) {
-    var rateFilter = canvas.select("input.rateFilter")
+    var rateFilter = canvas.select('input.rateFilter');
 
-    rateFilter.on("change", function(d) {
-      //remove all old filter flags
-        canvas.selectAll(".SummaryTable table tbody tr").classed("filter",false)
+    rateFilter.on('change', function(d) {
+      //Clear filter flags.
+        canvas.selectAll('.SummaryTable table tbody tr')
+            .classed('filter', false);
 
-      //add new filter flags as needed
-        table.AETable.toggleRows(canvas) 
+      //Add filter flags.
+        table.AETable.toggleRows(canvas) ;
     });
 }

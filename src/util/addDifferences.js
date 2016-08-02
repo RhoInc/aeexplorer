@@ -1,3 +1,7 @@
+/*------------------------------------------------------------------------------------------------\
+  Add differences to data object.
+\------------------------------------------------------------------------------------------------*/
+
 import { calculateDifference } from './calculateDifference';
 
 export function addDifferences(data, groups) {

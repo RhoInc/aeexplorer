@@ -1,3 +1,7 @@
+/*------------------------------------------------------------------------------------------------\
+  Define util object.
+\------------------------------------------------------------------------------------------------*/
+
 import { calculateDifference } from './util/calculateDifference';
 import { addDifferences } from './util/addDifferences';
 import { cross } from './util/cross';

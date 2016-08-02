@@ -3,9 +3,9 @@
 \------------------------------------------------------------------------------------------------*/
 
 export function redraw(table, canvas, data, vars, settings) {
-    table.controls.search.clear(table, canvas) //Reset the search bar
-    table.AETable.wipe(canvas) //clear previous tables
-    var data_filtered = table.AETable.prepareData(canvas, data,vars,settings) //get the data ready
-    table.AETable.init(table, canvas, data_filtered, vars, settings) // draw the table
-    table.AETable.toggleRows(canvas) //show/hide table rows as needed
+    table.controls.search.clear(table, canvas);
+    table.AETable.wipe(canvas);
+    var filteredData = table.AETable.prepareData(canvas, data, vars, settings);
+    table.AETable.init(table, canvas, filteredData, vars, settings);
+    table.AETable.toggleRows(canvas);
 }
