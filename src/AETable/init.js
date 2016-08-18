@@ -107,7 +107,7 @@ export function init(table, canvas, data, vars, settings) {
                     return d.key + ': ' + d3.format(',.1%')(d.values.per/100); });
 
       //Handle rate differences between groups if settings reference more then one group.
-        if (settings.groups.length > 1) {
+        if (settings.groups.length > 1 && settings.defaults.diffCol === 'Show') {
 
           //Append container for group rate differences.
             var differencePlot = d3.select(this)
@@ -383,7 +383,7 @@ export function init(table, canvas, data, vars, settings) {
             .attr('class', 'values');
     header2.append('th')
         .attr('class', 'prevHeader');
-    if (nGroups > 1) {
+    if (nGroups > 1 && settings.defaults.diffCol === 'Show') {
         header1.append('th')
             .text('Difference Between Groups')
             .attr('class', 'diffplot');

@@ -1,22 +1,10 @@
-import { init } from './init';
-import { colorScale } from './colorScale';
-import { layout } from './layout';
-import { controls } from './controls';
-import { eventListeners } from './eventListeners';
-import { AETable } from './AETable';
-import { detailTable } from './detailTable';
-import { util } from './util';
+import { createTable } from './createTable.js';
+import defaultSettings from './default-settings';
+import './util/object-assign';
 
-export default function aeTable() {
-    const table =
-        {util: util
-        ,init: init
-        ,colorScale: colorScale
-        ,layout: layout
-        ,controls: controls
-        ,eventListeners: eventListeners
-        ,AETable: AETable
-        ,detailTable: detailTable};
+export default function aeExplorer(element, userSettings) {
+    let settings = Object.assign({}, defaultSettings, userSettings);
+    let aeTable = createTable(element, settings);
 
-    return table;
+    return aeTable;
 }

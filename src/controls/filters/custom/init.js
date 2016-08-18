@@ -4,51 +4,56 @@
 
 export function init(selector, data, vars, settings) {
   //Create list of filter variables.
-    var filterVars = vars['filters']
+    var filterVars = settings.filters
         .map(function(e) {
-            return {key:e, values:[]}; });
+            return {
+                value_col: e.value_col,
+                values: []}; });
 
   //Create list for each filter variable of its distinct values.
     filterVars.forEach(function(e) {
         var varLevels = d3.nest()
-            .key(function(d) { return d[e.key]; })
+            .key(function(d) { return d[e.value_col]; })
             .entries(data);
         e.values = varLevels
             .map(function(d) {
-                return d.key; }); });
+                return d.key; });
+    });
 
   //Clear custom controls.
-    selector.selectAll('ul.nav').remove();
+    selector.selectAll('ul.nav')
+        .remove();
 
   //Add filter controls.
-    var filterCustomList = selector
+    var filterList = selector
         .append('ul')
         .attr('class', 'nav');
-    var filterCustom_li = filterCustomList.selectAll('li')
+    var filterItem = filterList.selectAll('li')
         .data(filterVars).enter()
         .append('li')
         .attr('class', function(d) {
             return 'custom-' + d.key + ' filterCustom'; });
-    var filterLabel = filterCustom_li
+    var filterLabel = filterItem
         .append('span')
         .attr('class', 'filterLabel')
         .text(function(d) {
-            if (settings.filterSettings) {
-                var filterLabel = settings.filterSettings.filter(function(d1) {
-                    return d1.key === d.key;
+            if (settings.filters) {
+                var filterLabel = settings.filters.filter(function(d1) {
+                    return d1.value_col === d.value_col;
                 })[0].label;
 
                 return filterLabel ? filterLabel : d.key;
             } else return d.key; });
-    var filterCustom = filterCustom_li
+    var filterCustom = filterItem
         .append('select')
         .attr('multiple', true);
 
-  //Add data-driven filter options 
+  //Add data-driven filter options.
     var filterItems = filterCustom.selectAll('option')
         .data(function(d) {
-            return d.values.filter(function(d) {
-                return ['NA', '', ' '].indexOf(d) === -1; }); })
+            return d.values
+                .filter(function(di) {
+                    return ['NA', '', ' '].indexOf(di) === -1; }); })
         .enter()
         .append('option')
         .html(function(d) {

@@ -2,7 +2,7 @@
   Initialize adverse event explorer.
 \------------------------------------------------------------------------------------------------*/
 
-export function init(canvas, data, settings, onDataError) {
+export function init(data) {
   //Render single column if no group variable is specified.
     if (!(settings.variables.group) || ['', ' '].indexOf(settings.variables.group) > -1) {
         settings.variables.group = 'data_all';
@@ -10,11 +10,11 @@ export function init(canvas, data, settings, onDataError) {
         settings.groups = [{'key':'All'}];
     }
 
-  //Convert the canvas argument to a d3 selection.
-    canvas = d3.select(canvas);
+  //Convert the element argument to a d3 selection.
+    var element = d3.select(this.div);
 
     function errorNote(msg) {
-        canvas.append('div').attr('class', 'alert alert-error alert-danger').text(msg);
+        element.append('div').attr('class', 'alert alert-error alert-danger').text(msg);
     };
 
   //Check that variables specified in settings exist in data.
@@ -71,10 +71,10 @@ export function init(canvas, data, settings, onDataError) {
         this.colorScale.range()[settings.groups.length] = '#777';
 
   //Initialize adverse event eplorer.
-    this.layout(canvas);
-    this.controls.init(this, canvas, data, settings.variables, settings);
-    this.eventListeners.rateFilter(this, canvas);
-    this.eventListeners.search(this, canvas, data, settings.variables, settings);
-    this.eventListeners.customFilters(this, canvas, data, settings.variables, settings);
-    this.AETable.redraw(this, canvas, data, settings.variables, settings)
+    this.layout(element);
+    this.controls.init(this, element, data, settings.variables, settings);
+    this.eventListeners.rateFilter(this, element);
+    this.eventListeners.search(this, element, data, settings.variables, settings);
+    this.eventListeners.customFilters(this, element, data, settings.variables, settings);
+    this.AETable.redraw(this, element, data, settings.variables, settings)
 }

@@ -4,7 +4,7 @@
 
 export function toggleRows(canvas) {
   //Toggle minor rows.
-    var minorToggle = true;
+    var minorToggle = (settings.defaults.prefTerms !== 'Show');
     canvas.selectAll('.SummaryTable tbody')
         .classed('minorHidden', minorToggle);
     canvas.selectAll('.SummaryTable table tbody').select('tr.major td.controls span')

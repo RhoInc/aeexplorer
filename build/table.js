@@ -7,7 +7,7 @@ var aeExplorer = (function () {
       Initialize adverse event explorer.
     \------------------------------------------------------------------------------------------------*/
 
-    function init(canvas, data, settings, onDataError) {
+    function init(data) {
         //Render single column if no group variable is specified.
         if (!settings.variables.group || ['', ' '].indexOf(settings.variables.group) > -1) {
             settings.variables.group = 'data_all';
@@ -15,11 +15,11 @@ var aeExplorer = (function () {
             settings.groups = [{ 'key': 'All' }];
         }
 
-        //Convert the canvas argument to a d3 selection.
-        canvas = d3.select(canvas);
+        //Convert the element argument to a d3 selection.
+        var element = d3.select(this.div);
 
         function errorNote(msg) {
-            canvas.append('div').attr('class', 'alert alert-error alert-danger').text(msg);
+            element.append('div').attr('class', 'alert alert-error alert-danger').text(msg);
         };
 
         //Check that variables specified in settings exist in data.
@@ -74,12 +74,12 @@ var aeExplorer = (function () {
         if (settings.defaults.totalCol === 'Show') this.colorScale.range()[settings.groups.length] = '#777';
 
         //Initialize adverse event eplorer.
-        this.layout(canvas);
-        this.controls.init(this, canvas, data, settings.variables, settings);
-        this.eventListeners.rateFilter(this, canvas);
-        this.eventListeners.search(this, canvas, data, settings.variables, settings);
-        this.eventListeners.customFilters(this, canvas, data, settings.variables, settings);
-        this.AETable.redraw(this, canvas, data, settings.variables, settings);
+        this.layout(element);
+        this.controls.init(this, element, data, settings.variables, settings);
+        this.eventListeners.rateFilter(this, element);
+        this.eventListeners.search(this, element, data, settings.variables, settings);
+        this.eventListeners.customFilters(this, element, data, settings.variables, settings);
+        this.AETable.redraw(this, element, data, settings.variables, settings);
     }
 
     /*------------------------------------------------------------------------------------------------\
@@ -146,11 +146,7 @@ var aeExplorer = (function () {
     \------------------------------------------------------------------------------------------------*/
 
     function set(canvas, settings) {
-        if (settings.defaults !== undefined) {
-            if (settings.defaults.maxPrevalence !== undefined) {
-                canvas.select('div.controls input.rateFilter').property('value', settings.defaults.maxPrevalence);
-            }
-        }
+        canvas.select('div.controls input.rateFilter').property('value', settings.defaults.maxPrevalence ? settings.defaults.maxPrevalence : 0);
     }
 
     var rate = { init: init$2,
@@ -163,14 +159,16 @@ var aeExplorer = (function () {
 
     function init$3(selector, data, vars, settings) {
         //Create list of filter variables.
-        var filterVars = vars['filters'].map(function (e) {
-            return { key: e, values: [] };
+        var filterVars = settings.filters.map(function (e) {
+            return {
+                value_col: e.value_col,
+                values: [] };
         });
 
         //Create list for each filter variable of its distinct values.
         filterVars.forEach(function (e) {
             var varLevels = d3.nest().key(function (d) {
-                return d[e.key];
+                return d[e.value_col];
             }).entries(data);
             e.values = varLevels.map(function (d) {
                 return d.key;
@@ -181,25 +179,25 @@ var aeExplorer = (function () {
         selector.selectAll('ul.nav').remove();
 
         //Add filter controls.
-        var filterCustomList = selector.append('ul').attr('class', 'nav');
-        var filterCustom_li = filterCustomList.selectAll('li').data(filterVars).enter().append('li').attr('class', function (d) {
+        var filterList = selector.append('ul').attr('class', 'nav');
+        var filterItem = filterList.selectAll('li').data(filterVars).enter().append('li').attr('class', function (d) {
             return 'custom-' + d.key + ' filterCustom';
         });
-        var filterLabel = filterCustom_li.append('span').attr('class', 'filterLabel').text(function (d) {
-            if (settings.filterSettings) {
-                var filterLabel = settings.filterSettings.filter(function (d1) {
-                    return d1.key === d.key;
+        var filterLabel = filterItem.append('span').attr('class', 'filterLabel').text(function (d) {
+            if (settings.filters) {
+                var filterLabel = settings.filters.filter(function (d1) {
+                    return d1.value_col === d.value_col;
                 })[0].label;
 
                 return filterLabel ? filterLabel : d.key;
             } else return d.key;
         });
-        var filterCustom = filterCustom_li.append('select').attr('multiple', true);
+        var filterCustom = filterItem.append('select').attr('multiple', true);
 
-        //Add data-driven filter options
+        //Add data-driven filter options.
         var filterItems = filterCustom.selectAll('option').data(function (d) {
-            return d.values.filter(function (d) {
-                return ['NA', '', ' '].indexOf(d) === -1;
+            return d.values.filter(function (di) {
+                return ['NA', '', ' '].indexOf(di) === -1;
             });
         }).enter().append('option').html(function (d) {
             return '<span><i class = "icon-remove icon-white fa fa-times"></i></span>' + (['NA', '', ' '].indexOf(d) > -1 ? '[None]' : d);
@@ -728,7 +726,7 @@ var aeExplorer = (function () {
             });
 
             //Handle rate differences between groups if settings reference more then one group.
-            if (settings.groups.length > 1) {
+            if (settings.groups.length > 1 && settings.defaults.diffCol === 'Show') {
 
                 //Append container for group rate differences.
                 var differencePlot = d3.select(this).append('td').classed('diffplot', true).append('svg').attr('height', h).attr('width', w + 10).append('svg:g').attr('transform', 'translate(5,0)');
@@ -920,7 +918,7 @@ var aeExplorer = (function () {
             return table.colorScale(d.key);
         }).attr('class', 'values');
         header2.append('th').attr('class', 'prevHeader');
-        if (nGroups > 1) {
+        if (nGroups > 1 && settings.defaults.diffCol === 'Show') {
             header1.append('th').text('Difference Between Groups').attr('class', 'diffplot');
             header2.append('th').attr('class', 'diffplot axis');
         }
@@ -1200,7 +1198,7 @@ var aeExplorer = (function () {
 
     function toggleRows(canvas) {
         //Toggle minor rows.
-        var minorToggle = true;
+        var minorToggle = settings.defaults.prefTerms !== 'Show';
         canvas.selectAll('.SummaryTable tbody').classed('minorHidden', minorToggle);
         canvas.selectAll('.SummaryTable table tbody').select('tr.major td.controls span').text(minorToggle ? '+' : '-');
 
@@ -1333,19 +1331,75 @@ var aeExplorer = (function () {
         basicTable('.DetailTable', details);
     }
 
-    function aeTable() {
-        var table = { util: util,
-            init: init,
-            colorScale: colorScale,
-            layout: layout,
-            controls: controls,
-            eventListeners: eventListeners,
-            AETable: AETable,
-            detailTable: detailTable };
+    var table = { init: init,
+        colorScale: colorScale,
+        layout: layout,
+        controls: controls,
+        eventListeners: eventListeners,
+        AETable: AETable,
+        detailTable: detailTable,
+        util: util };
 
-        return table;
+    function createTable() {
+        var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
+        var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+        var thisTable = Object.create(table);
+        thisTable.div = element;
+        thisTable.config = Object.create(config);
+        thisTable.wrap = d3.select(thisTable.div).append('div');
+
+        return thisTable;
     }
 
-    return aeTable;
+    var defaultSettings = { 'variables': { 'id': 'USUBJID',
+            'major': 'AEBODSYS',
+            'minor': 'AEDECOD',
+            'group': 'ARM',
+            'details': [] },
+        'filters': [{ 'value_col': 'AESER',
+            'label': 'Serious?' }, { 'value_col': 'AESEV',
+            'label': 'Severity' }, { 'value_col': 'AEREL',
+            'label': 'Relationship' }, { 'value_col': 'AEOUT',
+            'label': 'Outcome' }],
+        'groups': [],
+        'defaults': { 'maxPrevalence': 0,
+            'totalCol': 'Show',
+            'diffCol': 'Show',
+            'prefTerms': 'Hide' },
+        'validation': false };
+
+    if (typeof Object.assign != 'function') {
+        (function () {
+            Object.assign = function (target) {
+                'use strict';
+                if (target === undefined || target === null) {
+                    throw new TypeError('Cannot convert undefined or null to object');
+                }
+
+                var output = Object(target);
+                for (var index = 1; index < arguments.length; index++) {
+                    var source = arguments[index];
+                    if (source !== undefined && source !== null) {
+                        for (var nextKey in source) {
+                            if (source.hasOwnProperty(nextKey)) {
+                                output[nextKey] = source[nextKey];
+                            }
+                        }
+                    }
+                }
+                return output;
+            };
+        })();
+    }
+
+    function aeExplorer(element, userSettings) {
+        var settings = Object.assign({}, defaultSettings, userSettings);
+        var aeTable = createTable(element, settings);
+
+        return aeTable;
+    }
+
+    return aeExplorer;
 })();
 
