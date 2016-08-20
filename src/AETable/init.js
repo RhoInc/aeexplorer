@@ -254,7 +254,7 @@ export function init(table, canvas, data, vars, settings) {
     });
 
   //Output the data if the validation setting is flagged.
-    if (settings.validation) {
+    if (settings.validation && d3.select('#downloadCSV')[0][0] === null) {
         var collapse = function(nested) {
           //Collapse nested object.
             var collapsed = nested.map(function(soc) {
@@ -324,8 +324,10 @@ export function init(table, canvas, data, vars, settings) {
 
             canvas
                 .append('a')
-                .attr('href', 'data:text/csv;charset=utf-8,' + escape(CSV))
-                .attr('download', true)
+                .attr(
+                    {'href': 'data:text/csv;charset=utf-8,' + escape(CSV)
+                    ,'download': true
+                    ,'id': 'downloadCSV'})
                 .text('Download Summarized Data');
         }
 

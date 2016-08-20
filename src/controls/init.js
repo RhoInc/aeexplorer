@@ -24,7 +24,7 @@ export function init(table, canvas, data, vars, settings) {
 
   //Draw UI component.
     table.controls.filters.rate.init(rateFilter);
-    table.controls.filters.custom.init(customFilters, data,vars,settings);
+    table.controls.filters.custom.init(customFilters, data, vars, settings);
     table.controls.search.init(searchBox);
 
   //Initialize the filter rate.

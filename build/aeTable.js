@@ -1,22 +1,39 @@
 'use strict';
 
-var aeExplorer = (function () {
+var aeTable = (function () {
     'use strict';
+
+    var defaultSettings = { 'variables': { 'id': 'USUBJID',
+            'major': 'AEBODSYS',
+            'minor': 'AEDECOD',
+            'group': 'ARM',
+            'details': [] },
+        'filters': [{ 'value_col': 'AESER',
+            'label': 'Serious?' }, { 'value_col': 'AESEV',
+            'label': 'Severity' }, { 'value_col': 'AEREL',
+            'label': 'Relationship' }, { 'value_col': 'AEOUT',
+            'label': 'Outcome' }],
+        'groups': [],
+        'defaults': { 'maxPrevalence': 0,
+            'totalCol': 'Show',
+            'diffCol': 'Show',
+            'prefTerms': 'Hide' },
+        'validation': false };
 
     /*------------------------------------------------------------------------------------------------\
       Initialize adverse event explorer.
     \------------------------------------------------------------------------------------------------*/
 
     function init(data) {
+        var element = d3.select(this.element);
+        var settings = this.config;
+
         //Render single column if no group variable is specified.
         if (!settings.variables.group || ['', ' '].indexOf(settings.variables.group) > -1) {
             settings.variables.group = 'data_all';
             settings.defaults.totalCol = '';
             settings.groups = [{ 'key': 'All' }];
         }
-
-        //Convert the element argument to a d3 selection.
-        var element = d3.select(this.div);
 
         function errorNote(msg) {
             element.append('div').attr('class', 'alert alert-error alert-danger').text(msg);
@@ -263,7 +280,7 @@ var aeExplorer = (function () {
         //Remove 'clear search' icon and label.
         canvas.select('span.search-label').classed('hidden', true);
 
-        //clear search flags
+        //Clear search flags.
         canvas.selectAll('div.SummaryTable').classed('search', false);
         canvas.selectAll('div.SummaryTable table tbody').classed('search', false);
         canvas.selectAll('div.SummaryTable table tbody tr').classed('search', false);
@@ -462,15 +479,13 @@ var aeExplorer = (function () {
         });
 
         //Filter without bootstrap multiselect
-        canvas.select('.custom-filters').selectAll('select').each(function (dVar) {
-            var currentvar = dVar.key;
+        canvas.select('.custom-filters').selectAll('select').each(function (d) {
 
-            d3.select(this).selectAll('option').each(function (dItem) {
-                var currentitem = dItem;
+            d3.select(this).selectAll('option').each(function (di) {
 
                 if (!d3.select(this).property('selected')) {
-                    sub = sub.filter(function (d) {
-                        return d[currentvar] != currentitem;
+                    sub = sub.filter(function (dii) {
+                        return dii[d.value_col] !== di;
                     });
                 }
             });
@@ -813,7 +828,7 @@ var aeExplorer = (function () {
         });
 
         //Output the data if the validation setting is flagged.
-        if (settings.validation) {
+        if (settings.validation && d3.select('#downloadCSV')[0][0] === null) {
 
             //Function from http://stackoverflow.com/questions/4130849/convert-json-format-to-csv-format-for-ms-excel
 
@@ -841,7 +856,9 @@ var aeExplorer = (function () {
                     CSV += row + '\r\n';
                 }
 
-                canvas.append('a').attr('href', 'data:text/csv;charset=utf-8,' + escape(CSV)).attr('download', true).text('Download Summarized Data');
+                canvas.append('a').attr({ 'href': 'data:text/csv;charset=utf-8,' + escape(CSV),
+                    'download': true,
+                    'id': 'downloadCSV' }).text('Download Summarized Data');
             };
 
             var collapse = function collapse(nested) {
@@ -1331,75 +1348,24 @@ var aeExplorer = (function () {
         basicTable('.DetailTable', details);
     }
 
-    var table = { init: init,
-        colorScale: colorScale,
-        layout: layout,
-        controls: controls,
-        eventListeners: eventListeners,
-        AETable: AETable,
-        detailTable: detailTable,
-        util: util };
-
-    function createTable() {
+    function index() {
         var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
-        var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+        var config = arguments.length <= 1 || arguments[1] === undefined ? defaultSettings : arguments[1];
 
-        var thisTable = Object.create(table);
-        thisTable.div = element;
-        thisTable.config = Object.create(config);
-        thisTable.wrap = d3.select(thisTable.div).append('div');
-
-        return thisTable;
-    }
-
-    var defaultSettings = { 'variables': { 'id': 'USUBJID',
-            'major': 'AEBODSYS',
-            'minor': 'AEDECOD',
-            'group': 'ARM',
-            'details': [] },
-        'filters': [{ 'value_col': 'AESER',
-            'label': 'Serious?' }, { 'value_col': 'AESEV',
-            'label': 'Severity' }, { 'value_col': 'AEREL',
-            'label': 'Relationship' }, { 'value_col': 'AEOUT',
-            'label': 'Outcome' }],
-        'groups': [],
-        'defaults': { 'maxPrevalence': 0,
-            'totalCol': 'Show',
-            'diffCol': 'Show',
-            'prefTerms': 'Hide' },
-        'validation': false };
-
-    if (typeof Object.assign != 'function') {
-        (function () {
-            Object.assign = function (target) {
-                'use strict';
-                if (target === undefined || target === null) {
-                    throw new TypeError('Cannot convert undefined or null to object');
-                }
-
-                var output = Object(target);
-                for (var index = 1; index < arguments.length; index++) {
-                    var source = arguments[index];
-                    if (source !== undefined && source !== null) {
-                        for (var nextKey in source) {
-                            if (source.hasOwnProperty(nextKey)) {
-                                output[nextKey] = source[nextKey];
-                            }
-                        }
-                    }
-                }
-                return output;
-            };
-        })();
-    }
-
-    function aeExplorer(element, userSettings) {
-        var settings = Object.assign({}, defaultSettings, userSettings);
-        var aeTable = createTable(element, settings);
+        var aeTable = { element: element,
+            config: config,
+            init: init,
+            colorScale: colorScale,
+            layout: layout,
+            controls: controls,
+            eventListeners: eventListeners,
+            AETable: AETable,
+            detailTable: detailTable,
+            util: util };
 
         return aeTable;
     }
 
-    return aeExplorer;
+    return index;
 })();
 

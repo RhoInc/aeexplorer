@@ -37,20 +37,19 @@ export function prepareData(canvas, data, vars, settings) {
         return e.key; });
     var sub = data.filter(function(e) {
         return groupNames.indexOf(e[vars['group']]) >= 0; });
-    
+
   //Filter without bootstrap multiselect
     canvas.select('.custom-filters').selectAll('select')
-        .each(function(dVar) {
-            var currentvar = dVar.key;
+        .each(function(d) {
 
             d3.select(this).selectAll('option')
-                .each(function(dItem) {
-                    var currentitem = dItem;
+                .each(function(di) {
 
                     if (!d3.select(this).property('selected')) {
-                        sub = sub.filter(function(d) {
-                            return d[currentvar] != currentitem; });
+                        sub = sub.filter(function(dii) {
+                            return dii[d.value_col] !== di; });
                     }
+
                 });
         });
 

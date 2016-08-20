@@ -3,15 +3,15 @@
 \------------------------------------------------------------------------------------------------*/
 
 export function init(data) {
+    var element = d3.select(this.element);
+    var settings = this.config;
+
   //Render single column if no group variable is specified.
     if (!(settings.variables.group) || ['', ' '].indexOf(settings.variables.group) > -1) {
         settings.variables.group = 'data_all';
         settings.defaults.totalCol = '';
         settings.groups = [{'key':'All'}];
     }
-
-  //Convert the element argument to a d3 selection.
-    var element = d3.select(this.div);
 
     function errorNote(msg) {
         element.append('div').attr('class', 'alert alert-error alert-danger').text(msg);

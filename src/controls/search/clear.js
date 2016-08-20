@@ -20,7 +20,7 @@ export function clear(table, canvas) {
     canvas.select('span.search-label')
         .classed('hidden',true)
 
-  //clear search flags
+  //Clear search flags.
     canvas.selectAll('div.SummaryTable')
         .classed('search', false);
     canvas.selectAll('div.SummaryTable table tbody')

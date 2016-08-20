@@ -1,7 +1,7 @@
 {
-  "name": "aeexplorer",
+  "name": "aeTable",
   "version": "3.0.0",
-  "description": "An interactive tool that allows users to dynamically query adverse event data in real time",
+  "description": "An interactive tool that allows users to dynamically query adverse event data in real time.",
   "keywords": [
     "adverse",
     "events",
@@ -13,13 +13,13 @@
   "homepage": "https://github.com/rhoinc/aeexplorer#readme",
   "license": "ISC",
   "author": "Rho, Inc.",
-  "main": "build/table.js",
+  "main": "build/aeTable.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/rhoinc/aeexplorer.git"
   },
   "scripts": {
-    "build": "rollup -c ./scripts/rollup.wrapper.config.js | babel > ./build/table.js"
+    "build": "rollup -c ./scripts/rollup.wrapper.config.js | babel > ./build/aeTable.js"
   },
   "devDependencies": {
     "babel": "^5.8.35",

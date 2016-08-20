@@ -1,8 +1,8 @@
 module.exports = {
-  entry: './src/wrapper.js',
+  entry: './src/index.js',
   format: 'iife',
   globals: {
     d3: 'd3'
   },
-  moduleName: 'aeExplorer'
+  moduleName: 'aeTable'
 }; 
