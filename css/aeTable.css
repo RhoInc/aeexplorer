@@ -1,285 +1,307 @@
-/**************************************/
-/***** Controls and Table Layout ******/
-/**************************************/
+/*------------------------------------------------------------------------------------------------\
+  AE Table style sheet
+\------------------------------------------------------------------------------------------------*/
 
+    /***--------------------------------------------------------------------------------------\
+      Table layout
+    \--------------------------------------------------------------------------------------***/
 
-/***Navbar***/
+        div.aeTable div.navbar {
+            margin-top:5px;
+        }
 
-div.ig-aetable div.navbar{
-	margin-top:5px;
-}
+        div.aeTable span.headingtext {
+            color:#377EB8;
+        }
 
-div.ig-aetable span.headingtext{
-	color:#377EB8;
-}
+        div.aeTable span.labeltext {
+            color:#BBB;
+            font-size:14px;
+        }
 
-div.ig-aetable span.labeltext{
-	color:#BBB;
-	font-size:14px;
-}
+        div.aeTable div.navbar .dropdown-menu li {
+            cursor: pointer;
+        }
 
-div.ig-aetable div.navbar .dropdown-menu li{
-	cursor: pointer;
-}
+        div.aeTable div.navbar ul.dropdown-menu li a.disabled {
+            color: #BBB;
+        }
 
-div.ig-aetable div.navbar ul.dropdown-menu li a.disabled{
-	color: #BBB;
-}
+    /***--------------------------------------------------------------------------------------\
+      Controls layout
+    \--------------------------------------------------------------------------------------***/
 
+        div.aeTable .controls .rate-filter {
+            float: left;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
 
-/***Control Layout***/
-div.ig-aetable span.sectionhead{
-	font-weight: bold;
-	padding-right:10px;
-}
+        div.aeTable .controls .rate-filter > * {
+            height: 100%;
+            display: table-cell;
+            vertical-align: middle;
+            float: left;
+        }
 
-div.ig-aetable .controls{
-	margin: 0;
-}
+        div.aeTable span.sectionHead {
+            font-weight: bold;
+            padding-right: 10px;
+        }
 
-div.ig-aetable .controls .rate-filter{
-	float: left;
-	margin-bottom: 10px;
-}
+        div.aeTable .controls .rate-filter .rateFilterDiv > * {
+            font-size: 75%;
+            float: left;
+            padding: 3px;
+            display: table-cell;
+            line-height: 1.5em;
+        }
 
-div.ig-aetable  .controls .custom-filters{
-	clear: both;
-}
+        div.aeTable .controls .rate-filter span.add-on {
+            background: #eee;
+            text-align: center;
+            text-shadow: 0 1px 0 #fff;
+            border: 1px solid #ccc;
+        }
 
-div.ig-aetable  .controls .custom-filters ul li{
-	margin: 0 3px 5px 0;
-}
+        div.aeTable .controls .rate-filter span.add-on.before {
+            margin-right: -1px;
+            -webkit-border-radius: 4px 0 0 4px;
+            -moz-border-radius: 4px 0 0 4px;
+            border-radius: 4px 0 0 4px;
+        }
 
-div.ig-aetable  .controls .custom-filters ul li.active > a > label,
-div.ig-aetable  .controls .custom-filters ul li:hover > a > label{
-	color: white;
-}
+        div.aeTable .controls .rate-filter span.add-on.after {
+            margin-left: -1px;
+            -webkit-border-radius: 0 4px 4px 0;
+            -moz-border-radius: 0 4px 4px 0;
+            border-radius: 0 4px 4px 0;
+        }
 
-div.ig-aetable .controls .custom-filters ul li.filterCustom{
-	display:inline-block ;
-	padding-right:5px;
-}
+        div.aeTable .controls .rate-filter input {
+            text-align: right;
+            width: 15%;
+            border: 1px solid #ccc;
+        }
 
-div.ig-aetable .controls .custom-filters ul li.filterCustom *{
-	display:block ;
-}
-div.ig-aetable .controls .rate-filter > *{
-	float: left;
-}
+        div.aeTable  .controls .custom-filters {
+            clear: both;
+        }
 
-div.ig-aetable .controls .rate-filter input{
-	float: left;
-	width: 4em;
-	min-height: 0;
-	text-align: right;
-	padding: 3px;
-	border: 1px solid #ccc;
-}
-div.ig-aetable .controls .rate-filter span{
- 	vertical-align: middle
-}
+        div.aeTable  .controls .custom-filters ul li {
+            margin: 0 3px 5px 0;
+        }
 
-div.ig-aetable span.search-label{
-	float:right;
-	padding-left:5px; 
-	margin-right:5px;
-}
+        div.aeTable  .controls .custom-filters ul li.active > a > label,
+        div.aeTable  .controls .custom-filters ul li:hover > a > label {
+            color: white;
+        }
 
-div.ig-aetable span.search-label span.clear-search{
-	color:red;
-	padding-left:5px;
-	cursor:pointer;
-}
+        div.aeTable .controls .custom-filters ul li.filterCustom {
+            display:inline-block ;
+            padding-right:5px;
+        }
 
+        div.aeTable .controls .custom-filters ul li.filterCustom * {
+            display:block ;
+        }
 
+        div.aeTable span.search-label {
+            float:right;
+            padding-left:5px; 
+            margin-right:5px;
+        }
 
-div.ig-aetable .navbar-search .search-query{
-	float:right;
-	line-height: 1.3em;
-}
+        div.aeTable span.search-label span.clear-search {
+            color:red;
+            padding-left:5px;
+            cursor:pointer;
+        }
 
-/*************************************/
-/***** Summary Table Formatting ******/
-/*************************************/
+        div.aeTable .navbar-search .search-query {
+            float:right;
+            line-height: 1.3em;
+        }
 
-div.ig-aetable .SummaryTable table{
-	border-collapse:collapse;
-}
-div.ig-aetable .SummaryTable tr td{
-	text-align:left;
-	padding: 0.5em 5px;
-}
+    /***--------------------------------------------------------------------------------------\
+      Summary table formatting
+    \--------------------------------------------------------------------------------------***/
 
-td.rowLabel.highlight{
-	text-decoration:underline;
-	cursor:pointer;
-}
+        div.aeTable .SummaryTable table {
+            border-collapse:collapse;
+        }
 
-div.ig-aetable tr.major td.controls:hover{
-	cursor:pointer;
-}
+        div.aeTable .SummaryTable tr td {
+            text-align:left;
+            padding: 0.5em 5px;
+        }
 
-/*Handles indentation for nested rows*/
-div.ig-aetable tr.minor td.rowLabel{
-	padding-left:15px;
-}
+        td.rowLabel.highlight {
+            text-decoration:underline;
+            cursor:pointer;
+        }
 
-div.ig-aetable .SummaryTable tr td.values,
-div.ig-aetable .SummaryTable tr td.prevplot,
-div.ig-aetable .SummaryTable tr td.diffplot,
-div.ig-aetable .SummaryTable th{
-	text-align:center;
-}
+        div.aeTable tr.major td.controls:hover {
+            cursor:pointer;
+        }
 
-div.ig-aetable .SummaryTable th span.group-num{
-	font-size: 9pt;
-}
+        /*Handles indentation for nested rows*/
+        div.aeTable tr.minor td.rowLabel {
+            padding-left:15px;
+        }
 
-div.ig-aetable .SummaryTable thead tr:last-of-type th,
-div.ig-aetable .SummaryTable thead tr th[rowspan="2"]{
-	border-bottom: 1px solid #555;
-}
+        div.aeTable .SummaryTable tr td.values,
+        div.aeTable .SummaryTable tr td.prevplot,
+        div.aeTable .SummaryTable tr td.diffplot,
+        div.aeTable .SummaryTable th {
+            text-align:center;
+        }
 
-div.ig-aetable .SummaryTable th,
-div.ig-aetable .SummaryTable tfoot td {
- 	padding: 0 5px;
-	background-color:#eee;
-	font-weight: bold;
-	border: none;
-}
+        div.aeTable .SummaryTable th span.group-num {
+            font-size: 9pt;
+        }
 
-/* alignment for column header/axes*/
-div.ig-aetable .SummaryTable th.prevHeader svg,
-div.ig-aetable .SummaryTable th.diffplot.axis svg
-{
-	vertical-align: bottom;
-}
+        div.aeTable .SummaryTable thead tr:last-of-type th,
+        div.aeTable .SummaryTable thead tr th[rowspan="2"] {
+            border-bottom: 1px solid #555;
+        }
 
-div.ig-aetable .SummaryTable th.prevHeader,
-div.ig-aetable .SummaryTable th.diffplot.axis
-{
-	padding-bottom: 0px;
-	vertical-align:bottom;
-}	
+        div.aeTable .SummaryTable th,
+        div.aeTable .SummaryTable tfoot td {
+            padding: 0 5px;
+            background-color:#eee;
+            font-weight: bold;
+            border: none;
+        }
 
-div.ig-aetable .SummaryTable th.prevHeader svg text,
-div.ig-aetable .SummaryTable th.diffplot.axis svg text
-{
-	font-size: 10px;
-}	
+        /* alignment for column header/axes*/
+        div.aeTable .SummaryTable th.prevHeader svg,
+        div.aeTable .SummaryTable th.diffplot.axis svg {
+            vertical-align: bottom;
+        }
 
-div.ig-aetable .SummaryTable tfoot, 
-div.ig-aetable .SummaryTable thead{
-	border-top:1px #555 solid;
-	border-bottom:1px #555 solid;	
-}
+        div.aeTable .SummaryTable th.prevHeader,
+        div.aeTable .SummaryTable th.diffplot.axis {
+            padding-bottom: 0px;
+            vertical-align:bottom;
+        }	
 
+        div.aeTable .SummaryTable th.prevHeader svg text,
+        div.aeTable .SummaryTable th.diffplot.axis svg text {
+            font-size: 10px;
+        }	
 
-div.ig-aetable .SummaryTable i{
-	cursor: pointer;
-	font-size: .8em;
-	top: 0px;
-}
+        div.aeTable .SummaryTable tfoot, 
+        div.aeTable .SummaryTable thead {
+            border-top:1px #555 solid;
+            border-bottom:1px #555 solid;	
+        }
 
-/* Handle visibility in various scenarios */
-div.ig-aetable .SummaryTable tr.filter, 
-div.ig-aetable .SummaryTable table tbody.minorHidden tr.minor,
-div.ig-aetable .SummaryTable tr.inactive,
-div.ig-aetable .SummaryTable table.summary{
-	display:none; 
-}
+        div.aeTable .SummaryTable i {
+            cursor: pointer;
+            font-size: .8em;
+            top: 0px;
+        }
 
-div.ig-aetable .hidden{
-	display: none;
-}
+        /* Handle visibility in various scenarios */
+        div.aeTable .SummaryTable tr.filter, 
+        div.aeTable .SummaryTable table tbody.minorHidden tr.minor,
+        div.aeTable .SummaryTable tr.inactive,
+        div.aeTable .SummaryTable table.summary {
+            display:none; 
+        }
 
-/*using set widths to avoid funky behavior on mouseover - could maybe make the width interactive based on the data? */
-div.ig-aetable .SummaryTable tr td.values{
-	min-width:100px;
-	white-space: nowrap;
-}
+        div.aeTable .hidden {
+            display: none;
+        }
 
+        /*using set widths to avoid funky behavior on mouseover - could maybe make the width interactive based on the data? */
+        div.aeTable .SummaryTable tr td.values {
+            min-width:100px;
+            white-space: nowrap;
+        }
 
-div.ig-aetable .SummaryTable table tr:hover {
-	background-color:#eee;
-}
+        div.aeTable .SummaryTable table tr:hover {
+            background-color:#eee;
+        }
 
-div.ig-aetable .SummaryTable button.closeDetailTable{
-	margin-right:auto;
-	margin-left:auto;
-}
+        div.aeTable .SummaryTable button.closeDetailTable {
+            margin-right:auto;
+            margin-left:auto;
+        }
 
-/* Search Visibility */
-div.ig-aetable .SummaryTable.search tbody:not(.search) tr, .SummaryTable.search tbody.search tr:not(.search){
-	display:none;
-}
+        /* Search Visibility */
+        div.aeTable .SummaryTable.search tbody:not(.search) tr, .SummaryTable.search tbody.search tr:not(.search) {
+            display:none;
+        }
 
-div.ig-aetable .SummaryTable.search tbody.search tr.search, .SummaryTable.search tbody.search tr.major{
-	display:table-row;
-}
+        div.aeTable .SummaryTable.search tbody.search tr.search, .SummaryTable.search tbody.search tr.major {
+            display:table-row;
+        }
 
-div.ig-aetable .SummaryTable.search tbody tr.major td.controls span.toggle.icon{
-	display:none;
-}
+        div.aeTable .SummaryTable.search tbody tr.major td.controls span.toggle.icon {
+            display:none;
+        }
 
-div.ig-aetable .SummaryTable.search tbody td.prevplot > svg > g.points > text {
-	font-size: 10px;
-}
+        div.aeTable .SummaryTable.search tbody td.prevplot > svg > g.points > text {
+            font-size: 10px;
+        }
 
-div.ig-aetable span.search{
-	background:#FFFFCC;
-	color:#bbb;
-}
+        div.aeTable span.search {
+            background:#FFFFCC;
+            color:#bbb;
+        }
 
-div.ig-aetable span.icon.toggle{
-	color: inherit;
-	background-position: inherit;
-}
+        div.aeTable span.icon.toggle {
+            color: inherit;
+            background-position: inherit;
+        }
 
-div.ig-aetable span.icon.toggle.transparent > i,
-div.ig-aetable span.icon.details.transparent > i{
-	color: transparent;
-	background-position: 1000px;
-}
+        div.aeTable span.icon.toggle.transparent > i,
+        div.aeTable span.icon.details.transparent > i {
+            color: transparent;
+            background-position: 1000px;
+        }
 
-/************************************/
-/***** Summary Plot Formatting ******/
-/************************************/
+    /***--------------------------------------------------------------------------------------\
+      Summary plot formatting
+    \--------------------------------------------------------------------------------------***/
 
-div.ig-aetable  .axis path {
- 	fill:none;
- 	stroke:none;
- }
+        div.aeTable  .axis path {
+            fill:none;
+            stroke:none;
+        }
 
- div.ig-aetable .axis line {
-   fill: none;
-   stroke: #999;
-   shape-rendering: crispEdges;
- }
+         div.aeTable .axis line {
+           fill: none;
+           stroke: #999;
+           shape-rendering: crispEdges;
+        }
 
-div.ig-aetable .axis{
- 	font-size:10px;
- }
+        div.aeTable .axis {
+            font-size:10px;
+        }
 
- /*************************************/
-/***** Details Table Formatting ******/
-/*************************************/
-div.ig-aetable .DetailTable h4{
-	text-decoration: none;
-	font-weight: normal;
-	margin-top: 10px;
-}
-div.ig-aetable .DetailTable h4 b{
-	text-decoration: none;
-	font-weight: bold;
-}
+    /***--------------------------------------------------------------------------------------\
+      Details table formatting
+    \--------------------------------------------------------------------------------------***/
 
-div.ig-aetable .DetailTable table{
-	font-size: 9pt;
-}
+        div.aeTable .DetailTable h4 {
+            text-decoration: none;
+            font-weight: normal;
+            margin-top: 10px;
+        }
 
-div.ig-aetable .DetailTable th{
-	padding: 3px 5px;
-	text-align: left;
-}
+        div.aeTable .DetailTable h4 b {
+            text-decoration: none;
+            font-weight: bold;
+        }
 
+        div.aeTable .DetailTable table {
+            font-size: 9pt;
+        }
+
+        div.aeTable .DetailTable th {
+            padding: 3px 5px;
+            text-align: left;
+        }

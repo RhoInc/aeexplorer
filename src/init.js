@@ -37,30 +37,24 @@ export function init(data) {
     }
 
   //Check that group values defined in settings are actually present in dataset.
-    if (!(settings.groups) || settings.groups.length === 0) {
-        var groups = [];
-        data.forEach(function(d) {
-            if (groups.indexOf(d[settings.variables.group]) === -1)
-                groups.push(d[settings.variables.group]);
-        });
-        var groupsObject = groups.map(function(d) { return {'key': d}; });
+    var groups = d3.set(data.map(d => d[settings.variables.group]))
+        .values();
+    var groupsObject = groups
+        .map(d => {return {'key': d}; });
+
+    if (!settings.groups || settings.groups.length === 0)
         settings.groups = groupsObject;
-    }
 
-    settings.groups.forEach(function(e) {
-        var varList = d3.set(
-            data.map(function(d) {
-                return d[settings.variables.group];
-            })).values().concat('All');
-
-        if (varList.indexOf(e.key) === -1) {
-            errorNote('Error in settings object.');
-            throw new Error('\'' + e.key + '\' in the Groups setting is not found in the dataset.');
-        }
-    });
+    settings.groups
+        .forEach(d => {
+            if (groups.indexOf(d.key) === -1) {
+                errorNote('Error in settings object.');
+                throw new Error('\'' + e.key + '\' in the Groups setting is not found in the dataset.');
+            }
+        });
 
   //Set the domain for the color scale based on groups.
-    settings.groups.sort();
+    settings.groups.sort((a,b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
     this.colorScale.domain(
         settings.groups.map(function(e) {
             return e.key;

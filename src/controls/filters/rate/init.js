@@ -9,16 +9,23 @@ export function init(selector) {
   //Generate rate filter.
     selector
         .append('span')
-        .html('Prevalence &#8805;&nbsp;');
+        .attr('class', 'sectionHead')
+        .text('Filter by prevalence:');
 
     var rateFilter = selector
         .append('div')
-        .attr('class', 'rateFilterDiv');
+        .attr('class', 'input-prepend input-append input-medium rateFilterDiv');
+    rateFilter
+        .append('span')
+        .attr('class', 'add-on before')
+        .html('&#8805;')
     rateFilter
         .append('input')
-        .attr('class', 'rateFilter')
-        .attr('type', 'text');
-    selector
+        .attr(
+            {'class': 'appendedPrependedInput rateFilter'
+            ,'type': 'text'})
+    rateFilter
         .append('span')
-        .text('%');
+        .attr('class', 'add-on after')
+        .text('%')
 }

@@ -3,7 +3,10 @@
   table.
 \------------------------------------------------------------------------------------------------*/
 
+import { annoteDetails } from './annoteDetails';
 import { util } from '../util';
+import { collapse } from './collapse';
+import { json2csv } from './json2csv';
 
 export function init(table, canvas, data, vars, settings) {
 
@@ -51,14 +54,14 @@ export function init(table, canvas, data, vars, settings) {
       //Calculate total frequency, number of records, population denominator, and rate.
         if (settings.defaults.totalCol === 'Show') {
             var total = {};
-            total.group  = 'Total';
-            total.label  = d.values[0].values.label;
-            total.major  = d.values[0].values.major;
-            total.minor  = d.values[0].values.minor;
-            total.n      = d3.sum (d.values, function(d1) { return d1.values.n     ; });
+            total.group    = 'Total';
+            total.label    = d.values[0].values.label;
+            total.major    = d.values[0].values.major;
+            total.minor    = d.values[0].values.minor;
+            total.n        = d3.sum (d.values, function(d1) { return d1.values.n       ; });
             total.nRecords = d3.sum (d.values, function(d1) { return d1.values.nRecords; });
-            total.tot    = d3.sum (d.values, function(d1) { return d1.values.tot   ; });
-            total.per    = total.n/total.tot*100;
+            total.tot      = d3.sum (d.values, function(d1) { return d1.values.tot     ; });
+            total.per      = total.n/total.tot*100;
 
             d.values[d.values.length] =
                 {key: 'Total'
@@ -75,7 +78,7 @@ export function init(table, canvas, data, vars, settings) {
             .attr('title', function(d) {
                 return d.values.n + '/' + d.values.tot; })
             .text(function(d) {
-                return fixed1(d['values'].per) + '%'; })
+                return d3.format('0.1f')(d['values'].per) + '%'; })
             .style('color', function(d) {
                 return table.colorScale(d.key); });
 
@@ -195,7 +198,7 @@ export function init(table, canvas, data, vars, settings) {
                         table.colorScale(d.group1)})
                 .attr('stroke-opacity', 0.3)
         }
-    }//fillRow(d)
+    }
 
   //Create a dataset nested by [ settings.variables.group ] and [ settings.variables.id ].
     var sub = data.filter(function(e) {
@@ -255,83 +258,25 @@ export function init(table, canvas, data, vars, settings) {
 
   //Output the data if the validation setting is flagged.
     if (settings.validation && d3.select('#downloadCSV')[0][0] === null) {
-        var collapse = function(nested) {
-          //Collapse nested object.
-            var collapsed = nested.map(function(soc) {
-                var allRows = soc.values.map(function(e) {    
-                    var eCollapsed = {};
-                    eCollapsed.majorCategory = '"' + e.values[0].values.major + '"';
-                    eCollapsed.minorCategory = '"' + e.values[0].values.minor + '"';
-
-                    e.values.forEach(function(val,i) {
-                        var n = i + 1;
-                        eCollapsed['val' + n + '_label'] = val.key;
-                        eCollapsed['val' + n + '_numerator'] = val.values.n;
-                        eCollapsed['val' + n + '_denominator'] = val.values.tot;
-                        eCollapsed['val' + n + '_percent'] = val.values.per;
-                    });
-
-                    if (e.differences) {
-                        e.differences.forEach(function(diff,i) {
-                            var n = i + 1;
-                            eCollapsed['diff' + n + '_label'] = diff.group1 + '-' + diff.group2;
-                            eCollapsed['diff' + n + '_val'] = diff['diff'];
-                            eCollapsed['diff' + n + '_sig'] = diff['sig'];
-
-                        });
-                    }
-                    return eCollapsed
-                });
-                return allRows
-            });
-            return d3.merge(collapsed);
-        }
 
         var majorValidation = collapse(dataMajor);
         var minorValidation = collapse(dataMinor);
+
         var fullValidation = d3.merge([majorValidation, minorValidation])
             .sort(function(a,b) {
                 return a.minorCategory < b.minorCategory ? -1 : 1; })
             .sort(function(a,b) {
                 return a.majorCategory < b.majorCategory ? -1 : 1; });
 
-      //Function from http://stackoverflow.com/questions/4130849/convert-json-format-to-csv-format-for-ms-excel
-        function DownloadJSON2CSV(objArray) {
-            var array = typeof objArray !== 'object' ?
-                JSON.parse(objArray) :
-                objArray;
-            var CSV = '';
+        var CSV = json2csv(fullValidation)
 
-          //Output column headers.
-            var header = '';
-            for (var index in array[0]) {
-                header += index + ', ';
-            }
-            header.slice(0, header.length - 1);
-            CSV += header + '\r\n';
-
-          //Output column data.
-            for (var i = 0; i < array.length; i++) {
-                var row = '';
-
-                for (var index in array[i]) {
-                    row += array[i][index] + ', ';
-                }
-
-                row.slice(0, row.length - 1); 
-                CSV += row + '\r\n';
-            }
-
-            canvas
-                .append('a')
-                .attr(
-                    {'href': 'data:text/csv;charset=utf-8,' + escape(CSV)
-                    ,'download': true
-                    ,'id': 'downloadCSV'})
-                .text('Download Summarized Data');
-        }
-
-        DownloadJSON2CSV(fullValidation)
+        canvas
+            .append('a')
+            .attr(
+                {'href': 'data:text/csv;charset=utf-8,' + escape(CSV)
+                ,'download': true
+                ,'id': 'downloadCSV'})
+            .text('Download Summarized Data');
     }
 
   //Draw the summary table headers.
@@ -392,9 +337,6 @@ export function init(table, canvas, data, vars, settings) {
         header2.append('th')
             .attr('class', 'diffplot axis');
     }
-
-  //Set up layout and Scales for the plots.
-    var fixed1 = d3.format('0.1f');
 
   //Plot size
     var h = 15,
@@ -546,77 +488,6 @@ export function init(table, canvas, data, vars, settings) {
             return e.key === 'None/Unknown'; })
         .classed('hidden', true)
 
-  //////////////////////////////////////////////
-  //Set up mouseover and click interactivity
-  /////////////////////////////////////////////
-
-    /**-------------------------------------------------------------------------------------------\
-
-      annoteDetails(row, group, position)
-        - Convenience function that shows the raw #s and annotates point values for a single group
-
-            + row
-                - highlighted row (selection containing a 'tr')
-            + group
-                - group to highlight
-            + position
-                - 'left'/'right' - controls annotation position
-
-    \-------------------------------------------------------------------------------------------**/
-
-    function annoteDetails(row, group, position) {
-      //add color for the selected group on all rows
-        var allPoints = canvas.selectAll('td.prevplot svg g.points')
-            .filter(function(e) {
-                return e.key === group; });
-        allPoints.select('circle')
-            .attr('fill', function(d) {
-                return table.colorScale(d.key); })
-            .attr('opacity', 1);
-
-        var allVals = canvas.selectAll('td.values')
-            .filter(function(e) {
-                return e.key === group; });
-        allVals
-            .style('color', function(d) {
-                return table.colorScale(d.key); });
-
-        var header = canvas.selectAll('th.values')
-            .filter(function(e) {
-                return e.key === group; });
-        header
-            .style('color', function(d) {
-                return table.colorScale(d.key); })
-
-      //Add raw numbers for the current row
-        row.selectAll('td.values')
-            .filter(function(e) {
-                return e.key === group; })
-            .append('span.annote')
-            .classed('annote', true)
-            .text(function(d) {
-                return ' (' + d['values'].n + '/' + d['values'].tot + ')'; });
-
-        //row.select('td.prevplot').selectAll('g.points')
-        //    .filter(function(e) {
-        //        return e.key === group; })
-        //    .append('svg:text')
-        //    .attr('x', function(d) {
-        //        return percentScale(d.values['per']); })   
-        //    .attr('dx', function(d) {
-        //        return position === 'right' ? '1em' : '-1em'; })   
-        //    .attr('y', h/2 + 5)
-        //    .attr('fill', function(d) {
-        //        return table.colorScale(d.values['group']); }) 
-        //    .attr('text-anchor', function(d) {
-        //        return position === 'right' ? 'start' : 'end'; })  
-        //    .attr('class', 'annote')
-        //    .attr('font-size', '10px')
-        //    .style('text-shadow', '1px 1px #fff')
-        //    .text(function(d) {
-        //        return fixed1(d.values['per']); });
-    }
-
   ////////////////////////////////////////////////
   // Mouseover/Mouseout for header columns values
   ////////////////////////////////////////////////
@@ -630,7 +501,7 @@ export function init(table, canvas, data, vars, settings) {
                 .style('color', '#ccc');
 
           //highlight the selected group
-            annoteDetails(canvas.selectAll('.SummaryTable tr'), d.key, 'right');
+            annoteDetails(table, canvas, canvas.selectAll('.SummaryTable tr'), d.key, 'right');
         })
         .on('mouseout', function(d) {
           //Clear annotations
@@ -663,8 +534,8 @@ export function init(table, canvas, data, vars, settings) {
                 .classed('hidden', false);
 
           //Highlight text/points of selected groups.
-            annoteDetails(currentRow, d.group1, ((d.n1/d.tot1) > (d.n2/d.tot2)) ? 'right' : 'left');
-            annoteDetails(currentRow, d.group2, ((d.n1/d.tot1) > (d.n2/d.tot2)) ? 'left' : 'right');
+            annoteDetails(table, canvas, currentRow, d.group1, ((d.n1/d.tot1) > (d.n2/d.tot2)) ? 'right' : 'left');
+            annoteDetails(table, canvas, currentRow, d.group2, ((d.n1/d.tot1) > (d.n2/d.tot2)) ? 'left' : 'right');
 
         })
         .on('mouseout', function(d) {
@@ -673,10 +544,8 @@ export function init(table, canvas, data, vars, settings) {
                     return (d.sig === 1) ? 1 : 0.1; })
                 .attr('stroke-opacity', 0.3);
 
-            if (settings.groups.length === 3) {
-                d3.select(this.parentNode).select('.ci')
-                    .classed('hidden', true);
-            }
+            d3.select(this.parentNode).select('.ci')
+                .classed('hidden', true);
 
           //Restore the percentage colors.
             canvas.selectAll('td.prevplot svg g.points circle')

@@ -59,30 +59,26 @@ var aeTable = (function () {
         }
 
         //Check that group values defined in settings are actually present in dataset.
-        if (!settings.groups || settings.groups.length === 0) {
-            var groups = [];
-            data.forEach(function (d) {
-                if (groups.indexOf(d[settings.variables.group]) === -1) groups.push(d[settings.variables.group]);
-            });
-            var groupsObject = groups.map(function (d) {
-                return { 'key': d };
-            });
-            settings.groups = groupsObject;
-        }
+        var groups = d3.set(data.map(function (d) {
+            return d[settings.variables.group];
+        })).values();
+        var groupsObject = groups.map(function (d) {
+            return { 'key': d };
+        });
 
-        settings.groups.forEach(function (e) {
-            var varList = d3.set(data.map(function (d) {
-                return d[settings.variables.group];
-            })).values().concat('All');
+        if (!settings.groups || settings.groups.length === 0) settings.groups = groupsObject;
 
-            if (varList.indexOf(e.key) === -1) {
+        settings.groups.forEach(function (d) {
+            if (groups.indexOf(d.key) === -1) {
                 errorNote('Error in settings object.');
                 throw new Error('\'' + e.key + '\' in the Groups setting is not found in the dataset.');
             }
         });
 
         //Set the domain for the color scale based on groups.
-        settings.groups.sort();
+        settings.groups.sort(function (a, b) {
+            return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
+        });
         this.colorScale.domain(settings.groups.map(function (e) {
             return e.key;
         }));
@@ -110,7 +106,7 @@ var aeTable = (function () {
     \------------------------------------------------------------------------------------------------*/
 
     function layout(canvas) {
-        var wrapper = canvas.append('div').attr('class', 'ig-aetable row-fluid').append('div').attr('class', 'table-wrapper');
+        var wrapper = canvas.append('div').attr('class', 'aeTable row-fluid').append('div').attr('class', 'table-wrapper');
         wrapper.append('div').attr('class', 'controls form-inline row-fluid');
         wrapper.append('div').attr('class', 'SummaryTable');
     }
@@ -149,11 +145,13 @@ var aeTable = (function () {
         selector.selectAll('span.filterLabel, div.rateFilterDiv').remove();
 
         //Generate rate filter.
-        selector.append('span').html('Prevalence &#8805;&nbsp;');
+        selector.append('span').attr('class', 'sectionHead').text('Filter by prevalence:');
 
-        var rateFilter = selector.append('div').attr('class', 'rateFilterDiv');
-        rateFilter.append('input').attr('class', 'rateFilter').attr('type', 'text');
-        selector.append('span').text('%');
+        var rateFilter = selector.append('div').attr('class', 'input-prepend input-append input-medium rateFilterDiv');
+        rateFilter.append('span').attr('class', 'add-on before').html('&#8805;');
+        rateFilter.append('input').attr({ 'class': 'appendedPrependedInput rateFilter',
+            'type': 'text' });
+        rateFilter.append('span').attr('class', 'add-on after').text('%');
     }
 
     function get() {}
@@ -495,6 +493,50 @@ var aeTable = (function () {
     }
 
     /*------------------------------------------------------------------------------------------------\
+        annoteDetails(table, canvas, row, group)
+        - Convenience function that shows the raw #s and annotates point values for a single group
+              + table
+                - AE table object
+            + canvas
+                - AE table element
+            + row
+                - highlighted row (selection containing a 'tr')
+            + group
+                - group to highlight
+      \------------------------------------------------------------------------------------------------*/
+
+    function annoteDetails(table, canvas, row, group) {
+        //Add color for the selected group on all rows.
+        var allPoints = canvas.selectAll('td.prevplot svg g.points').filter(function (e) {
+            return e.key === group;
+        });
+        allPoints.select('circle').attr('fill', function (d) {
+            return table.colorScale(d.key);
+        }).attr('opacity', 1);
+
+        var allVals = canvas.selectAll('td.values').filter(function (e) {
+            return e.key === group;
+        });
+        allVals.style('color', function (d) {
+            return table.colorScale(d.key);
+        });
+
+        var header = canvas.selectAll('th.values').filter(function (e) {
+            return e.key === group;
+        });
+        header.style('color', function (d) {
+            return table.colorScale(d.key);
+        });
+
+        //Add raw numbers for the current row.
+        row.selectAll('td.values').filter(function (e) {
+            return e.key === group;
+        }).append('span.annote').classed('annote', true).text(function (d) {
+            return ' (' + d['values'].n + '/' + d['values'].tot + ')';
+        });
+    }
+
+    /*------------------------------------------------------------------------------------------------\
       Calculate differences between groups.
     \------------------------------------------------------------------------------------------------*/
 
@@ -535,17 +577,19 @@ var aeTable = (function () {
             data.forEach(function (major) {
                 major.values.forEach(function (minor) {
                     minor.differences = [];
-                    var group1 = minor.values[0];
-                    var group2 = minor.values[1];
-                    var diff1 = calculateDifference(major.key, minor.key, group1.key, group2.key, group1.values.n, group1.values.tot, group2.values.n, group2.values.tot);
-                    minor.differences.push(diff1);
 
-                    if (nGroups === 3) {
-                        var group3 = minor.values[2];
-                        var diff2 = calculateDifference(major.key, minor.key, group1.key, group3.key, group1.values.n, group1.values.tot, group3.values.n, group3.values.tot);
-                        var diff3 = calculateDifference(major.key, minor.key, group2.key, group3.key, group2.values.n, group2.values.tot, group3.values.n, group3.values.tot);
-                        minor.differences.push(diff2, diff3);
-                    }
+                    var groups = minor.values;
+                    var otherGroups = [].concat(minor.values);
+
+                    groups.forEach(function (group) {
+                        delete otherGroups[otherGroups.map(function (m) {
+                            return m.key;
+                        }).indexOf(group.key)];
+                        otherGroups.forEach(function (otherGroup) {
+                            var diff = calculateDifference(major.key, minor.key, group.key, otherGroup.key, group.values.n, group.values.tot, otherGroup.values.n, otherGroup.values.tot);
+                            minor.differences.push(diff);
+                        });
+                    });
                 });
             });
         }
@@ -667,6 +711,73 @@ var aeTable = (function () {
         cross: cross,
         sort: sort };
 
+    /*------------------------------------------------------------------------------------------------\
+      Collapse data for export to .csv.
+    \------------------------------------------------------------------------------------------------*/
+
+    function collapse(nested) {
+        //Collapse nested object.
+        var collapsed = nested.map(function (soc) {
+            var allRows = soc.values.map(function (e) {
+                var eCollapsed = {};
+                eCollapsed.majorCategory = '"' + e.values[0].values.major + '"';
+                eCollapsed.minorCategory = '"' + e.values[0].values.minor + '"';
+
+                e.values.forEach(function (val, i) {
+                    var n = i + 1;
+                    eCollapsed['val' + n + '_label'] = val.key;
+                    eCollapsed['val' + n + '_numerator'] = val.values.n;
+                    eCollapsed['val' + n + '_denominator'] = val.values.tot;
+                    eCollapsed['val' + n + '_percent'] = val.values.per;
+                });
+
+                if (e.differences) {
+                    e.differences.forEach(function (diff, i) {
+                        var n = i + 1;
+                        eCollapsed['diff' + n + '_label'] = diff.group1 + '-' + diff.group2;
+                        eCollapsed['diff' + n + '_val'] = diff['diff'];
+                        eCollapsed['diff' + n + '_sig'] = diff['sig'];
+                    });
+                }
+                return eCollapsed;
+            });
+            return allRows;
+        });
+        return d3.merge(collapsed);
+    }
+
+    /*------------------------------------------------------------------------------------------------\
+      Convert JSON data to comma separated values. Function found at
+      http://stackoverflow.com/questions/4130849/convert-json-format-to-csv-format-for-ms-excel.
+    \------------------------------------------------------------------------------------------------*/
+
+    function json2csv(objArray) {
+        var array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+        var CSV = '';
+
+        //Output column headers.
+        var header = '';
+        for (var index in array[0]) {
+            header += index + ', ';
+        }
+        header.slice(0, header.length - 1);
+        CSV += header + '\r\n';
+
+        //Output column data.
+        for (var i = 0; i < array.length; i++) {
+            var row = '';
+
+            for (var index in array[i]) {
+                row += array[i][index] + ', ';
+            }
+
+            row.slice(0, row.length - 1);
+            CSV += row + '\r\n';
+        }
+
+        return CSV;
+    }
+
     function init$5(table, canvas, data, vars, settings) {
 
         /**-------------------------------------------------------------------------------------------\
@@ -723,7 +834,7 @@ var aeTable = (function () {
             }).enter().append('td').attr('class', 'values').attr('title', function (d) {
                 return d.values.n + '/' + d.values.tot;
             }).text(function (d) {
-                return fixed1(d['values'].per) + '%';
+                return d3.format('0.1f')(d['values'].per) + '%';
             }).style('color', function (d) {
                 return table.colorScale(d.key);
             });
@@ -793,7 +904,7 @@ var aeTable = (function () {
                     return d.diff < 0 ? table.colorScale(d.group2) : table.colorScale(d.group1);
                 }).attr('stroke-opacity', 0.3);
             }
-        } //fillRow(d)
+        }
 
         //Create a dataset nested by [ settings.variables.group ] and [ settings.variables.id ].
         var sub = data.filter(function (e) {
@@ -830,77 +941,20 @@ var aeTable = (function () {
         //Output the data if the validation setting is flagged.
         if (settings.validation && d3.select('#downloadCSV')[0][0] === null) {
 
-            //Function from http://stackoverflow.com/questions/4130849/convert-json-format-to-csv-format-for-ms-excel
-
-            var DownloadJSON2CSV = function DownloadJSON2CSV(objArray) {
-                var array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
-                var CSV = '';
-
-                //Output column headers.
-                var header = '';
-                for (var index in array[0]) {
-                    header += index + ', ';
-                }
-                header.slice(0, header.length - 1);
-                CSV += header + '\r\n';
-
-                //Output column data.
-                for (var i = 0; i < array.length; i++) {
-                    var row = '';
-
-                    for (var index in array[i]) {
-                        row += array[i][index] + ', ';
-                    }
-
-                    row.slice(0, row.length - 1);
-                    CSV += row + '\r\n';
-                }
-
-                canvas.append('a').attr({ 'href': 'data:text/csv;charset=utf-8,' + escape(CSV),
-                    'download': true,
-                    'id': 'downloadCSV' }).text('Download Summarized Data');
-            };
-
-            var collapse = function collapse(nested) {
-                //Collapse nested object.
-                var collapsed = nested.map(function (soc) {
-                    var allRows = soc.values.map(function (e) {
-                        var eCollapsed = {};
-                        eCollapsed.majorCategory = '"' + e.values[0].values.major + '"';
-                        eCollapsed.minorCategory = '"' + e.values[0].values.minor + '"';
-
-                        e.values.forEach(function (val, i) {
-                            var n = i + 1;
-                            eCollapsed['val' + n + '_label'] = val.key;
-                            eCollapsed['val' + n + '_numerator'] = val.values.n;
-                            eCollapsed['val' + n + '_denominator'] = val.values.tot;
-                            eCollapsed['val' + n + '_percent'] = val.values.per;
-                        });
-
-                        if (e.differences) {
-                            e.differences.forEach(function (diff, i) {
-                                var n = i + 1;
-                                eCollapsed['diff' + n + '_label'] = diff.group1 + '-' + diff.group2;
-                                eCollapsed['diff' + n + '_val'] = diff['diff'];
-                                eCollapsed['diff' + n + '_sig'] = diff['sig'];
-                            });
-                        }
-                        return eCollapsed;
-                    });
-                    return allRows;
-                });
-                return d3.merge(collapsed);
-            };
-
             var majorValidation = collapse(dataMajor);
             var minorValidation = collapse(dataMinor);
+
             var fullValidation = d3.merge([majorValidation, minorValidation]).sort(function (a, b) {
                 return a.minorCategory < b.minorCategory ? -1 : 1;
             }).sort(function (a, b) {
                 return a.majorCategory < b.majorCategory ? -1 : 1;
             });
 
-            DownloadJSON2CSV(fullValidation);
+            var CSV = json2csv(fullValidation);
+
+            canvas.append('a').attr({ 'href': 'data:text/csv;charset=utf-8,' + escape(CSV),
+                'download': true,
+                'id': 'downloadCSV' }).text('Download Summarized Data');
         }
 
         //Draw the summary table headers.
@@ -939,9 +993,6 @@ var aeTable = (function () {
             header1.append('th').text('Difference Between Groups').attr('class', 'diffplot');
             header2.append('th').attr('class', 'diffplot axis');
         }
-
-        //Set up layout and Scales for the plots.
-        var fixed1 = d3.format('0.1f');
 
         //Plot size
         var h = 15,
@@ -1041,71 +1092,6 @@ var aeTable = (function () {
             return e.key === 'None/Unknown';
         }).classed('hidden', true);
 
-        //////////////////////////////////////////////
-        //Set up mouseover and click interactivity
-        /////////////////////////////////////////////
-
-        /**-------------------------------------------------------------------------------------------\
-            annoteDetails(row, group, position)
-            - Convenience function that shows the raw #s and annotates point values for a single group
-                  + row
-                    - highlighted row (selection containing a 'tr')
-                + group
-                    - group to highlight
-                + position
-                    - 'left'/'right' - controls annotation position
-          \-------------------------------------------------------------------------------------------**/
-
-        function annoteDetails(row, group, position) {
-            //add color for the selected group on all rows
-            var allPoints = canvas.selectAll('td.prevplot svg g.points').filter(function (e) {
-                return e.key === group;
-            });
-            allPoints.select('circle').attr('fill', function (d) {
-                return table.colorScale(d.key);
-            }).attr('opacity', 1);
-
-            var allVals = canvas.selectAll('td.values').filter(function (e) {
-                return e.key === group;
-            });
-            allVals.style('color', function (d) {
-                return table.colorScale(d.key);
-            });
-
-            var header = canvas.selectAll('th.values').filter(function (e) {
-                return e.key === group;
-            });
-            header.style('color', function (d) {
-                return table.colorScale(d.key);
-            });
-
-            //Add raw numbers for the current row
-            row.selectAll('td.values').filter(function (e) {
-                return e.key === group;
-            }).append('span.annote').classed('annote', true).text(function (d) {
-                return ' (' + d['values'].n + '/' + d['values'].tot + ')';
-            });
-
-            //row.select('td.prevplot').selectAll('g.points')
-            //    .filter(function(e) {
-            //        return e.key === group; })
-            //    .append('svg:text')
-            //    .attr('x', function(d) {
-            //        return percentScale(d.values['per']); })  
-            //    .attr('dx', function(d) {
-            //        return position === 'right' ? '1em' : '-1em'; })  
-            //    .attr('y', h/2 + 5)
-            //    .attr('fill', function(d) {
-            //        return table.colorScale(d.values['group']); })
-            //    .attr('text-anchor', function(d) {
-            //        return position === 'right' ? 'start' : 'end'; }) 
-            //    .attr('class', 'annote')
-            //    .attr('font-size', '10px')
-            //    .style('text-shadow', '1px 1px #fff')
-            //    .text(function(d) {
-            //        return fixed1(d.values['per']); });
-        }
-
         ////////////////////////////////////////////////
         // Mouseover/Mouseout for header columns values
         ////////////////////////////////////////////////
@@ -1115,7 +1101,7 @@ var aeTable = (function () {
             canvas.selectAll('.values').style('color', '#ccc');
 
             //highlight the selected group
-            annoteDetails(canvas.selectAll('.SummaryTable tr'), d.key, 'right');
+            annoteDetails(table, canvas, canvas.selectAll('.SummaryTable tr'), d.key, 'right');
         }).on('mouseout', function (d) {
             //Clear annotations
             canvas.selectAll('td.prevplot svg g.points circle').attr('fill', function (d) {
@@ -1143,16 +1129,14 @@ var aeTable = (function () {
             d3.select(this.parentNode).select('.ci').classed('hidden', false);
 
             //Highlight text/points of selected groups.
-            annoteDetails(currentRow, d.group1, d.n1 / d.tot1 > d.n2 / d.tot2 ? 'right' : 'left');
-            annoteDetails(currentRow, d.group2, d.n1 / d.tot1 > d.n2 / d.tot2 ? 'left' : 'right');
+            annoteDetails(table, canvas, currentRow, d.group1, d.n1 / d.tot1 > d.n2 / d.tot2 ? 'right' : 'left');
+            annoteDetails(table, canvas, currentRow, d.group2, d.n1 / d.tot1 > d.n2 / d.tot2 ? 'left' : 'right');
         }).on('mouseout', function (d) {
             canvas.selectAll('td.diffplot svg g').selectAll('path').attr('fill-opacity', function (d) {
                 return d.sig === 1 ? 1 : 0.1;
             }).attr('stroke-opacity', 0.3);
 
-            if (settings.groups.length === 3) {
-                d3.select(this.parentNode).select('.ci').classed('hidden', true);
-            }
+            d3.select(this.parentNode).select('.ci').classed('hidden', true);
 
             //Restore the percentage colors.
             canvas.selectAll('td.prevplot svg g.points circle').attr('fill', function (d) {

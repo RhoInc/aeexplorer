@@ -5,7 +5,7 @@
 export function layout(canvas) {
     var wrapper = canvas
         .append('div')
-        .attr('class', 'ig-aetable row-fluid')
+        .attr('class', 'aeTable row-fluid')
             .append('div')
             .attr('class', 'table-wrapper');
     wrapper
