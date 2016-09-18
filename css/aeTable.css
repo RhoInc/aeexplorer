@@ -44,6 +44,35 @@
             float: left;
         }
 
+        div.aeTable .controls .summary-control {
+            float: left;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        div.aeTable .controls .summary-control > * {
+            height: 100%;
+            display: table-cell;
+            vertical-align: middle;
+            float: left;
+        }
+
+        div.aeTable .controls .summary-control div {
+            height: 100%;
+            display: table-cell;
+            vertical-align: middle;
+            float: left;
+        }
+
+        div.aeTable .controls .summary-control div label:hover {
+            color: blue;
+        }
+
+        div.aeTable .controls .summary-control div label input {
+            float: left;
+        }
+
+
         div.aeTable span.sectionHead {
             font-weight: bold;
             padding-right: 10px;

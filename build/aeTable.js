@@ -89,6 +89,7 @@ var aeTable = (function () {
         this.layout(element);
         this.controls.init(this, element, data, settings.variables, settings);
         this.eventListeners.rateFilter(this, element);
+        this.eventListeners.summaryControl(this, element, data, settings.variables, settings);
         this.eventListeners.search(this, element, data, settings.variables, settings);
         this.eventListeners.customFilters(this, element, data, settings.variables, settings);
         this.AETable.redraw(this, element, data, settings.variables, settings);
@@ -123,11 +124,13 @@ var aeTable = (function () {
 
         //Generate HTML containers.
         var rateFilter = controls.append('div').attr('class', 'rate-filter');
+        var summaryControl = controls.append('div').attr('class', 'summary-control');
         var searchBox = controls.append('form').attr('class', 'searchForm navbar-search pull-right').attr('onsubmit', 'return false;');
         var customFilters = controls.append('div').attr('class', 'custom-filters');
 
         //Draw UI component.
         table.controls.filters.rate.init(rateFilter);
+        table.controls.summaryControl.init(summaryControl);
         table.controls.filters.custom.init(customFilters, data, vars, settings);
         table.controls.search.init(searchBox);
 
@@ -235,11 +238,32 @@ var aeTable = (function () {
     var filters = { rate: rate,
         custom: custom };
 
+    /*------------------------------------------------------------------------------------------------\
+      Initialize summary control.
+    \------------------------------------------------------------------------------------------------*/
+
+    function init$4(selector) {
+        //Clear summary control.
+        selector.selectAll('div.summaryDiv').remove();
+
+        //Generate summary control.
+        selector.append('span').attr('class', 'sectionHead').text('Summarize by:');
+
+        var summaryControl = selector.append('div').attr('class', 'input-prepend input-append input-medium summaryDiv');
+        summaryControl.append('div').append('label').style('font-weight', 'bold').text('participant').append('input').attr({ 'class': 'appendedPrependedInput summaryRadio',
+            'type': 'radio',
+            'checked': true });
+        summaryControl.append('div').append('label').text('event').append('input').attr({ 'class': 'appendedPrependedInput summaryRadio',
+            'type': 'radio' });
+    }
+
+    var summaryControl = { init: init$4 };
+
     /*------------------------------------------------------------------------------------------------\
       Initialize search control.
     \------------------------------------------------------------------------------------------------*/
 
-    function init$4(selector) {
+    function init$5(selector) {
         //Clear search control.
         selector.selectAll('span.seach-label, input.searchBar').remove();
 
@@ -286,13 +310,14 @@ var aeTable = (function () {
         table.AETable.toggleRows(canvas);
     }
 
-    var search = { init: init$4,
+    var search = { init: init$5,
         get: get$2,
         set: set$2,
         clear: clear };
 
     var controls = { init: init$1,
         filters: filters,
+        summaryControl: summaryControl,
         search: search };
 
     /*------------------------------------------------------------------------------------------------\
@@ -308,6 +333,25 @@ var aeTable = (function () {
 
             //Add filter flags.
             table.AETable.toggleRows(canvas);
+        });
+    }
+
+    /*------------------------------------------------------------------------------------------------\
+      Define summary control event listener.
+    \------------------------------------------------------------------------------------------------*/
+
+    function summaryControl$1(table, canvas, data, vars, settings) {
+        var summaryControls = canvas.selectAll('div.summaryDiv .summaryRadio');
+
+        summaryControls.on('change', function (d) {
+            summaryControls.each(function (di) {
+                d3.select(this.parentNode).style('font-weight', 'normal');
+                d3.select(this)[0][0].checked = false;
+            });
+            d3.select(this)[0][0].checked = true;
+            d3.select(this.parentNode).style('font-weight', 'bold');
+            var summary = d3.select(this.parentNode)[0][0].textContent;
+            table.AETable.redraw(table, canvas, data, vars, settings, summary);
         });
     }
 
@@ -406,6 +450,7 @@ var aeTable = (function () {
     }
 
     var eventListeners = { rateFilter: rateFilter,
+        summaryControl: summaryControl$1,
         customFilters: customFilters,
         search: search$1 };
 
@@ -613,6 +658,9 @@ var aeTable = (function () {
         var groupNames = groups.map(function (d) {
             return d.key;
         });
+        var summary = d3.selectAll('.summaryDiv label').filter(function (d) {
+            return d3.select(this).selectAll('.summaryRadio').property('checked');
+        })[0][0].textContent;
 
         //Calculate [id] and event frequencies and rates by [major], [minor], and [group].
         var nestedData = d3.nest().key(function (d) {
@@ -630,23 +678,24 @@ var aeTable = (function () {
             selection.label = selection.minor === 'All' ? selection.major : selection.minor;
             selection.group = d[0][group];
 
-            //Numerator
-            var ids = d3.nest().key(function (di) {
-                return di[id];
-            }).entries(d);
-            selection.n = ids.length;
-            selection.nEvents = d.length;
-
-            //Denominator
             var currentGroup = groups.filter(function (di) {
                 return di.key === d[0][group];
             });
-            selection.tot = currentGroup[0].n;
-            selection.totEvents = currentGroup[0].nEvents;
+
+            //Numerator/denominator
+            if (summary === 'participant') {
+                var ids = d3.nest().key(function (di) {
+                    return di[id];
+                }).entries(d);
+                selection.n = ids.length;
+                selection.tot = currentGroup[0].n;
+            } else {
+                selection.n = d.length;
+                selection.tot = currentGroup[0].nEvents;
+            }
 
             //Rate
             selection.per = Math.round(selection.n / selection.tot * 1000) / 10;
-            selection.perEvents = Math.round(selection.nEvents / selection.totEvents * 1000) / 10;
 
             return selection;
         }).entries(data);
@@ -663,8 +712,8 @@ var aeTable = (function () {
                         var currentGroup = groups.filter(function (d) {
                             return d.key === dGroup;
                         });
-                        var tot = currentGroup[0].n;
-                        var totEvents = currentGroup[0].nEvents;
+                        var tot = summary === 'participant' ? currentGroup[0].n : currentGroup[0].nEvents;
+
                         var shellMajorMinorGroup = { key: dGroup,
                             values: { major: dMajor.key,
                                 minor: dMinor.key,
@@ -672,13 +721,8 @@ var aeTable = (function () {
                                 group: dGroup,
 
                                 n: 0,
-                                nEvents: 0,
-
                                 tot: tot,
-                                totEvents: totEvents,
-
-                                per: 0,
-                                perEvents: 0 } };
+                                per: 0 } };
 
                         dMinor.values.push(shellMajorMinorGroup);
                     }
@@ -791,7 +835,10 @@ var aeTable = (function () {
         return CSV;
     }
 
-    function init$5(table, canvas, data, vars, settings) {
+    function init$6(table, canvas, data, vars, settings) {
+        var summary = d3.selectAll('.summaryDiv label').filter(function (d) {
+            return d3.select(this).selectAll('.summaryRadio').property('checked');
+        })[0][0].textContent;
 
         /**-------------------------------------------------------------------------------------------\
             fillrow(d)
@@ -830,19 +877,11 @@ var aeTable = (function () {
                 total.n = d3.sum(d.values, function (di) {
                     return di.values.n;
                 });
-                total.nEvents = d3.sum(d.values, function (di) {
-                    return di.values.nEvents;
-                });
-
                 total.tot = d3.sum(d.values, function (di) {
                     return di.values.tot;
                 });
-                total.totEvents = d3.sum(d.values, function (di) {
-                    return di.values.totEvents;
-                });
 
                 total.per = total.n / total.tot * 100;
-                total.perEvents = total.nEvents / total.totEvents * 100;
 
                 d.values[d.values.length] = { key: 'Total',
                     values: total };
@@ -1003,8 +1042,11 @@ var aeTable = (function () {
         header2.selectAll('td.values').data(totalCol ? settings.groups.concat({ key: 'Total',
             n: d3.sum(settings.groups, function (d) {
                 return d.n;
+            }),
+            nEvents: d3.sum(settings.groups, function (d) {
+                return d.nEvents;
             }) }) : settings.groups).enter().append('th').html(function (d) {
-            return '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + d.n + ')</span>';
+            return '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + (summary === 'participant' ? d.n : d.nEvents) + ')</span>';
         }).style('color', function (d) {
             return table.colorScale(d.key);
         }).attr('class', 'values');
@@ -1248,7 +1290,7 @@ var aeTable = (function () {
     var AETable = { redraw: redraw,
         wipe: wipe,
         prepareData: prepareData,
-        init: init$5,
+        init: init$6,
         eventListeners: eventListeners$1,
         toggleRows: toggleRows };
 

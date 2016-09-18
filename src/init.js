@@ -68,6 +68,7 @@ export function init(data) {
     this.layout(element);
     this.controls.init(this, element, data, settings.variables, settings);
     this.eventListeners.rateFilter(this, element);
+    this.eventListeners.summaryControl(this, element, data, settings.variables, settings);
     this.eventListeners.search(this, element, data, settings.variables, settings);
     this.eventListeners.customFilters(this, element, data, settings.variables, settings);
     this.AETable.redraw(this, element, data, settings.variables, settings)

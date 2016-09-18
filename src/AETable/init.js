@@ -9,6 +9,10 @@ import { collapse } from './collapse';
 import { json2csv } from './json2csv';
 
 export function init(table, canvas, data, vars, settings) {
+    var summary = d3.selectAll('.summaryDiv label')
+        .filter(function(d) {
+            return d3.select(this).selectAll('.summaryRadio').property('checked'); })[0][0]
+        .textContent;
 
     /**-------------------------------------------------------------------------------------------\
 
@@ -59,14 +63,10 @@ export function init(table, canvas, data, vars, settings) {
             total.label     = d.values[0].values.label;
             total.group     = 'Total';
 
-            total.n         = d3.sum (d.values, di => di.values.n        );
-            total.nEvents   = d3.sum (d.values, di => di.values.nEvents  );
+            total.n   = d3.sum (d.values, di => di.values.n);
+            total.tot = d3.sum (d.values, di => di.values.tot);
 
-            total.tot       = d3.sum (d.values, di => di.values.tot      );
-            total.totEvents = d3.sum (d.values, di => di.values.totEvents);
-
-            total.per       = total.n/total.tot*100;
-            total.perEvents = total.nEvents/total.totEvents*100;
+            total.per = total.n/total.tot*100;
 
             d.values[d.values.length] =
                 {key: 'Total'
@@ -324,14 +324,13 @@ export function init(table, canvas, data, vars, settings) {
         .data((totalCol ?
             settings.groups.concat(
                 {key: 'Total'
-                ,n: d3.sum(settings.groups, function(d) { return d.n; })}) :
+                ,n: d3.sum(settings.groups, d => d.n)
+                ,nEvents: d3.sum(settings.groups, d => d.nEvents)}) :
             settings.groups))
         .enter()
         .append('th')
-            .html(function(d) {
-                return '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + d.n + ')</span>'; })
-            .style('color', function(d) {
-                return table.colorScale(d.key); })
+            .html(d => '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + (summary === 'participant' ? d.n : d.nEvents) + ')</span>')
+            .style('color', d => table.colorScale(d.key))
             .attr('class', 'values');
     header2.append('th')
         .attr('class', 'prevHeader');

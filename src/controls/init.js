@@ -14,6 +14,9 @@ export function init(table, canvas, data, vars, settings) {
     var rateFilter = controls
         .append('div')
         .attr('class', 'rate-filter');
+    var summaryControl = controls
+        .append('div')
+        .attr('class', 'summary-control');
     var searchBox = controls
         .append('form')
         .attr('class', 'searchForm navbar-search pull-right')
@@ -24,6 +27,7 @@ export function init(table, canvas, data, vars, settings) {
 
   //Draw UI component.
     table.controls.filters.rate.init(rateFilter);
+    table.controls.summaryControl.init(summaryControl);
     table.controls.filters.custom.init(customFilters, data, vars, settings);
     table.controls.search.init(searchBox);
 
