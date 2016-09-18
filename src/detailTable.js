@@ -7,25 +7,21 @@ export function detailTable(canvas, data, vars, settings) {
     var minor = settings.detailTable.minor;
 
   //Filter the raw data given the select major and/or minor category.
-    var details = data.filter(function(e) {
-        var majorMatch = major === 'All' ? true : (major === e[vars['major']]);
-        var minorMatch = minor === 'All' ? true : (minor === e[vars['minor']]);
-        return majorMatch && minorMatch;
+    var details = data.filter(d => {
+        var majorMatch = major === 'All' ? true : (major === d[vars['major']]);
+        var minorMatch = minor === 'All' ? true : (minor === d[vars['minor']]);
+        return majorMatch && minorMatch && d[vars['major']] !== 'None/Unknown';
     });
 
-    if (vars.details.length === 0) {
+    if (vars.details.length === 0)
         vars.details = Object.keys(data[0])
-            .filter(function(d) {
-                return ['data_all', 'flag'].indexOf(d) === -1; });
-    }
+            .filter(d => ['data_all', 'flag'].indexOf(d) === -1);
 
   //Keep only those columns specified in settings.variables.details.
     var detailVars = vars.details;
-    var details = details.map(function(e) {
+    var details = details.map(d => {
         var current = {};
-        detailVars.forEach(function(currentVar) {
-            current[currentVar] = e[currentVar]
-        })
+        detailVars.forEach(currentVar => current[currentVar] = d[currentVar]);
         return current;
     });
 
@@ -41,7 +37,7 @@ export function detailTable(canvas, data, vars, settings) {
     closeButton
         .html('<i class="icon-backward icon-white fa fa-backward"></i>    Return to the Summary View');
     
-    closeButton.on('click',function() {
+    closeButton.on('click', () => {
         canvas.select('.SummaryTable table')
             .classed('summary', false);
         canvas.select('div.controls')
@@ -61,21 +57,20 @@ export function detailTable(canvas, data, vars, settings) {
 
   //Generate listing.
     function basicTable(element, predata) {
-        var canvas = d3.select(element)
+        var canvas = d3.select(element);
         var wrapper = canvas
             .append('div')
-            .attr('class', 'ig-basicTable')
+            .attr('class', 'ig-basicTable');
 
         function transform(data) {
             var colList = d3.keys(data[0]);
 
-            var subCols = data.map(function(e) {
+            var subCols = data.map(d => {
                 var current = {};
-                colList.forEach(function(colName) {
-                    current[colName] = e[colName];
-                });
+                colList.forEach(colName => current[colName] = d[colName]);
+
                 return current;
-            }) ;
+            });
 
             var rowStart = 0;
             var rowCount = data.length;
@@ -102,8 +97,7 @@ export function detailTable(canvas, data, vars, settings) {
                 .data(d3.keys(data[0]))
                 .enter()
                 .append('th')
-                .html(function(d) {
-                    return d; });
+                .html(d => d);
 
           //Add rows to listing container.
             var tbody = listing
@@ -115,12 +109,10 @@ export function detailTable(canvas, data, vars, settings) {
 
           //Add data cells to rows.
             var cols = rows.selectAll('tr')
-                .data(function(d) {
-                    return d3.values(d); })
+                .data(d => d3.values(d))
                 .enter()
                 .append('td')
-                .html(function(d) {
-                    return d; });
+                .html(d => d);
         };
     }
     basicTable('.DetailTable', details);

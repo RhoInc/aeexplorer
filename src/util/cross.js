@@ -5,78 +5,80 @@
 
 export function cross(data, groups, id, major, minor, group) {
     var groupNames = groups
-        .map(function(e) {
-            return e.key; });
+        .map(d => d.key);
 
-  //Calculate number of events, number of subjects, and adverse event rate by major, minor, and
-  //group.
+  //Calculate [id] and event frequencies and rates by [major], [minor], and [group].
     var nestedData = d3.nest()
-        .key(function(d) { return major == 'All' ? 'All' : d[major]; })
-        .key(function(d) { return minor == 'All' ? 'All' : d[minor]; })
-        .key(function(d) { return d[group]; })
-        .rollup(function(d) {
-            var selectedMajor = major === 'All' ? 'All' : d[0][major];
-            var selectedMinor = minor === 'All' ? 'All' : d[0][minor];
-            var selectedGroup = d[0][group];
+        .key(d => major == 'All' ? 'All' : d[major])
+        .key(d => minor == 'All' ? 'All' : d[minor])
+        .key(d => d[group])
+        .rollup(d => {
+            var selection = {};
 
-            var nRecords = d.length;
+          //Category
+            selection.major = major === 'All' ? 'All' : d[0][major];
+            selection.minor = minor === 'All' ? 'All' : d[0][minor];
+            selection.label = selection.minor === 'All' ? selection.major : selection.minor;
+            selection.group = d[0][group];
+
+          //Numerator
             var ids = d3.nest()
-                .key(function(d) { return d[id]; })
+                .key(di => di[id])
                 .entries(d);
-            var n = ids.length;
+            selection.n = ids.length;
+            selection.nEvents = d.length;
+
+          //Denominator
             var currentGroup = groups
-                .filter(function(e) {
-                    return e.key === d[0][group]; });
-            var tot = currentGroup[0].n;
-            var per = Math.round(n/tot*1000)/10;
+                .filter(di => di.key === d[0][group]);
+            selection.tot = currentGroup[0].n;
+            selection.totEvents = currentGroup[0].nEvents;
 
-            var selectedMajorMinorGroup =
-                {major: selectedMajor
-                ,minor: selectedMinor
-                ,label: selectedMinor === 'All' ? selectedMajor : selectedMinor
-                ,group: selectedGroup
-                ,nRecords: nRecords
-                ,n: n
-                ,tot: tot
-                ,per: per}; 
+          //Rate
+            selection.per = Math.round(selection.n/selection.tot*1000)/10;
+            selection.perEvents = Math.round(selection.nEvents/selection.totEvents*1000)/10;
 
-            return selectedMajorMinorGroup; })
+            return selection; })
         .entries(data);
 
   //Generate data objects for major*minor*group combinations absent in data.
-    nestedData.forEach(function(eMajor) { 
-        eMajor.values.forEach(function(eMinor) {
-            var currentGroupList = eMinor.values.map(function(e) {
-                return e.key; });
+    nestedData.forEach(function(dMajor) { 
+        dMajor.values.forEach(function(dMinor) {
+            var currentGroupList = dMinor.values
+                .map(d => d.key);
 
             groupNames
-                .forEach(function(eGroup, groupIndex) {
-                    if (currentGroupList.indexOf(eGroup) === -1) {
+                .forEach(function(dGroup, groupIndex) {
+                    if (currentGroupList.indexOf(dGroup) === -1) {
                         var currentGroup = groups
-                            .filter(function(e) {
-                                return e.key === eGroup; })
+                            .filter(d => d.key === dGroup);
                         var tot = currentGroup[0].n;
+                        var totEvents = currentGroup[0].nEvents;
                         var shellMajorMinorGroup =
-                            {key: eGroup
+                            {key: dGroup
                             ,values:
-                                {group: eGroup
-                                ,label: eMinor.key=='All' ? eMajor.key : eMinor.key
-                                ,major: eMajor.key
-                                ,minor: eMinor.key
-                                ,n: 0
-                                ,nRecords: 0
-                                ,per: 0
-                                ,tot: tot
-                                }};
+                                {major: dMajor.key
+                                ,minor: dMinor.key
+                                ,label: dMinor.key === 'All' ? dMajor.key : dMinor.key
+                                ,group: dGroup
 
-                        eMinor.values.push(shellMajorMinorGroup);
+                                ,n: 0
+                                ,nEvents: 0
+
+                                ,tot: tot
+                                ,totEvents: totEvents
+
+                                ,per: 0
+                                ,perEvents: 0}};
+
+                        dMinor.values.push(shellMajorMinorGroup);
                     }
                 });
 
-            eMinor.values
-                .sort(function(a,b) {
-                    return  groups.map(function(group) { return group.key; }).indexOf(a.key) -
-                            groups.map(function(group) { return group.key; }).indexOf(b.key); });
+            dMinor.values
+                .sort((a,b) =>
+                    groups.map(group => group.key).indexOf(a.key)-
+                    groups.map(group => group.key).indexOf(b.key));
         });
     });
 

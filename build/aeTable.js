@@ -66,7 +66,9 @@ var aeTable = (function () {
             return { 'key': d };
         });
 
-        if (!settings.groups || settings.groups.length === 0) settings.groups = groupsObject;
+        if (!settings.groups || settings.groups.length === 0) settings.groups = groupsObject.sort(function (a, b) {
+            return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
+        });
 
         settings.groups.forEach(function (d) {
             if (groups.indexOf(d.key) === -1) {
@@ -76,9 +78,6 @@ var aeTable = (function () {
         });
 
         //Set the domain for the color scale based on groups.
-        settings.groups.sort(function (a, b) {
-            return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
-        });
         this.colorScale.domain(settings.groups.map(function (e) {
             return e.key;
         }));
@@ -438,54 +437,62 @@ var aeTable = (function () {
     \------------------------------------------------------------------------------------------------*/
 
     function prepareData(canvas, data, vars, settings) {
-        data.forEach(function (e) {
-            e.data_all = 'All';
-            e.flag = 0;
+        var noAEs = ['', 'na', 'n/a', 'no ae', 'no aes', 'none', 'unknown', 'none/unknown'];
 
-            if (['No AEs', 'NA', 'na', '', ' ', 'None/Unknown', 'N/A'].indexOf(e[vars.major].trim()) > -1) {
-                e[vars.major] = 'None/Unknown';
-                e.flag = 1;
+        //Flag records which represent [vars.id] values without an adverse event.
+        data.forEach(function (d) {
+            d.data_all = 'All';
+            d.flag = 0;
+
+            if (noAEs.indexOf(d[vars.major].trim().toLowerCase()) > -1) {
+                d[vars.major] = 'None/Unknown';
+                d.flag = 1;
             }
 
-            if (['No AEs', 'NA', 'na', '', ' ', 'None/Unknown', 'N/A'].indexOf(e[vars.minor].trim()) > -1) {
-                e[vars.minor] = 'None/Unknown';
+            if (noAEs.indexOf(d[vars.minor].trim().toLowerCase()) > -1) {
+                d[vars.minor] = 'None/Unknown';
             }
         });
 
-        //Calculate group subject totals.
+        //Nest data by [vars.group] and [vars.id].
         var nestedData = d3.nest().key(function (d) {
             return d[vars.group];
         }).key(function (d) {
             return d[vars.id];
         }).entries(data);
 
-        settings.groups.forEach(function (e) {
-            var groupData = nestedData.filter(function (f) {
-                return f.key === e.key;
+        //Calculate number of [vars.id] and number of events.
+        settings.groups.forEach(function (d) {
+            //Filter nested data on [vars.group].
+            var groupData = nestedData.filter(function (di) {
+                return di.key === d.key;
             });
-            e.n = groupData.length ? groupData[0].values.length : d3.sum(nestedData.map(function (m) {
-                return m.values.length;
+
+            //Calculate number of [vars.id].
+            d.n = groupData.length > 0 ? groupData[0].values.length : d3.sum(nestedData.map(function (di) {
+                return di.values.length;
             }));
+
+            //Calculate number of events.
+            d.nEvents = data.filter(function (di) {
+                return di[vars.group] === d.key && di.flag === 0;
+            }).length;
         });
 
         //Subset data on groups specified in settings.groups.
-        var groupNames = settings.groups.map(function (e) {
-            return e.key;
+        var groupNames = settings.groups.map(function (d) {
+            return d.key;
         });
-        var sub = data.filter(function (e) {
-            return groupNames.indexOf(e[vars['group']]) >= 0;
+        var sub = data.filter(function (d) {
+            return groupNames.indexOf(d[vars['group']]) >= 0;
         });
 
         //Filter without bootstrap multiselect
         canvas.select('.custom-filters').selectAll('select').each(function (d) {
-
             d3.select(this).selectAll('option').each(function (di) {
-
-                if (!d3.select(this).property('selected')) {
-                    sub = sub.filter(function (dii) {
-                        return dii[d.value_col] !== di;
-                    });
-                }
+                if (!d3.select(this).property('selected')) sub = sub.filter(function (dii) {
+                    return dii[d.value_col] !== di;
+                });
             });
         });
 
@@ -603,12 +610,11 @@ var aeTable = (function () {
     \------------------------------------------------------------------------------------------------*/
 
     function cross(data, groups, id, major, minor, group) {
-        var groupNames = groups.map(function (e) {
-            return e.key;
+        var groupNames = groups.map(function (d) {
+            return d.key;
         });
 
-        //Calculate number of events, number of subjects, and adverse event rate by major, minor, and
-        //group.
+        //Calculate [id] and event frequencies and rates by [major], [minor], and [group].
         var nestedData = d3.nest().key(function (d) {
             return major == 'All' ? 'All' : d[major];
         }).key(function (d) {
@@ -616,62 +622,69 @@ var aeTable = (function () {
         }).key(function (d) {
             return d[group];
         }).rollup(function (d) {
-            var selectedMajor = major === 'All' ? 'All' : d[0][major];
-            var selectedMinor = minor === 'All' ? 'All' : d[0][minor];
-            var selectedGroup = d[0][group];
+            var selection = {};
 
-            var nRecords = d.length;
-            var ids = d3.nest().key(function (d) {
-                return d[id];
+            //Category
+            selection.major = major === 'All' ? 'All' : d[0][major];
+            selection.minor = minor === 'All' ? 'All' : d[0][minor];
+            selection.label = selection.minor === 'All' ? selection.major : selection.minor;
+            selection.group = d[0][group];
+
+            //Numerator
+            var ids = d3.nest().key(function (di) {
+                return di[id];
             }).entries(d);
-            var n = ids.length;
-            var currentGroup = groups.filter(function (e) {
-                return e.key === d[0][group];
+            selection.n = ids.length;
+            selection.nEvents = d.length;
+
+            //Denominator
+            var currentGroup = groups.filter(function (di) {
+                return di.key === d[0][group];
             });
-            var tot = currentGroup[0].n;
-            var per = Math.round(n / tot * 1000) / 10;
+            selection.tot = currentGroup[0].n;
+            selection.totEvents = currentGroup[0].nEvents;
 
-            var selectedMajorMinorGroup = { major: selectedMajor,
-                minor: selectedMinor,
-                label: selectedMinor === 'All' ? selectedMajor : selectedMinor,
-                group: selectedGroup,
-                nRecords: nRecords,
-                n: n,
-                tot: tot,
-                per: per };
+            //Rate
+            selection.per = Math.round(selection.n / selection.tot * 1000) / 10;
+            selection.perEvents = Math.round(selection.nEvents / selection.totEvents * 1000) / 10;
 
-            return selectedMajorMinorGroup;
+            return selection;
         }).entries(data);
 
         //Generate data objects for major*minor*group combinations absent in data.
-        nestedData.forEach(function (eMajor) {
-            eMajor.values.forEach(function (eMinor) {
-                var currentGroupList = eMinor.values.map(function (e) {
-                    return e.key;
+        nestedData.forEach(function (dMajor) {
+            dMajor.values.forEach(function (dMinor) {
+                var currentGroupList = dMinor.values.map(function (d) {
+                    return d.key;
                 });
 
-                groupNames.forEach(function (eGroup, groupIndex) {
-                    if (currentGroupList.indexOf(eGroup) === -1) {
-                        var currentGroup = groups.filter(function (e) {
-                            return e.key === eGroup;
+                groupNames.forEach(function (dGroup, groupIndex) {
+                    if (currentGroupList.indexOf(dGroup) === -1) {
+                        var currentGroup = groups.filter(function (d) {
+                            return d.key === dGroup;
                         });
                         var tot = currentGroup[0].n;
-                        var shellMajorMinorGroup = { key: eGroup,
-                            values: { group: eGroup,
-                                label: eMinor.key == 'All' ? eMajor.key : eMinor.key,
-                                major: eMajor.key,
-                                minor: eMinor.key,
-                                n: 0,
-                                nRecords: 0,
-                                per: 0,
-                                tot: tot
-                            } };
+                        var totEvents = currentGroup[0].nEvents;
+                        var shellMajorMinorGroup = { key: dGroup,
+                            values: { major: dMajor.key,
+                                minor: dMinor.key,
+                                label: dMinor.key === 'All' ? dMajor.key : dMinor.key,
+                                group: dGroup,
 
-                        eMinor.values.push(shellMajorMinorGroup);
+                                n: 0,
+                                nEvents: 0,
+
+                                tot: tot,
+                                totEvents: totEvents,
+
+                                per: 0,
+                                perEvents: 0 } };
+
+                        dMinor.values.push(shellMajorMinorGroup);
                     }
                 });
 
-                eMinor.values.sort(function (a, b) {
+                dMinor.values.sort(function (a, b) {
                     return groups.map(function (group) {
                         return group.key;
                     }).indexOf(a.key) - groups.map(function (group) {
@@ -809,20 +822,27 @@ var aeTable = (function () {
             //Calculate total frequency, number of records, population denominator, and rate.
             if (settings.defaults.totalCol === 'Show') {
                 var total = {};
-                total.group = 'Total';
-                total.label = d.values[0].values.label;
                 total.major = d.values[0].values.major;
                 total.minor = d.values[0].values.minor;
-                total.n = d3.sum(d.values, function (d1) {
-                    return d1.values.n;
+                total.label = d.values[0].values.label;
+                total.group = 'Total';
+
+                total.n = d3.sum(d.values, function (di) {
+                    return di.values.n;
                 });
-                total.nRecords = d3.sum(d.values, function (d1) {
-                    return d1.values.nRecords;
+                total.nEvents = d3.sum(d.values, function (di) {
+                    return di.values.nEvents;
                 });
-                total.tot = d3.sum(d.values, function (d1) {
-                    return d1.values.tot;
+
+                total.tot = d3.sum(d.values, function (di) {
+                    return di.values.tot;
                 });
+                total.totEvents = d3.sum(d.values, function (di) {
+                    return di.values.totEvents;
+                });
+
                 total.per = total.n / total.tot * 100;
+                total.perEvents = total.nEvents / total.totEvents * 100;
 
                 d.values[d.values.length] = { key: 'Total',
                     values: total };
@@ -1241,24 +1261,22 @@ var aeTable = (function () {
         var minor = settings.detailTable.minor;
 
         //Filter the raw data given the select major and/or minor category.
-        var details = data.filter(function (e) {
-            var majorMatch = major === 'All' ? true : major === e[vars['major']];
-            var minorMatch = minor === 'All' ? true : minor === e[vars['minor']];
-            return majorMatch && minorMatch;
+        var details = data.filter(function (d) {
+            var majorMatch = major === 'All' ? true : major === d[vars['major']];
+            var minorMatch = minor === 'All' ? true : minor === d[vars['minor']];
+            return majorMatch && minorMatch && d[vars['major']] !== 'None/Unknown';
         });
 
-        if (vars.details.length === 0) {
-            vars.details = Object.keys(data[0]).filter(function (d) {
-                return ['data_all', 'flag'].indexOf(d) === -1;
-            });
-        }
+        if (vars.details.length === 0) vars.details = Object.keys(data[0]).filter(function (d) {
+            return ['data_all', 'flag'].indexOf(d) === -1;
+        });
 
         //Keep only those columns specified in settings.variables.details.
         var detailVars = vars.details;
-        var details = details.map(function (e) {
+        var details = details.map(function (d) {
             var current = {};
             detailVars.forEach(function (currentVar) {
-                current[currentVar] = e[currentVar];
+                return current[currentVar] = d[currentVar];
             });
             return current;
         });
@@ -1289,11 +1307,12 @@ var aeTable = (function () {
             function transform(data) {
                 var colList = d3.keys(data[0]);
 
-                var subCols = data.map(function (e) {
+                var subCols = data.map(function (d) {
                     var current = {};
                     colList.forEach(function (colName) {
-                        current[colName] = e[colName];
+                        return current[colName] = d[colName];
                     });
+
                     return current;
                 });
 

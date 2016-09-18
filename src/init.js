@@ -43,7 +43,8 @@ export function init(data) {
         .map(d => {return {'key': d}; });
 
     if (!settings.groups || settings.groups.length === 0)
-        settings.groups = groupsObject;
+        settings.groups = groupsObject
+            .sort((a,b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
 
     settings.groups
         .forEach(d => {
@@ -54,7 +55,6 @@ export function init(data) {
         });
 
   //Set the domain for the color scale based on groups.
-    settings.groups.sort((a,b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
     this.colorScale.domain(
         settings.groups.map(function(e) {
             return e.key;

@@ -54,14 +54,19 @@ export function init(table, canvas, data, vars, settings) {
       //Calculate total frequency, number of records, population denominator, and rate.
         if (settings.defaults.totalCol === 'Show') {
             var total = {};
-            total.group    = 'Total';
-            total.label    = d.values[0].values.label;
-            total.major    = d.values[0].values.major;
-            total.minor    = d.values[0].values.minor;
-            total.n        = d3.sum (d.values, function(d1) { return d1.values.n       ; });
-            total.nRecords = d3.sum (d.values, function(d1) { return d1.values.nRecords; });
-            total.tot      = d3.sum (d.values, function(d1) { return d1.values.tot     ; });
-            total.per      = total.n/total.tot*100;
+            total.major     = d.values[0].values.major;
+            total.minor     = d.values[0].values.minor;
+            total.label     = d.values[0].values.label;
+            total.group     = 'Total';
+
+            total.n         = d3.sum (d.values, di => di.values.n        );
+            total.nEvents   = d3.sum (d.values, di => di.values.nEvents  );
+
+            total.tot       = d3.sum (d.values, di => di.values.tot      );
+            total.totEvents = d3.sum (d.values, di => di.values.totEvents);
+
+            total.per       = total.n/total.tot*100;
+            total.perEvents = total.nEvents/total.totEvents*100;
 
             d.values[d.values.length] =
                 {key: 'Total'

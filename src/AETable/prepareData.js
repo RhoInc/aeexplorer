@@ -3,53 +3,62 @@
 \------------------------------------------------------------------------------------------------*/
 
 export function prepareData(canvas, data, vars, settings) {
-    data.forEach(function(e) {
-        e.data_all = 'All';
-        e.flag = 0;
+    var noAEs = ['', 'na', 'n/a', 'no ae', 'no aes', 'none', 'unknown', 'none/unknown'];
 
-        if (['No AEs','NA','na','',' ','None/Unknown', 'N/A'].indexOf(e[vars.major].trim()) > -1) {
-            e[vars.major] = 'None/Unknown';
-            e.flag = 1;
+  //Flag records which represent [vars.id] values without an adverse event.
+    data.forEach(d => {
+        d.data_all = 'All';
+        d.flag = 0;
+
+        if (noAEs.indexOf(d[vars.major].trim().toLowerCase()) > -1) {
+            d[vars.major] = 'None/Unknown';
+            d.flag = 1;
         }
 
-        if (['No AEs','NA','na','',' ','None/Unknown', 'N/A'].indexOf(e[vars.minor].trim()) > -1) {
-            e[vars.minor] = 'None/Unknown';
+        if (noAEs.indexOf(d[vars.minor].trim().toLowerCase()) > -1) {
+            d[vars.minor] = 'None/Unknown';
         }
     });
 
-  //Calculate group subject totals.
+  //Nest data by [vars.group] and [vars.id].
     var nestedData = d3.nest()
-        .key(function(d) { return d[vars.group]; })
-        .key(function(d) { return d[vars.id]; })
+        .key(d => d[vars.group])
+        .key(d => d[vars.id])
         .entries(data);
 
-    settings.groups.forEach(function(e) {
-        var groupData = nestedData.filter(function(f) {
-            return f.key === e.key; });
-        e.n = groupData.length ?
-            groupData[0].values.length :
-            d3.sum(nestedData.map(function(m) {
-                return m.values.length; }));
-    });
+  //Calculate number of [vars.id] and number of events.
+    settings.groups
+        .forEach(d => {
+          //Filter nested data on [vars.group].
+            var groupData = nestedData
+                .filter(di => di.key === d.key);
+
+          //Calculate number of [vars.id].
+            d.n = groupData.length > 0 ?
+                groupData[0].values.length :
+                d3.sum(
+                    nestedData
+                        .map(di => di.values.length));
+
+          //Calculate number of events.
+            d.nEvents = data
+                .filter(di => di[vars.group] === d.key && di.flag === 0)
+                .length;
+        });
 
   //Subset data on groups specified in settings.groups.
-    var groupNames = settings.groups.map(function(e) {
-        return e.key; });
-    var sub = data.filter(function(e) {
-        return groupNames.indexOf(e[vars['group']]) >= 0; });
+    var groupNames = settings.groups
+        .map(d => d.key);
+    var sub = data
+        .filter(d => groupNames.indexOf(d[vars['group']]) >= 0);
 
   //Filter without bootstrap multiselect
     canvas.select('.custom-filters').selectAll('select')
         .each(function(d) {
-
             d3.select(this).selectAll('option')
                 .each(function(di) {
-
-                    if (!d3.select(this).property('selected')) {
-                        sub = sub.filter(function(dii) {
-                            return dii[d.value_col] !== di; });
-                    }
-
+                    if (!d3.select(this).property('selected'))
+                        sub = sub.filter(dii => dii[d.value_col] !== di);
                 });
         });
 
