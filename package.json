@@ -22,7 +22,7 @@
     "build": "rollup -c ./scripts/rollup.wrapper.config.js | babel > ./build/aeTable.js"
   },
   "devDependencies": {
-    "babel": "^5.8.35",
+    "babel-cli": "^6.0.0",
     "babel-preset-es2015-rollup": "^1.1.1",
     "rollup": "^0.25.1",
     "rollup-plugin-babel": "^2.4.0"
