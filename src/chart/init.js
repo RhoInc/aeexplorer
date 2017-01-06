@@ -71,10 +71,10 @@ export function init(data) {
 
   //Initialize adverse event eplorer.
     this.layout(this.wrap);
-    this.controls.init(this, element, data, settings.variables, settings);
-    this.eventListeners.rateFilter(this, element);
-    this.eventListeners.summaryControl(this, element, data, settings.variables, settings);
-    this.eventListeners.search(this, element, data, settings.variables, settings);
-    this.eventListeners.customFilters(this, element, data, settings.variables, settings);
-    this.AETable.redraw(this, element, data, settings.variables, settings)
+    this.controls.init(this, this.wrap, data, settings.variables, settings);
+    this.eventListeners.rateFilter(this, this.wrap);
+    this.eventListeners.summaryControl(this, this.wrap, data, settings.variables, settings);
+    this.eventListeners.search(this, this.wrap, data, settings.variables, settings);
+    this.eventListeners.customFilters(this, this.wrap, data, settings.variables, settings);
+    this.AETable.redraw(this, this.wrap, data, settings.variables, settings)
 }

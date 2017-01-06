@@ -1,9 +1,7 @@
-'use strict';
-
-var aeTable = (function () {
+var aeTable = function () {
     'use strict';
 
-    var defaultSettings = { 'variables': { 'id': 'USUBJID',
+    const defaultSettings = { 'variables': { 'id': 'USUBJID',
             'major': 'AEBODSYS',
             'minor': 'AEDECOD',
             'group': 'ARM',
@@ -25,8 +23,13 @@ var aeTable = (function () {
     \------------------------------------------------------------------------------------------------*/
 
     function init(data) {
-        var element = d3.select(this.element);
         var settings = this.config;
+
+        //create chart wrapper in specified div
+        this.wrap = d3.select(this.element).append('div');
+        this.wrap.attr("class", "aeExplorer");
+
+        this.raw_data = data;
 
         //Render single column if no group variable is specified.
         if (!settings.variables.group || ['', ' '].indexOf(settings.variables.group) > -1) {
@@ -59,18 +62,14 @@ var aeTable = (function () {
         }
 
         //Check that group values defined in settings are actually present in dataset.
-        var groups = d3.set(data.map(function (d) {
-            return d[settings.variables.group];
-        })).values();
-        var groupsObject = groups.map(function (d) {
+        var groups = d3.set(data.map(d => d[settings.variables.group])).values();
+        var groupsObject = groups.map(d => {
             return { 'key': d };
         });
 
-        if (!settings.groups || settings.groups.length === 0) settings.groups = groupsObject.sort(function (a, b) {
-            return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
-        });
+        if (!settings.groups || settings.groups.length === 0) settings.groups = groupsObject.sort((a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
 
-        settings.groups.forEach(function (d) {
+        settings.groups.forEach(d => {
             if (groups.indexOf(d.key) === -1) {
                 errorNote('Error in settings object.');
                 throw new Error('\'' + e.key + '\' in the Groups setting is not found in the dataset.');
@@ -86,20 +85,20 @@ var aeTable = (function () {
         if (settings.defaults.totalCol === 'Show') this.colorScale.range()[settings.groups.length] = '#777';
 
         //Initialize adverse event eplorer.
-        this.layout(element);
-        this.controls.init(this, element, data, settings.variables, settings);
-        this.eventListeners.rateFilter(this, element);
-        this.eventListeners.summaryControl(this, element, data, settings.variables, settings);
-        this.eventListeners.search(this, element, data, settings.variables, settings);
-        this.eventListeners.customFilters(this, element, data, settings.variables, settings);
-        this.AETable.redraw(this, element, data, settings.variables, settings);
+        this.layout(this.wrap);
+        this.controls.init(this, this.wrap, data, settings.variables, settings);
+        this.eventListeners.rateFilter(this, this.wrap);
+        this.eventListeners.summaryControl(this, this.wrap, data, settings.variables, settings);
+        this.eventListeners.search(this, this.wrap, data, settings.variables, settings);
+        this.eventListeners.customFilters(this, this.wrap, data, settings.variables, settings);
+        this.AETable.redraw(this, this.wrap, data, settings.variables, settings);
     }
 
     /*------------------------------------------------------------------------------------------------\
       Set colors.
     \------------------------------------------------------------------------------------------------*/
 
-    var colorScale = d3.scale.ordinal().range(['#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#A65628', '#F781BF', '#FFFF33', '#E41A1C']);
+    const colorScale = d3.scale.ordinal().range(['#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#A65628', '#F781BF', '#FFFF33', '#E41A1C']);
 
     /*------------------------------------------------------------------------------------------------\
       Generate HTML containers.
@@ -166,7 +165,7 @@ var aeTable = (function () {
         canvas.select('div.controls input.rateFilter').property('value', settings.defaults.maxPrevalence ? settings.defaults.maxPrevalence : 0);
     }
 
-    var rate = { init: init$2,
+    const rate = { init: init$2,
         get: get,
         set: set };
 
@@ -231,11 +230,11 @@ var aeTable = (function () {
 
     function set$1() {}
 
-    var custom = { init: init$3,
+    const custom = { init: init$3,
         get: get$1,
         set: set$1 };
 
-    var filters = { rate: rate,
+    const filters = { rate: rate,
         custom: custom };
 
     /*------------------------------------------------------------------------------------------------\
@@ -257,7 +256,7 @@ var aeTable = (function () {
             'type': 'radio' });
     }
 
-    var summaryControl = { init: init$4 };
+    const summaryControl = { init: init$4 };
 
     /*------------------------------------------------------------------------------------------------\
       Initialize search control.
@@ -310,12 +309,12 @@ var aeTable = (function () {
         table.AETable.toggleRows(canvas);
     }
 
-    var search = { init: init$5,
+    const search = { init: init$5,
         get: get$2,
         set: set$2,
         clear: clear };
 
-    var controls = { init: init$1,
+    const controls = { init: init$1,
         filters: filters,
         summaryControl: summaryControl,
         search: search };
@@ -449,7 +448,7 @@ var aeTable = (function () {
         });
     }
 
-    var eventListeners = { rateFilter: rateFilter,
+    const eventListeners = { rateFilter: rateFilter,
         summaryControl: summaryControl$1,
         customFilters: customFilters,
         search: search$1 };
@@ -485,7 +484,7 @@ var aeTable = (function () {
         var noAEs = ['', 'na', 'n/a', 'no ae', 'no aes', 'none', 'unknown', 'none/unknown'];
 
         //Flag records which represent [vars.id] values without an adverse event.
-        data.forEach(function (d) {
+        data.forEach(d => {
             d.data_all = 'All';
             d.flag = 0;
 
@@ -500,44 +499,28 @@ var aeTable = (function () {
         });
 
         //Nest data by [vars.group] and [vars.id].
-        var nestedData = d3.nest().key(function (d) {
-            return d[vars.group];
-        }).key(function (d) {
-            return d[vars.id];
-        }).entries(data);
+        var nestedData = d3.nest().key(d => d[vars.group]).key(d => d[vars.id]).entries(data);
 
         //Calculate number of [vars.id] and number of events.
-        settings.groups.forEach(function (d) {
+        settings.groups.forEach(d => {
             //Filter nested data on [vars.group].
-            var groupData = nestedData.filter(function (di) {
-                return di.key === d.key;
-            });
+            var groupData = nestedData.filter(di => di.key === d.key);
 
             //Calculate number of [vars.id].
-            d.n = groupData.length > 0 ? groupData[0].values.length : d3.sum(nestedData.map(function (di) {
-                return di.values.length;
-            }));
+            d.n = groupData.length > 0 ? groupData[0].values.length : d3.sum(nestedData.map(di => di.values.length));
 
             //Calculate number of events.
-            d.nEvents = data.filter(function (di) {
-                return di[vars.group] === d.key && di.flag === 0;
-            }).length;
+            d.nEvents = data.filter(di => di[vars.group] === d.key && di.flag === 0).length;
         });
 
         //Subset data on groups specified in settings.groups.
-        var groupNames = settings.groups.map(function (d) {
-            return d.key;
-        });
-        var sub = data.filter(function (d) {
-            return groupNames.indexOf(d[vars['group']]) >= 0;
-        });
+        var groupNames = settings.groups.map(d => d.key);
+        var sub = data.filter(d => groupNames.indexOf(d[vars['group']]) >= 0);
 
         //Filter without bootstrap multiselect
         canvas.select('.custom-filters').selectAll('select').each(function (d) {
             d3.select(this).selectAll('option').each(function (di) {
-                if (!d3.select(this).property('selected')) sub = sub.filter(function (dii) {
-                    return dii[d.value_col] !== di;
-                });
+                if (!d3.select(this).property('selected')) sub = sub.filter(dii => dii[d.value_col] !== di);
             });
         });
 
@@ -545,9 +528,9 @@ var aeTable = (function () {
     }
 
     /*------------------------------------------------------------------------------------------------\
-        annoteDetails(table, canvas, row, group)
+       annoteDetails(table, canvas, row, group)
         - Convenience function that shows the raw #s and annotates point values for a single group
-              + table
+             + table
                 - AE table object
             + canvas
                 - AE table element
@@ -555,7 +538,7 @@ var aeTable = (function () {
                 - highlighted row (selection containing a 'tr')
             + group
                 - group to highlight
-      \------------------------------------------------------------------------------------------------*/
+     \------------------------------------------------------------------------------------------------*/
 
     function annoteDetails(table, canvas, row, group) {
         //Add color for the selected group on all rows.
@@ -634,9 +617,7 @@ var aeTable = (function () {
                     var otherGroups = [].concat(minor.values);
 
                     groups.forEach(function (group) {
-                        delete otherGroups[otherGroups.map(function (m) {
-                            return m.key;
-                        }).indexOf(group.key)];
+                        delete otherGroups[otherGroups.map(m => m.key).indexOf(group.key)];
                         otherGroups.forEach(function (otherGroup) {
                             var diff = calculateDifference(major.key, minor.key, group.key, otherGroup.key, group.values.n, group.values.tot, otherGroup.values.n, otherGroup.values.tot);
                             minor.differences.push(diff);
@@ -655,21 +636,13 @@ var aeTable = (function () {
     \------------------------------------------------------------------------------------------------*/
 
     function cross(data, groups, id, major, minor, group) {
-        var groupNames = groups.map(function (d) {
-            return d.key;
-        });
+        var groupNames = groups.map(d => d.key);
         var summary = d3.selectAll('.summaryDiv label').filter(function (d) {
             return d3.select(this).selectAll('.summaryRadio').property('checked');
         })[0][0].textContent;
 
         //Calculate [id] and event frequencies and rates by [major], [minor], and [group].
-        var nestedData = d3.nest().key(function (d) {
-            return major == 'All' ? 'All' : d[major];
-        }).key(function (d) {
-            return minor == 'All' ? 'All' : d[minor];
-        }).key(function (d) {
-            return d[group];
-        }).rollup(function (d) {
+        var nestedData = d3.nest().key(d => major == 'All' ? 'All' : d[major]).key(d => minor == 'All' ? 'All' : d[minor]).key(d => d[group]).rollup(d => {
             var selection = {};
 
             //Category
@@ -678,15 +651,11 @@ var aeTable = (function () {
             selection.label = selection.minor === 'All' ? selection.major : selection.minor;
             selection.group = d[0][group];
 
-            var currentGroup = groups.filter(function (di) {
-                return di.key === d[0][group];
-            });
+            var currentGroup = groups.filter(di => di.key === d[0][group]);
 
             //Numerator/denominator
             if (summary === 'participant') {
-                var ids = d3.nest().key(function (di) {
-                    return di[id];
-                }).entries(d);
+                var ids = d3.nest().key(di => di[id]).entries(d);
                 selection.n = ids.length;
                 selection.tot = currentGroup[0].n;
             } else {
@@ -703,15 +672,11 @@ var aeTable = (function () {
         //Generate data objects for major*minor*group combinations absent in data.
         nestedData.forEach(function (dMajor) {
             dMajor.values.forEach(function (dMinor) {
-                var currentGroupList = dMinor.values.map(function (d) {
-                    return d.key;
-                });
+                var currentGroupList = dMinor.values.map(d => d.key);
 
                 groupNames.forEach(function (dGroup, groupIndex) {
                     if (currentGroupList.indexOf(dGroup) === -1) {
-                        var currentGroup = groups.filter(function (d) {
-                            return d.key === dGroup;
-                        });
+                        var currentGroup = groups.filter(d => d.key === dGroup);
                         var tot = summary === 'participant' ? currentGroup[0].n : currentGroup[0].nEvents;
 
                         var shellMajorMinorGroup = { key: dGroup,
@@ -728,13 +693,7 @@ var aeTable = (function () {
                     }
                 });
 
-                dMinor.values.sort(function (a, b) {
-                    return groups.map(function (group) {
-                        return group.key;
-                    }).indexOf(a.key) - groups.map(function (group) {
-                        return group.key;
-                    }).indexOf(b.key);
-                });
+                dMinor.values.sort((a, b) => groups.map(group => group.key).indexOf(a.key) - groups.map(group => group.key).indexOf(b.key));
             });
         });
 
@@ -745,9 +704,9 @@ var aeTable = (function () {
       Define sorting algorithms.
     \------------------------------------------------------------------------------------------------*/
 
-    var sort = {
+    const sort = {
         //Sort by descending frequency.
-        maxPer: function maxPer(a, b) {
+        maxPer: function (a, b) {
             var max_a = a.values.map(function (minor) {
                 return d3.max(minor.values.map(function (groups) {
                     return groups.values.per;
@@ -763,7 +722,7 @@ var aeTable = (function () {
         }
     };
 
-    var util = { calculateDifference: calculateDifference,
+    const util = { calculateDifference: calculateDifference,
         addDifferences: addDifferences,
         cross: cross,
         sort: sort };
@@ -841,15 +800,15 @@ var aeTable = (function () {
         })[0][0].textContent;
 
         /**-------------------------------------------------------------------------------------------\
-            fillrow(d)
+           fillrow(d)
             - Convienence function which fills each table row and draws the plots.
-                + Note1: We'll call this 2x. Once for the major rows and once for
+               + Note1: We'll call this 2x. Once for the major rows and once for
                 the minor rows. Will probably want to add a 3rd for overall too.
-                + Note2: Scoped within AETable() to avoid passing the big data
+               + Note2: Scoped within AETable() to avoid passing the big data
                 sets around.
-                + Note3: Would be good to split out separate plotting functions if
+               + Note3: Would be good to split out separate plotting functions if
                 this gets too much more complex.
-          \-------------------------------------------------------------------------------------------**/
+         \-------------------------------------------------------------------------------------------**/
 
         function fillRow(d) {
             //Append major row expand/collapse control.
@@ -874,12 +833,8 @@ var aeTable = (function () {
                 total.label = d.values[0].values.label;
                 total.group = 'Total';
 
-                total.n = d3.sum(d.values, function (di) {
-                    return di.values.n;
-                });
-                total.tot = d3.sum(d.values, function (di) {
-                    return di.values.tot;
-                });
+                total.n = d3.sum(d.values, di => di.values.n);
+                total.tot = d3.sum(d.values, di => di.values.tot);
 
                 total.per = total.n / total.tot * 100;
 
@@ -1040,16 +995,8 @@ var aeTable = (function () {
         //Group differences column header
         var header2 = tab.select('thead').append('tr');
         header2.selectAll('td.values').data(totalCol ? settings.groups.concat({ key: 'Total',
-            n: d3.sum(settings.groups, function (d) {
-                return d.n;
-            }),
-            nEvents: d3.sum(settings.groups, function (d) {
-                return d.nEvents;
-            }) }) : settings.groups).enter().append('th').html(function (d) {
-            return '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + (summary === 'participant' ? d.n : d.nEvents) + ')</span>';
-        }).style('color', function (d) {
-            return table.colorScale(d.key);
-        }).attr('class', 'values');
+            n: d3.sum(settings.groups, d => d.n),
+            nEvents: d3.sum(settings.groups, d => d.nEvents) }) : settings.groups).enter().append('th').html(d => '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + (summary === 'participant' ? d.n : d.nEvents) + ')</span>').style('color', d => table.colorScale(d.key)).attr('class', 'values');
         header2.append('th').attr('class', 'prevHeader');
         if (nGroups > 1 && settings.defaults.diffCol === 'Show') {
             header1.append('th').text('Difference Between Groups').attr('class', 'diffplot');
@@ -1079,9 +1026,9 @@ var aeTable = (function () {
 
         var prevAxis = canvas.select('th.prevHeader').append('svg').attr('height', '34px').attr('width', w + 10).append('svg:g').attr('transform', 'translate(5,34)').attr('class', 'axis percent').call(percentAxis);
 
-        //Difference Scale
+        //Difference Scale 
         if (settings.groups.length > 1) {
-            //Difference Scale
+            //Difference Scale 
             var allDiffs = d3.merge(dataMajor.map(function (major) {
                 return d3.merge(major.values.map(function (minor) {
                     return d3.merge(minor.differences.map(function (diff) {
@@ -1240,7 +1187,7 @@ var aeTable = (function () {
             canvas.select('.SummaryTable table').classed('summary', toggle);
             canvas.select('div.controls').classed('hidden', toggle);
 
-            //Create/remove the participant level table       
+            //Create/remove the participant level table        
             if (toggle) {
                 var major = d.values[0].values['major'];
                 var minor = d.values[0].values['minor'];
@@ -1287,7 +1234,7 @@ var aeTable = (function () {
         });
     }
 
-    var AETable = { redraw: redraw,
+    const AETable = { redraw: redraw,
         wipe: wipe,
         prepareData: prepareData,
         init: init$6,
@@ -1303,23 +1250,19 @@ var aeTable = (function () {
         var minor = settings.detailTable.minor;
 
         //Filter the raw data given the select major and/or minor category.
-        var details = data.filter(function (d) {
+        var details = data.filter(d => {
             var majorMatch = major === 'All' ? true : major === d[vars['major']];
             var minorMatch = minor === 'All' ? true : minor === d[vars['minor']];
             return majorMatch && minorMatch && d[vars['major']] !== 'None/Unknown';
         });
 
-        if (vars.details.length === 0) vars.details = Object.keys(data[0]).filter(function (d) {
-            return ['data_all', 'flag'].indexOf(d) === -1;
-        });
+        if (vars.details.length === 0) vars.details = Object.keys(data[0]).filter(d => ['data_all', 'flag'].indexOf(d) === -1);
 
         //Keep only those columns specified in settings.variables.details.
         var detailVars = vars.details;
-        var details = details.map(function (d) {
+        var details = details.map(d => {
             var current = {};
-            detailVars.forEach(function (currentVar) {
-                return current[currentVar] = d[currentVar];
-            });
+            detailVars.forEach(currentVar => current[currentVar] = d[currentVar]);
             return current;
         });
 
@@ -1330,7 +1273,7 @@ var aeTable = (function () {
 
         closeButton.html('<i class="icon-backward icon-white fa fa-backward"></i>    Return to the Summary View');
 
-        closeButton.on('click', function () {
+        closeButton.on('click', () => {
             canvas.select('.SummaryTable table').classed('summary', false);
             canvas.select('div.controls').classed('hidden', false);
             canvas.selectAll('.SummaryTable table tbody tr').classed('active', false);
@@ -1349,11 +1292,9 @@ var aeTable = (function () {
             function transform(data) {
                 var colList = d3.keys(data[0]);
 
-                var subCols = data.map(function (d) {
+                var subCols = data.map(d => {
                     var current = {};
-                    colList.forEach(function (colName) {
-                        return current[colName] = d[colName];
-                    });
+                    colList.forEach(colName => current[colName] = d[colName]);
 
                     return current;
                 });
@@ -1374,30 +1315,21 @@ var aeTable = (function () {
 
                 //Append header to listing container.
                 var headerRow = listing.append('thead').append('tr');
-                headerRow.selectAll('th').data(d3.keys(data[0])).enter().append('th').html(function (d) {
-                    return d;
-                });
+                headerRow.selectAll('th').data(d3.keys(data[0])).enter().append('th').html(d => d);
 
                 //Add rows to listing container.
                 var tbody = listing.append('tbody');
                 var rows = tbody.selectAll('tr').data(data).enter().append('tr');
 
                 //Add data cells to rows.
-                var cols = rows.selectAll('tr').data(function (d) {
-                    return d3.values(d);
-                }).enter().append('td').html(function (d) {
-                    return d;
-                });
+                var cols = rows.selectAll('tr').data(d => d3.values(d)).enter().append('td').html(d => d);
             };
         }
         basicTable('.DetailTable', details);
     }
 
-    function index() {
-        var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
-        var config = arguments.length <= 1 || arguments[1] === undefined ? defaultSettings : arguments[1];
-
-        var aeTable = { element: element,
+    function createChart(element = 'body', config = defaultSettings) {
+        let chart = { element: element,
             config: config,
             init: init,
             colorScale: colorScale,
@@ -1408,9 +1340,13 @@ var aeTable = (function () {
             detailTable: detailTable,
             util: util };
 
-        return aeTable;
+        return chart;
     }
 
+    var index = {
+        createChart
+    };
+
     return index;
-})();
+}();
 
