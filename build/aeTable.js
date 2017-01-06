@@ -115,27 +115,24 @@ var aeTable = function () {
     \------------------------------------------------------------------------------------------------*/
 
     function init$1(chart) {
-        var controls = chart.wrap.select('div.controls');
-        controls.attr('onsubmit', 'return false;');
-
-        //Clear controls.
-        controls.selectAll('*').remove();
+        chart.controls.wrap = chart.wrap.select('div.controls');
+        chart.controls.wrap.attr('onsubmit', 'return false;');
+        chart.controls.wrap.selectAll('*').remove(); //Clear controls.
 
         //Generate HTML containers.
-        var rateFilter = controls.append('div').attr('class', 'rate-filter');
-        var summaryControl = controls.append('div').attr('class', 'summary-control');
-        var searchBox = controls.append('form').attr('class', 'searchForm navbar-search pull-right').attr('onsubmit', 'return false;');
-        var customFilters = controls.append('div').attr('class', 'custom-filters');
+        var rateFilter = chart.controls.wrap.append('div').attr('class', 'rate-filter');
+        var summaryControl = chart.controls.wrap.append('div').attr('class', 'summary-control');
+        var searchBox = chart.controls.wrap.append('form').attr('class', 'searchForm navbar-search pull-right').attr('onsubmit', 'return false;');
+        var customFilters = chart.controls.wrap.append('div').attr('class', 'custom-filters');
 
         //Draw UI component.
-        console.log(chart);
         chart.controls.filters.rate.init(rateFilter);
         chart.controls.summaryControl.init(summaryControl);
         chart.controls.filters.custom.init(customFilters, chart.raw_data, chart.config.variables, chart.config);
         chart.controls.search.init(searchBox);
 
         //Initialize the filter rate.
-        chart.controls.filters.rate.set(chart.wrap, chart.config);
+        chart.controls.filters.rate.set(chart);
     }
 
     /*------------------------------------------------------------------------------------------------\
@@ -162,8 +159,8 @@ var aeTable = function () {
       Set rate filter default.
     \------------------------------------------------------------------------------------------------*/
 
-    function set(canvas, settings) {
-        canvas.select('div.controls input.rateFilter').property('value', settings.defaults.maxPrevalence ? settings.defaults.maxPrevalence : 0);
+    function set(chart) {
+        chart.controls.wrap.select('input.rateFilter').property('value', chart.config.defaults.maxPrevalence ? chart.config.defaults.maxPrevalence : 0);
     }
 
     const rate = { init: init$2,

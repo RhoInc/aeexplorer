@@ -2,7 +2,11 @@
   Set rate filter default.
 \------------------------------------------------------------------------------------------------*/
 
-export function set(canvas, settings) {
-    canvas.select('div.controls input.rateFilter')
-        .property('value', settings.defaults.maxPrevalence ? settings.defaults.maxPrevalence : 0);
+export function set(chart) {
+    chart.controls.wrap.select('input.rateFilter')
+        .property('value', 
+        	chart.config.defaults.maxPrevalence ?  
+        	 	chart.config.defaults.maxPrevalence : 
+        	 	0
+        );
 }
