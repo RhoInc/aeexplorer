@@ -86,7 +86,7 @@ var aeTable = function () {
 
         //Initialize adverse event eplorer.
         this.layout();
-        this.controls.init(this, this.wrap, data, settings.variables, settings);
+        this.controls.init(this);
         this.eventListeners.rateFilter(this, this.wrap);
         this.eventListeners.summaryControl(this, this.wrap, data, settings.variables, settings);
         this.eventListeners.search(this, this.wrap, data, settings.variables, settings);
@@ -114,8 +114,8 @@ var aeTable = function () {
       Initialize controls.
     \------------------------------------------------------------------------------------------------*/
 
-    function init$1(table, canvas, data, vars, settings) {
-        var controls = canvas.select('div.controls');
+    function init$1(chart) {
+        var controls = chart.wrap.select('div.controls');
         controls.attr('onsubmit', 'return false;');
 
         //Clear controls.
@@ -128,13 +128,14 @@ var aeTable = function () {
         var customFilters = controls.append('div').attr('class', 'custom-filters');
 
         //Draw UI component.
-        table.controls.filters.rate.init(rateFilter);
-        table.controls.summaryControl.init(summaryControl);
-        table.controls.filters.custom.init(customFilters, data, vars, settings);
-        table.controls.search.init(searchBox);
+        console.log(chart);
+        chart.controls.filters.rate.init(rateFilter);
+        chart.controls.summaryControl.init(summaryControl);
+        chart.controls.filters.custom.init(customFilters, chart.raw_data, chart.config.variables, chart.config);
+        chart.controls.search.init(searchBox);
 
         //Initialize the filter rate.
-        table.controls.filters.rate.set(canvas, settings);
+        chart.controls.filters.rate.set(chart.wrap, chart.config);
     }
 
     /*------------------------------------------------------------------------------------------------\

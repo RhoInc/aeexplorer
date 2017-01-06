@@ -2,8 +2,8 @@
   Initialize controls.
 \------------------------------------------------------------------------------------------------*/
 
-export function init(table, canvas, data, vars, settings) {
-    var controls = canvas.select('div.controls');
+export function init(chart) {
+    var controls = chart.wrap.select('div.controls');
     controls
         .attr('onsubmit', 'return false;');
 
@@ -26,11 +26,11 @@ export function init(table, canvas, data, vars, settings) {
         .attr('class', 'custom-filters');
 
   //Draw UI component.
-    table.controls.filters.rate.init(rateFilter);
-    table.controls.summaryControl.init(summaryControl);
-    table.controls.filters.custom.init(customFilters, data, vars, settings);
-    table.controls.search.init(searchBox);
+    chart.controls.filters.rate.init(rateFilter);
+    chart.controls.summaryControl.init(summaryControl);
+    chart.controls.filters.custom.init(customFilters, chart.raw_data, chart.config.variables, chart.config);
+    chart.controls.search.init(searchBox);
 
   //Initialize the filter rate.
-    table.controls.filters.rate.set(canvas, settings);
+    chart.controls.filters.rate.set(chart.wrap, chart.config);
 }

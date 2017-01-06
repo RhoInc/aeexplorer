@@ -71,7 +71,7 @@ export function init(data) {
 
   //Initialize adverse event eplorer.
     this.layout();
-    this.controls.init(this, this.wrap, data, settings.variables, settings);
+    this.controls.init(this);
     this.eventListeners.rateFilter(this, this.wrap);
     this.eventListeners.summaryControl(this, this.wrap, data, settings.variables, settings);
     this.eventListeners.search(this, this.wrap, data, settings.variables, settings);
