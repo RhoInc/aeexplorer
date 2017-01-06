@@ -70,7 +70,7 @@ export function init(data) {
         this.colorScale.range()[settings.groups.length] = '#777';
 
   //Initialize adverse event eplorer.
-    this.layout(this.wrap);
+    this.layout();
     this.controls.init(this, this.wrap, data, settings.variables, settings);
     this.eventListeners.rateFilter(this, this.wrap);
     this.eventListeners.summaryControl(this, this.wrap, data, settings.variables, settings);

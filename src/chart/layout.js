@@ -2,8 +2,8 @@
   Generate HTML containers.
 \------------------------------------------------------------------------------------------------*/
 
-export function layout(canvas) {
-    var wrapper = canvas
+export function layout() {
+    var wrapper = this.wrap
         .append('div')
         .attr('class', 'aeTable row-fluid')
             .append('div')
