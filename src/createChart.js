@@ -9,7 +9,7 @@ import { detailTable } from './detailTable';
 import { util } from './util';
 
 export default function(element = 'body', config = defaultSettings) {
-    let aeTable =
+    let chart =
         {element: element
         ,config: config
         ,init: init
@@ -21,5 +21,5 @@ export default function(element = 'body', config = defaultSettings) {
         ,detailTable: detailTable
         ,util: util};
 
-    return aeTable;
+    return chart;
 }
