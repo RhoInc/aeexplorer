@@ -3,8 +3,13 @@
 \------------------------------------------------------------------------------------------------*/
 
 export function init(data) {
-    var element = d3.select(this.element);
     var settings = this.config;
+
+    //create chart wrapper in specified div
+    this.wrap = d3.select(this.element).append('div');
+    this.wrap.attr("class","aeExplorer")
+
+    this.raw_data = data; 
 
   //Render single column if no group variable is specified.
     if (!(settings.variables.group) || ['', ' '].indexOf(settings.variables.group) > -1) {
@@ -65,7 +70,7 @@ export function init(data) {
         this.colorScale.range()[settings.groups.length] = '#777';
 
   //Initialize adverse event eplorer.
-    this.layout(element);
+    this.layout(this.wrap);
     this.controls.init(this, element, data, settings.variables, settings);
     this.eventListeners.rateFilter(this, element);
     this.eventListeners.summaryControl(this, element, data, settings.variables, settings);
