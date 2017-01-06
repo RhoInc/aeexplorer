@@ -1,12 +1,12 @@
 import defaultSettings from './defaultSettings';
-import { init } from './init';
-import { colorScale } from './colorScale';
-import { layout } from './layout';
-import { controls } from './controls';
-import { eventListeners } from './eventListeners';
-import { AETable } from './AETable';
-import { detailTable } from './detailTable';
-import { util } from './util';
+import { init } from './chart/init';
+import { colorScale } from './chart/colorScale';
+import { layout } from './chart/layout';
+import { controls } from './chart/controls';
+import { eventListeners } from './chart/eventListeners';
+import { AETable } from './chart/AETable';
+import { detailTable } from './chart/detailTable';
+import { util } from './chart/util';
 
 export default function(element = 'body', config = defaultSettings) {
     let chart =
