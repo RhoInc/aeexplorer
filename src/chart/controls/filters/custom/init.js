@@ -68,4 +68,9 @@ export function init(chart) {
         .attr('value', function(d) {
             return d; })
         .attr('selected', 'selected');
+
+  //Initialize event listeners
+    filterCustom.on('change', function() {
+        chart.AETable.redraw(chart, chart.wrap, chart.raw_data, chart.config.variables, chart.config);
+    });
 }

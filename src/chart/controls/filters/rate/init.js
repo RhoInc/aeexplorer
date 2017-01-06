@@ -33,4 +33,16 @@ export function init(chart) {
         .append('span')
         .attr('class', 'add-on after')
         .text('%')
+
+    //event listener
+    rateFilter.on('change', function(d) {
+      //Clear filter flags.
+        chart.wrap.selectAll('.SummaryTable table tbody tr')
+            .classed('filter', false);
+
+      //Add filter flags.
+        chart.AETable.toggleRows(chart.wrap) ;
+    });
+
+
 }

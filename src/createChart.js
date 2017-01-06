@@ -3,7 +3,6 @@ import { init } from './chart/init';
 import { colorScale } from './chart/colorScale';
 import { layout } from './chart/layout';
 import { controls } from './chart/controls';
-import { eventListeners } from './chart/eventListeners';
 import { AETable } from './chart/AETable';
 import { detailTable } from './chart/detailTable';
 import { util } from './chart/util';
@@ -16,7 +15,6 @@ export function createChart(element = 'body', config = defaultSettings) {
         ,colorScale: colorScale
         ,layout: layout
         ,controls: controls
-        ,eventListeners: eventListeners
         ,AETable: AETable
         ,detailTable: detailTable
         ,util: util};

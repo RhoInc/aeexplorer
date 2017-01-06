@@ -22,6 +22,7 @@ export function init(chart) {
     var summaryControl = selector
         .append('div')
         .attr('class', 'input-prepend input-append input-medium summaryDiv');
+    
     summaryControl
         .append('div')
             .append('label')
@@ -40,4 +41,19 @@ export function init(chart) {
                 .attr(
                     {'class': 'appendedPrependedInput summaryRadio'
                     ,'type': 'radio'});
+
+    
+    //initialize event listener
+    var radios = chart.wrap.selectAll('div.summaryDiv .summaryRadio')
+        
+    radios.on('change', function (d) {
+        radios
+            .each(function (di) {
+                d3.select(this.parentNode).style('font-weight', 'normal');
+                d3.select(this)[0][0].checked = false; });
+        d3.select(this)[0][0].checked = true;
+        d3.select(this.parentNode).style('font-weight', 'bold');
+        var summary = d3.select(this.parentNode)[0][0].textContent;
+        chart.AETable.redraw(chart, chart.wrap, chart.raw_data, chart.config.variables, chart.config);
+    });
 }

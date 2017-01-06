@@ -87,10 +87,6 @@ var aeTable = function () {
         //Initialize adverse event eplorer.
         this.layout();
         this.controls.init(this);
-        this.eventListeners.rateFilter(this, this.wrap);
-        this.eventListeners.summaryControl(this, this.wrap, data, settings.variables, settings);
-        this.eventListeners.search(this, this.wrap, data, settings.variables, settings);
-        this.eventListeners.customFilters(this, this.wrap, data, settings.variables, settings);
         this.AETable.redraw(this, this.wrap, data, settings.variables, settings);
     }
 
@@ -148,6 +144,15 @@ var aeTable = function () {
         rateFilter.append('input').attr({ 'class': 'appendedPrependedInput rateFilter',
             'type': 'text' });
         rateFilter.append('span').attr('class', 'add-on after').text('%');
+
+        //event listener
+        rateFilter.on('change', function (d) {
+            //Clear filter flags.
+            chart.wrap.selectAll('.SummaryTable table tbody tr').classed('filter', false);
+
+            //Add filter flags.
+            chart.AETable.toggleRows(chart.wrap);
+        });
     }
 
     function get() {}
@@ -219,6 +224,11 @@ var aeTable = function () {
         }).attr('value', function (d) {
             return d;
         }).attr('selected', 'selected');
+
+        //Initialize event listeners
+        filterCustom.on('change', function () {
+            chart.AETable.redraw(chart, chart.wrap, chart.raw_data, chart.config.variables, chart.config);
+        });
     }
 
     function get$1() {}
@@ -251,11 +261,26 @@ var aeTable = function () {
         selector.append('span').attr('class', 'sectionHead').text('Summarize by:');
 
         var summaryControl = selector.append('div').attr('class', 'input-prepend input-append input-medium summaryDiv');
+
         summaryControl.append('div').append('label').style('font-weight', 'bold').text('participant').append('input').attr({ 'class': 'appendedPrependedInput summaryRadio',
             'type': 'radio',
             'checked': true });
         summaryControl.append('div').append('label').text('event').append('input').attr({ 'class': 'appendedPrependedInput summaryRadio',
             'type': 'radio' });
+
+        //initialize event listener
+        var radios = chart.wrap.selectAll('div.summaryDiv .summaryRadio');
+
+        radios.on('change', function (d) {
+            radios.each(function (di) {
+                d3.select(this.parentNode).style('font-weight', 'normal');
+                d3.select(this)[0][0].checked = false;
+            });
+            d3.select(this)[0][0].checked = true;
+            d3.select(this.parentNode).style('font-weight', 'bold');
+            var summary = d3.select(this.parentNode)[0][0].textContent;
+            chart.AETable.redraw(chart, chart.wrap, chart.raw_data, chart.config.variables, chart.config);
+        });
     }
 
     const summaryControl = { init: init$4 };
@@ -276,6 +301,82 @@ var aeTable = function () {
         searchLabel.append('span').attr('class', 'search-count');
         searchLabel.append('span').attr('class', 'clear-search').html('&#9747;');
         selector.append('input').attr('type', 'text').attr('class', 'searchBar search-query input-medium').attr('placeholder', 'Search');
+
+        //event listeners for search
+        chart.wrap.select('input.searchBar').on('change', function (d) {
+            var searchTerm = d3.select(this).property('value').toLowerCase();
+
+            if (searchTerm.length > 0) {
+
+                //Clear the previous search but preserve search text.
+                chart.controls.search.clear(chart, chart.wrap);
+                d3.select(this).property('value', searchTerm);
+
+                //Clear flags.
+                chart.wrap.selectAll('div.SummaryTable table tbody').classed('minorHidden', false);
+                chart.wrap.selectAll('div.SummaryTable table tbody tr').classed('filter', false);
+                chart.wrap.select('div.SummaryTable').classed('search', false);
+                chart.wrap.selectAll('div.SummaryTable table tbody').classed('search', false);
+                chart.wrap.selectAll('div.SummaryTable table tbody tr').classed('search', false);
+
+                //Hide expand/collapse cells.
+                chart.wrap.selectAll('div.SummaryTable table tbody tr td.controls span').classed('hidden', true);
+
+                //Display 'clear search' icon.
+                chart.wrap.select('span.search-label').classed('hidden', false);
+
+                //Flag summary table.
+                var tab = chart.wrap.select('div.SummaryTable').classed('search', true);
+
+                //Capture rows which contain the search term.
+                var tbodyMatch = tab.select('table').selectAll('tbody').each(function (bodyElement) {
+                    var bodyCurrent = d3.select(this);
+                    var bodyData = bodyCurrent.data()[0];
+
+                    bodyCurrent.selectAll('tr').each(function (rowElement) {
+                        var rowCurrent = d3.select(this);
+                        var rowData = rowCurrent.data()[0];
+                        var rowText = rowCurrent.classed('major') ? bodyData.key.toLowerCase() : rowData.key.toLowerCase();
+
+                        if (rowText.search(searchTerm) >= 0) {
+
+                            bodyCurrent.classed('search', true);
+                            rowCurrent.classed('search', true);
+
+                            //Highlight search text in selected table cell.
+                            var currentText = rowCurrent.select('td.rowLabel').html();
+                            var searchStart = currentText.toLowerCase().search(searchTerm);
+                            var searchStop = searchStart + searchTerm.length;
+                            var newText = currentText.slice(0, searchStart) + '<span class="search">' + currentText.slice(searchStart, searchStop) + '</span>' + currentText.slice(searchStop, currentText.length);
+                            rowCurrent.select('td.rowLabel').html(newText);
+                        }
+                    });
+                });
+
+                //Disable the rate filter.
+                d3.select('input.rateFilter').property('disabled', true);
+
+                //Update the search label.
+                var matchCount = chart.wrap.selectAll('tr.search')[0].length;
+                chart.wrap.select('span.search-count').text(matchCount + ' matches');
+                chart.wrap.select('span.search-label').attr('class', matchCount === 0 ? 'search-label label label-warning' : 'search-label label label-success');
+
+                //Check whether search term returned zero matches.
+                if (matchCount === 0) {
+                    //Restore the table.
+                    chart.wrap.selectAll('div.SummaryTable').classed('search', false);
+                    chart.wrap.selectAll('div.SummaryTable table tbody').classed('search', false);
+                    chart.wrap.selectAll('div.SummaryTable table tbody tr').classed('search', false);
+
+                    //Reset the filters and row toggle.
+                    chart.AETable.toggleRows(canvas);
+                }
+            } else chart.controls.search.clear(chart, chart.wrap);
+        });
+
+        chart.wrap.select('span.clear-search').on('click', function () {
+            chart.controls.search.clear(chart, chart.wrap);
+        });
     }
 
     function get$2() {}
@@ -323,140 +424,6 @@ var aeTable = function () {
         filters: filters,
         summaryControl: summaryControl,
         search: search };
-
-    /*------------------------------------------------------------------------------------------------\
-      Define rate filter event listener.
-    \------------------------------------------------------------------------------------------------*/
-
-    function rateFilter(table, canvas) {
-        var rateFilter = canvas.select('input.rateFilter');
-
-        rateFilter.on('change', function (d) {
-            //Clear filter flags.
-            canvas.selectAll('.SummaryTable table tbody tr').classed('filter', false);
-
-            //Add filter flags.
-            table.AETable.toggleRows(canvas);
-        });
-    }
-
-    /*------------------------------------------------------------------------------------------------\
-      Define summary control event listener.
-    \------------------------------------------------------------------------------------------------*/
-
-    function summaryControl$1(table, canvas, data, vars, settings) {
-        var summaryControls = canvas.selectAll('div.summaryDiv .summaryRadio');
-
-        summaryControls.on('change', function (d) {
-            summaryControls.each(function (di) {
-                d3.select(this.parentNode).style('font-weight', 'normal');
-                d3.select(this)[0][0].checked = false;
-            });
-            d3.select(this)[0][0].checked = true;
-            d3.select(this.parentNode).style('font-weight', 'bold');
-            var summary = d3.select(this.parentNode)[0][0].textContent;
-            table.AETable.redraw(table, canvas, data, vars, settings, summary);
-        });
-    }
-
-    /*------------------------------------------------------------------------------------------------\
-      Define custom filters event listener.
-    \------------------------------------------------------------------------------------------------*/
-
-    function customFilters(table, canvas, data, vars, settings) {
-        var filterCustom = canvas.selectAll('.custom-filters ul li select');
-
-        //Redraw table without bootstrap multiselect.
-        filterCustom.on('change', function () {
-            table.AETable.redraw(table, canvas, data, vars, settings);
-        });
-    }
-
-    /*------------------------------------------------------------------------------------------------\
-      Define search control event listener.
-    \------------------------------------------------------------------------------------------------*/
-
-    function search$1(table, canvas, data, vars, settings) {
-        canvas.select('input.searchBar').on('change', function (d) {
-            var searchTerm = d3.select(this).property('value').toLowerCase();
-
-            if (searchTerm.length > 0) {
-
-                //Clear the previous search but preserve search text.
-                table.controls.search.clear(table, canvas);
-                d3.select(this).property('value', searchTerm);
-
-                //Clear flags.
-                canvas.selectAll('div.SummaryTable table tbody').classed('minorHidden', false);
-                canvas.selectAll('div.SummaryTable table tbody tr').classed('filter', false);
-                canvas.select('div.SummaryTable').classed('search', false);
-                canvas.selectAll('div.SummaryTable table tbody').classed('search', false);
-                canvas.selectAll('div.SummaryTable table tbody tr').classed('search', false);
-
-                //Hide expand/collapse cells.
-                canvas.selectAll('div.SummaryTable table tbody tr td.controls span').classed('hidden', true);
-
-                //Display 'clear search' icon.
-                canvas.select('span.search-label').classed('hidden', false);
-
-                //Flag summary table.
-                var tab = canvas.select('div.SummaryTable').classed('search', true);
-
-                //Capture rows which contain the search term.
-                var tbodyMatch = tab.select('table').selectAll('tbody').each(function (bodyElement) {
-                    var bodyCurrent = d3.select(this);
-                    var bodyData = bodyCurrent.data()[0];
-
-                    bodyCurrent.selectAll('tr').each(function (rowElement) {
-                        var rowCurrent = d3.select(this);
-                        var rowData = rowCurrent.data()[0];
-                        var rowText = rowCurrent.classed('major') ? bodyData.key.toLowerCase() : rowData.key.toLowerCase();
-
-                        if (rowText.search(searchTerm) >= 0) {
-
-                            bodyCurrent.classed('search', true);
-                            rowCurrent.classed('search', true);
-
-                            //Highlight search text in selected table cell.
-                            var currentText = rowCurrent.select('td.rowLabel').html();
-                            var searchStart = currentText.toLowerCase().search(searchTerm);
-                            var searchStop = searchStart + searchTerm.length;
-                            var newText = currentText.slice(0, searchStart) + '<span class="search">' + currentText.slice(searchStart, searchStop) + '</span>' + currentText.slice(searchStop, currentText.length);
-                            rowCurrent.select('td.rowLabel').html(newText);
-                        }
-                    });
-                });
-
-                //Disable the rate filter.
-                d3.select('input.rateFilter').property('disabled', true);
-
-                //Update the search label.
-                var matchCount = canvas.selectAll('tr.search')[0].length;
-                canvas.select('span.search-count').text(matchCount + ' matches');
-                canvas.select('span.search-label').attr('class', matchCount === 0 ? 'search-label label label-warning' : 'search-label label label-success');
-
-                //Check whether search term returned zero matches.
-                if (matchCount === 0) {
-                    //Restore the table.
-                    canvas.selectAll('div.SummaryTable').classed('search', false);
-                    canvas.selectAll('div.SummaryTable table tbody').classed('search', false);
-                    canvas.selectAll('div.SummaryTable table tbody tr').classed('search', false);
-
-                    //Reset the filters and row toggle.
-                    table.AETable.toggleRows(canvas);
-                }
-            } else table.controls.search.clear(table, canvas);
-        });
-
-        canvas.select('span.clear-search').on('click', function () {
-            table.controls.search.clear(table, canvas);
-        });
-    }
-
-    const eventListeners = { rateFilter: rateFilter,
-        summaryControl: summaryControl$1,
-        customFilters: customFilters,
-        search: search$1 };
 
     /*------------------------------------------------------------------------------------------------\
       Clear the current table and draw a new one.
@@ -1205,8 +1172,6 @@ var aeTable = function () {
         });
     }
 
-    function eventListeners$1(data, vars, settings) {}
-
     /*------------------------------------------------------------------------------------------------\
       Apply basic filters and toggles.
     \------------------------------------------------------------------------------------------------*/
@@ -1243,7 +1208,6 @@ var aeTable = function () {
         wipe: wipe,
         prepareData: prepareData,
         init: init$6,
-        eventListeners: eventListeners$1,
         toggleRows: toggleRows };
 
     /*------------------------------------------------------------------------------------------------\
@@ -1340,7 +1304,6 @@ var aeTable = function () {
             colorScale: colorScale,
             layout: layout,
             controls: controls,
-            eventListeners: eventListeners,
             AETable: AETable,
             detailTable: detailTable,
             util: util };
