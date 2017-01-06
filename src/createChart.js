@@ -8,7 +8,7 @@ import { AETable } from './chart/AETable';
 import { detailTable } from './chart/detailTable';
 import { util } from './chart/util';
 
-export default function(element = 'body', config = defaultSettings) {
+export function createChart(element = 'body', config = defaultSettings) {
     let chart =
         {element: element
         ,config: config
