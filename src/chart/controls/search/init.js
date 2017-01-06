@@ -2,7 +2,13 @@
   Initialize search control.
 \------------------------------------------------------------------------------------------------*/
 
-export function init(selector) {
+export function init(chart) {
+  //draw the search control
+  var selector = chart.controls.wrap
+        .append('form')
+        .attr('class', 'searchForm navbar-search pull-right')
+        .attr('onsubmit', 'return false;');
+
   //Clear search control.
     selector.selectAll('span.seach-label, input.searchBar').remove()
 

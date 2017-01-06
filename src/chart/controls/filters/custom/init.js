@@ -2,9 +2,15 @@
   Initialize custom controls.
 \------------------------------------------------------------------------------------------------*/
 
-export function init(selector, data, vars, settings) {
+//export function init(selector, data, vars, settings) {
+export function init(chart) {
+  //initialize the wrapper
+    var selector = chart.controls.wrap
+        .append('div')
+        .attr('class', 'custom-filters');
+
   //Create list of filter variables.
-    var filterVars = settings.filters
+    var filterVars = chart.config.filters
         .map(function(e) {
             return {
                 value_col: e.value_col,
@@ -14,7 +20,7 @@ export function init(selector, data, vars, settings) {
     filterVars.forEach(function(e) {
         var varLevels = d3.nest()
             .key(function(d) { return d[e.value_col]; })
-            .entries(data);
+            .entries(chart.raw_data);
         e.values = varLevels
             .map(function(d) {
                 return d.key; });
@@ -37,8 +43,8 @@ export function init(selector, data, vars, settings) {
         .append('span')
         .attr('class', 'filterLabel')
         .text(function(d) {
-            if (settings.filters) {
-                var filterLabel = settings.filters.filter(function(d1) {
+            if (chart.config.filters) {
+                var filterLabel = chart.config.filters.filter(function(d1) {
                     return d1.value_col === d.value_col;
                 })[0].label;
 

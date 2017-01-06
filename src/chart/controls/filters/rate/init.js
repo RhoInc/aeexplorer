@@ -2,7 +2,12 @@
   Initialize rate filter.
 \------------------------------------------------------------------------------------------------*/
 
-export function init(selector) {
+export function init(chart) {
+   //create the wrapper
+    var selector = chart.controls.wrap
+    .append('div')
+    .attr('class', 'rate-filter');
+
   //Clear rate filter.
     selector.selectAll('span.filterLabel, div.rateFilterDiv').remove();
 

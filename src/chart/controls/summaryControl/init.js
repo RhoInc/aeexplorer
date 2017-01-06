@@ -1,8 +1,15 @@
-/*------------------------------------------------------------------------------------------------\
-  Initialize summary control.
+/*------------------------------------------------------------------------------------------------\
+
+  Initialize summary control.
+
 \------------------------------------------------------------------------------------------------*/
 
-export function init(selector) {
+export function init(chart) {
+  //create element  
+    var selector = chart.controls.wrap
+        .append('div')
+        .attr('class', 'summary-control');
+
   //Clear summary control.
     selector.selectAll('div.summaryDiv').remove();
 

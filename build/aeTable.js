@@ -119,17 +119,11 @@ var aeTable = function () {
         chart.controls.wrap.attr('onsubmit', 'return false;');
         chart.controls.wrap.selectAll('*').remove(); //Clear controls.
 
-        //Generate HTML containers.
-        var rateFilter = chart.controls.wrap.append('div').attr('class', 'rate-filter');
-        var summaryControl = chart.controls.wrap.append('div').attr('class', 'summary-control');
-        var searchBox = chart.controls.wrap.append('form').attr('class', 'searchForm navbar-search pull-right').attr('onsubmit', 'return false;');
-        var customFilters = chart.controls.wrap.append('div').attr('class', 'custom-filters');
-
         //Draw UI component.
-        chart.controls.filters.rate.init(rateFilter);
-        chart.controls.summaryControl.init(summaryControl);
-        chart.controls.filters.custom.init(customFilters, chart.raw_data, chart.config.variables, chart.config);
-        chart.controls.search.init(searchBox);
+        chart.controls.filters.rate.init(chart);
+        chart.controls.summaryControl.init(chart);
+        chart.controls.filters.custom.init(chart);
+        chart.controls.search.init(chart);
 
         //Initialize the filter rate.
         chart.controls.filters.rate.set(chart);
@@ -139,7 +133,10 @@ var aeTable = function () {
       Initialize rate filter.
     \------------------------------------------------------------------------------------------------*/
 
-    function init$2(selector) {
+    function init$2(chart) {
+        //create the wrapper
+        var selector = chart.controls.wrap.append('div').attr('class', 'rate-filter');
+
         //Clear rate filter.
         selector.selectAll('span.filterLabel, div.rateFilterDiv').remove();
 
@@ -171,9 +168,13 @@ var aeTable = function () {
       Initialize custom controls.
     \------------------------------------------------------------------------------------------------*/
 
-    function init$3(selector, data, vars, settings) {
+    //export function init(selector, data, vars, settings) {
+    function init$3(chart) {
+        //initialize the wrapper
+        var selector = chart.controls.wrap.append('div').attr('class', 'custom-filters');
+
         //Create list of filter variables.
-        var filterVars = settings.filters.map(function (e) {
+        var filterVars = chart.config.filters.map(function (e) {
             return {
                 value_col: e.value_col,
                 values: [] };
@@ -183,7 +184,7 @@ var aeTable = function () {
         filterVars.forEach(function (e) {
             var varLevels = d3.nest().key(function (d) {
                 return d[e.value_col];
-            }).entries(data);
+            }).entries(chart.raw_data);
             e.values = varLevels.map(function (d) {
                 return d.key;
             });
@@ -198,8 +199,8 @@ var aeTable = function () {
             return 'custom-' + d.key + ' filterCustom';
         });
         var filterLabel = filterItem.append('span').attr('class', 'filterLabel').text(function (d) {
-            if (settings.filters) {
-                var filterLabel = settings.filters.filter(function (d1) {
+            if (chart.config.filters) {
+                var filterLabel = chart.config.filters.filter(function (d1) {
                     return d1.value_col === d.value_col;
                 })[0].label;
 
@@ -235,11 +236,14 @@ var aeTable = function () {
     const filters = { rate: rate,
         custom: custom };
 
-    /*------------------------------------------------------------------------------------------------\
-      Initialize summary control.
-    \------------------------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------------------------\
+        Initialize summary control.
+      \------------------------------------------------------------------------------------------------*/
 
-    function init$4(selector) {
+    function init$4(chart) {
+        //create element  
+        var selector = chart.controls.wrap.append('div').attr('class', 'summary-control');
+
         //Clear summary control.
         selector.selectAll('div.summaryDiv').remove();
 
@@ -260,7 +264,10 @@ var aeTable = function () {
       Initialize search control.
     \------------------------------------------------------------------------------------------------*/
 
-    function init$5(selector) {
+    function init$5(chart) {
+        //draw the search control
+        var selector = chart.controls.wrap.append('form').attr('class', 'searchForm navbar-search pull-right').attr('onsubmit', 'return false;');
+
         //Clear search control.
         selector.selectAll('span.seach-label, input.searchBar').remove();
 
