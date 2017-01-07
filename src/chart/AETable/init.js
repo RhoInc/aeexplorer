@@ -5,15 +5,12 @@
 
 import { annoteDetails } from './annoteDetails';
 import { util } from '../util';
-import { collapse } from './collapse';
-import { json2csv } from './json2csv';
-
 
 export function init(chart) {
     //convinience mappings
     var vars = chart.config.variables
 
-
+    //Get current chart type ("participant" or "event")
     var summary = d3.selectAll('.summaryDiv label')
         .filter(function(d) {
             return d3.select(this).selectAll('.summaryRadio').property('checked'); })[0][0]
@@ -30,6 +27,7 @@ export function init(chart) {
         ,'All'
         ,vars['group']
         ,chart.config.groups);
+
   //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.group ], and
   //[ chart.config.variables.id ].
     var dataMajor = util.cross
@@ -40,6 +38,7 @@ export function init(chart) {
         ,'All'
         ,vars['group']
         ,chart.config.groups);
+
   //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.minor ],
   //[ chart.config.variables.group ], and [ chart.config.variables.id ].
     var dataMinor = util.cross
@@ -78,8 +77,8 @@ export function init(chart) {
   //Output the data if the validation setting is flagged.
     if (chart.config.validation && d3.select('#downloadCSV')[0][0] === null) {
 
-        var majorValidation = collapse(dataMajor);
-        var minorValidation = collapse(dataMinor);
+        var majorValidation = chart.util.collapse(dataMajor);
+        var minorValidation = chart.util.collapse(dataMinor);
 
         var fullValidation = d3.merge([majorValidation, minorValidation])
             .sort(function(a,b) {
@@ -87,7 +86,7 @@ export function init(chart) {
             .sort(function(a,b) {
                 return a.majorCategory < b.majorCategory ? -1 : 1; });
 
-        var CSV = json2csv(fullValidation)
+        var CSV = chart.util.json2csv(fullValidation)
 
         chart.wrap
             .append('a')
@@ -98,7 +97,10 @@ export function init(chart) {
             .text('Download Summarized Data');
     }
 
+  /////////////////////////////////////
   //Draw the summary table headers.
+  /////////////////////////////////////
+
     var totalCol = (chart.config.defaults.totalCol === 'Show');
     var tab = chart.wrap.select('.SummaryTable')
         .append('table');

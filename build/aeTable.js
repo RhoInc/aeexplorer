@@ -160,8 +160,6 @@ var aeTable = function () {
         });
     }
 
-    function get() {}
-
     /*------------------------------------------------------------------------------------------------\
       Set rate filter default.
     \------------------------------------------------------------------------------------------------*/
@@ -171,7 +169,6 @@ var aeTable = function () {
     }
 
     const rate = { init: init$2,
-        get: get,
         set: set };
 
     /*------------------------------------------------------------------------------------------------\
@@ -236,17 +233,7 @@ var aeTable = function () {
         });
     }
 
-    function get$1() {}
-
-    /*------------------------------------------------------------------------------------------------\
-      Set custom filter defaults.
-    \------------------------------------------------------------------------------------------------*/
-
-    function set$1() {}
-
-    const custom = { init: init$3,
-        get: get$1,
-        set: set$1 };
+    const custom = { init: init$3 };
 
     const filters = { rate: rate,
         custom: custom };
@@ -384,14 +371,6 @@ var aeTable = function () {
         });
     }
 
-    function get$2() {}
-
-    /*------------------------------------------------------------------------------------------------\
-      Set search term default.
-    \------------------------------------------------------------------------------------------------*/
-
-    function set$2() {}
-
     /*------------------------------------------------------------------------------------------------\
       Clear search term results.
     \------------------------------------------------------------------------------------------------*/
@@ -422,8 +401,6 @@ var aeTable = function () {
     }
 
     const search = { init: init$5,
-        get: get$2,
-        set: set$2,
         clear: clear };
 
     const controls = { init: init$1,
@@ -438,7 +415,7 @@ var aeTable = function () {
     function redraw(chart) {
         chart.controls.search.clear(chart);
         chart.AETable.wipe(chart.wrap);
-        var filteredData = chart.AETable.prepareData(chart);
+        var filteredData = chart.util.prepareData(chart);
         chart.AETable.init(chart);
         chart.AETable.toggleRows(chart.wrap);
     }
@@ -452,58 +429,6 @@ var aeTable = function () {
         canvas.select(".table-wrapper .SummaryTable button").remove();
         canvas.select(".table-wrapper .DetailTable").remove();
         canvas.select(".table-wrapper .DetailTable").remove();
-    }
-
-    /*------------------------------------------------------------------------------------------------\
-      Filter the raw data per the current filter and group selections.
-    \------------------------------------------------------------------------------------------------*/
-    function prepareData(chart) {
-        var noAEs = ['', 'na', 'n/a', 'no ae', 'no aes', 'none', 'unknown', 'none/unknown'];
-
-        var vars = chart.config.variables; //convenience mapping
-
-        //Flag records which represent [vars.id] values without an adverse event.
-        chart.raw_data.forEach(d => {
-            d.data_all = 'All';
-            d.flag = 0;
-
-            if (noAEs.indexOf(d[vars.major].trim().toLowerCase()) > -1) {
-                d[vars.major] = 'None/Unknown';
-                d.flag = 1;
-            }
-
-            if (noAEs.indexOf(d[vars.minor].trim().toLowerCase()) > -1) {
-                d[vars.minor] = 'None/Unknown';
-            }
-        });
-
-        //Nest data by [vars.group] and [vars.id].
-        var nestedData = d3.nest().key(d => d[vars.group]).key(d => d[vars.id]).entries(chart.raw_data);
-
-        //Calculate number of [vars.id] and number of events.
-        chart.config.groups.forEach(d => {
-            //Filter nested data on [vars.group].
-            var groupData = nestedData.filter(di => di.key === d.key);
-
-            //Calculate number of [vars.id].
-            d.n = groupData.length > 0 ? groupData[0].values.length : d3.sum(nestedData.map(di => di.values.length));
-
-            //Calculate number of events.
-            d.nEvents = chart.raw_data.filter(di => di[vars.group] === d.key && di.flag === 0).length;
-        });
-
-        //Subset data on groups specified in chart.config.groups.
-        var groupNames = chart.config.groups.map(d => d.key);
-        var sub = chart.raw_data.filter(d => groupNames.indexOf(d[vars['group']]) >= 0);
-
-        //Filter without bootstrap multiselect
-        chart.wrap.select('.custom-filters').selectAll('select').each(function (d) {
-            d3.select(this).selectAll('option').each(function (di) {
-                if (!d3.select(this).property('selected')) sub = sub.filter(dii => dii[d.value_col] !== di);
-            });
-        });
-
-        return sub;
     }
 
     /*------------------------------------------------------------------------------------------------\
@@ -832,12 +757,6 @@ var aeTable = function () {
         }
     }
 
-    const util = { calculateDifference: calculateDifference,
-        addDifferences: addDifferences,
-        cross: cross,
-        sort: sort,
-        fillRow: fillRow };
-
     /*------------------------------------------------------------------------------------------------\
       Collapse data for export to .csv.
     \------------------------------------------------------------------------------------------------*/
@@ -905,10 +824,72 @@ var aeTable = function () {
         return CSV;
     }
 
+    /*------------------------------------------------------------------------------------------------\
+      Filter the raw data per the current filter and group selections.
+    \------------------------------------------------------------------------------------------------*/
+    function prepareData(chart) {
+        var noAEs = ['', 'na', 'n/a', 'no ae', 'no aes', 'none', 'unknown', 'none/unknown'];
+
+        var vars = chart.config.variables; //convenience mapping
+
+        //Flag records which represent [vars.id] values without an adverse event.
+        chart.raw_data.forEach(d => {
+            d.data_all = 'All';
+            d.flag = 0;
+
+            if (noAEs.indexOf(d[vars.major].trim().toLowerCase()) > -1) {
+                d[vars.major] = 'None/Unknown';
+                d.flag = 1;
+            }
+
+            if (noAEs.indexOf(d[vars.minor].trim().toLowerCase()) > -1) {
+                d[vars.minor] = 'None/Unknown';
+            }
+        });
+
+        //Nest data by [vars.group] and [vars.id].
+        var nestedData = d3.nest().key(d => d[vars.group]).key(d => d[vars.id]).entries(chart.raw_data);
+
+        //Calculate number of [vars.id] and number of events.
+        chart.config.groups.forEach(d => {
+            //Filter nested data on [vars.group].
+            var groupData = nestedData.filter(di => di.key === d.key);
+
+            //Calculate number of [vars.id].
+            d.n = groupData.length > 0 ? groupData[0].values.length : d3.sum(nestedData.map(di => di.values.length));
+
+            //Calculate number of events.
+            d.nEvents = chart.raw_data.filter(di => di[vars.group] === d.key && di.flag === 0).length;
+        });
+
+        //Subset data on groups specified in chart.config.groups.
+        var groupNames = chart.config.groups.map(d => d.key);
+        var sub = chart.raw_data.filter(d => groupNames.indexOf(d[vars['group']]) >= 0);
+
+        //Filter without bootstrap multiselect
+        chart.wrap.select('.custom-filters').selectAll('select').each(function (d) {
+            d3.select(this).selectAll('option').each(function (di) {
+                if (!d3.select(this).property('selected')) sub = sub.filter(dii => dii[d.value_col] !== di);
+            });
+        });
+
+        return sub;
+    }
+
+    const util = { calculateDifference: calculateDifference,
+        addDifferences: addDifferences,
+        cross: cross,
+        sort: sort,
+        fillRow: fillRow,
+        collapse: collapse,
+        json2csv: json2csv,
+        prepareData: prepareData };
+
     function init$6(chart) {
         //convinience mappings
         var vars = chart.config.variables;
 
+        //Get current chart type ("participant" or "event")
         var summary = d3.selectAll('.summaryDiv label').filter(function (d) {
             return d3.select(this).selectAll('.summaryRadio').property('checked');
         })[0][0].textContent;
@@ -918,9 +899,11 @@ var aeTable = function () {
             return e.flag === 0;
         });
         var dataAny = util.cross(sub, chart.config.groups, vars['id'], 'All', 'All', vars['group'], chart.config.groups);
+
         //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.group ], and
         //[ chart.config.variables.id ].
         var dataMajor = util.cross(chart.raw_data, chart.config.groups, vars['id'], vars['major'], 'All', vars['group'], chart.config.groups);
+
         //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.minor ],
         //[ chart.config.variables.group ], and [ chart.config.variables.id ].
         var dataMinor = util.cross(chart.raw_data, chart.config.groups, vars['id'], vars['major'], vars['minor'], vars['group'], chart.config.groups);
@@ -948,8 +931,8 @@ var aeTable = function () {
         //Output the data if the validation setting is flagged.
         if (chart.config.validation && d3.select('#downloadCSV')[0][0] === null) {
 
-            var majorValidation = collapse(dataMajor);
-            var minorValidation = collapse(dataMinor);
+            var majorValidation = chart.util.collapse(dataMajor);
+            var minorValidation = chart.util.collapse(dataMinor);
 
             var fullValidation = d3.merge([majorValidation, minorValidation]).sort(function (a, b) {
                 return a.minorCategory < b.minorCategory ? -1 : 1;
@@ -957,14 +940,17 @@ var aeTable = function () {
                 return a.majorCategory < b.majorCategory ? -1 : 1;
             });
 
-            var CSV = json2csv(fullValidation);
+            var CSV = chart.util.json2csv(fullValidation);
 
             chart.wrap.append('a').attr({ 'href': 'data:text/csv;charset=utf-8,' + escape(CSV),
                 'download': true,
                 'id': 'downloadCSV' }).text('Download Summarized Data');
         }
 
+        /////////////////////////////////////
         //Draw the summary table headers.
+        /////////////////////////////////////
+
         var totalCol = chart.config.defaults.totalCol === 'Show';
         var tab = chart.wrap.select('.SummaryTable').append('table');
         var nGroups = chart.config.groups.length + totalCol;
@@ -1227,7 +1213,6 @@ var aeTable = function () {
 
     const AETable = { redraw: redraw,
         wipe: wipe,
-        prepareData: prepareData,
         init: init$6,
         toggleRows: toggleRows };
 
