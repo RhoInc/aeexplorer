@@ -314,7 +314,7 @@ var aeTable = function () {
             if (searchTerm.length > 0) {
 
                 //Clear the previous search but preserve search text.
-                chart.controls.search.clear(chart, chart.wrap);
+                chart.controls.search.clear(chart);
                 d3.select(this).property('value', searchTerm);
 
                 //Clear flags.
@@ -376,7 +376,7 @@ var aeTable = function () {
                     //Reset the filters and row toggle.
                     chart.AETable.toggleRows(canvas);
                 }
-            } else chart.controls.search.clear(chart, chart.wrap);
+            } else chart.controls.search.clear(chart);
         });
 
         chart.wrap.select('span.clear-search').on('click', function () {
@@ -396,28 +396,29 @@ var aeTable = function () {
       Clear search term results.
     \------------------------------------------------------------------------------------------------*/
 
-    function clear(table, canvas) {
+    function clear(chart) {
+
         //Re-enable rate filter.
-        canvas.select('input.rateFilter').property('disabled', false);
+        chart.wrap.select('input.rateFilter').property('disabled', false);
 
         //Clear search box.
-        canvas.select('input.searchBar').property('value', '');
+        chart.wrap.select('input.searchBar').property('value', '');
 
         //Remove search highlighting.
-        canvas.selectAll('div.SummaryTable table tbody tr.search td.rowLabel').html(function (d) {
+        chart.wrap.selectAll('div.SummaryTable table tbody tr.search td.rowLabel').html(function (d) {
             return d.values[0].values['label'];
         });
 
         //Remove 'clear search' icon and label.
-        canvas.select('span.search-label').classed('hidden', true);
+        chart.wrap.select('span.search-label').classed('hidden', true);
 
         //Clear search flags.
-        canvas.selectAll('div.SummaryTable').classed('search', false);
-        canvas.selectAll('div.SummaryTable table tbody').classed('search', false);
-        canvas.selectAll('div.SummaryTable table tbody tr').classed('search', false);
+        chart.wrap.selectAll('div.SummaryTable').classed('search', false);
+        chart.wrap.selectAll('div.SummaryTable table tbody').classed('search', false);
+        chart.wrap.selectAll('div.SummaryTable table tbody tr').classed('search', false);
 
         //Reset filters and row toggle.
-        table.AETable.toggleRows(canvas);
+        chart.AETable.toggleRows(chart.wrap);
     }
 
     const search = { init: init$5,
@@ -435,7 +436,7 @@ var aeTable = function () {
     \------------------------------------------------------------------------------------------------*/
 
     function redraw(chart) {
-        chart.controls.search.clear(chart, chart.wrap);
+        chart.controls.search.clear(chart);
         chart.AETable.wipe(chart.wrap);
         var filteredData = chart.AETable.prepareData(chart.wrap, chart.raw_data, chart.config.variables, chart.config);
         chart.AETable.init(chart, chart.wrap, filteredData, chart.config.variables, chart.config);

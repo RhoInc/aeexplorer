@@ -35,7 +35,7 @@ export function init(chart) {
             if (searchTerm.length > 0) {
 
               //Clear the previous search but preserve search text.
-                chart.controls.search.clear(chart, chart.wrap);
+                chart.controls.search.clear(chart);
                 d3.select(this)
                     .property('value', searchTerm);
 
@@ -127,7 +127,7 @@ export function init(chart) {
                   //Reset the filters and row toggle.
                     chart.AETable.toggleRows(canvas);
                 }
-            } else  chart.controls.search.clear(chart, chart.wrap)
+            } else  chart.controls.search.clear(chart)
         });
 
     chart.wrap.select('span.clear-search')
