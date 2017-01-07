@@ -159,7 +159,7 @@ var aeTable = function () {
             chart.wrap.selectAll('.SummaryTable table tbody tr').classed('filter', false);
 
             //Add filter flags.
-            chart.AETable.toggleRows(chart.wrap);
+            chart.AETable.toggleRows(chart);
         });
     }
 
@@ -364,13 +364,13 @@ var aeTable = function () {
                     chart.wrap.selectAll('div.SummaryTable table tbody tr').classed('search', false);
 
                     //Reset the filters and row toggle.
-                    chart.AETable.toggleRows(canvas);
+                    chart.AETable.toggleRows(chart);
                 }
             } else chart.controls.search.clear(chart);
         });
 
         chart.wrap.select('span.clear-search').on('click', function () {
-            chart.controls.search.clear(chart, chart.wrap);
+            chart.controls.search.clear(chart);
         });
     }
 
@@ -400,7 +400,7 @@ var aeTable = function () {
         chart.wrap.selectAll('div.SummaryTable table tbody tr').classed('search', false);
 
         //Reset filters and row toggle.
-        chart.AETable.toggleRows(chart.wrap);
+        chart.AETable.toggleRows(chart);
     }
 
     const search = { init: init$5,
@@ -420,7 +420,7 @@ var aeTable = function () {
         chart.AETable.wipe(chart.wrap);
         var filteredData = chart.util.prepareData(chart);
         chart.AETable.init(chart);
-        chart.AETable.toggleRows(chart.wrap);
+        chart.AETable.toggleRows(chart);
     }
 
     /*------------------------------------------------------------------------------------------------\
@@ -1118,8 +1118,6 @@ var aeTable = function () {
             if (toggle) {
                 var major = d.values[0].values['major'];
                 var minor = d.values[0].values['minor'];
-                console.log(major);
-                console.log(minor);
                 var detailTableSettings = { 'major': major, 'minor': minor };
                 chart.detailTable.init(chart, detailTableSettings);
             } else {
@@ -1133,19 +1131,19 @@ var aeTable = function () {
       Apply basic filters and toggles.
     \------------------------------------------------------------------------------------------------*/
 
-    function toggleRows(canvas) {
+    function toggleRows(chart) {
         //Toggle minor rows.
-        var minorToggle = settings.defaults.prefTerms !== 'Show';
-        canvas.selectAll('.SummaryTable tbody').classed('minorHidden', minorToggle);
-        canvas.selectAll('.SummaryTable table tbody').select('tr.major td.controls span').text(minorToggle ? '+' : '-');
+        var minorToggle = chart.config.defaults.prefTerms !== 'Show';
+        chart.wrap.selectAll('.SummaryTable tbody').classed('minorHidden', minorToggle);
+        chart.wrap.selectAll('.SummaryTable table tbody').select('tr.major td.controls span').text(minorToggle ? '+' : '-');
 
         //Toggle Difference plots
         var differenceToggle = false;
-        canvas.selectAll('.SummaryTable .diffplot').classed('hidden', differenceToggle);
+        chart.wrap.selectAll('.SummaryTable .diffplot').classed('hidden', differenceToggle);
 
         //Filter based on prevalence.
-        var filterVal = canvas.select('div.controls input.rateFilter').property('value');
-        canvas.selectAll('div.SummaryTable table tbody').each(function (d) {
+        var filterVal = chart.wrap.select('div.controls input.rateFilter').property('value');
+        chart.wrap.selectAll('div.SummaryTable table tbody').each(function (d) {
             var allRows = d3.select(this).selectAll('tr');
             var filterRows = allRows.filter(function (d) {
                 var percents = d.values.map(function (element) {

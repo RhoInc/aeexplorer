@@ -378,8 +378,6 @@ export function init(chart) {
             if (toggle) {
                 var major = d.values[0].values['major'];
                 var minor = d.values[0].values['minor'];
-                console.log(major)
-                console.log(minor)
                 var detailTableSettings = {'major': major,'minor': minor}
                 chart.detailTable.init(chart,detailTableSettings);
             } else {
