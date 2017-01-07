@@ -3,7 +3,7 @@
   table.
 \------------------------------------------------------------------------------------------------*/
 
-import { annoteDetails } from './annoteDetails';
+import { showCellCounts } from './showCellCounts';
 import { util } from '../util';
 
 export function init(chart) {
@@ -15,6 +15,10 @@ export function init(chart) {
         .filter(function(d) {
             return d3.select(this).selectAll('.summaryRadio').property('checked'); })[0][0]
         .textContent;
+
+  /////////////////////////////////////////////////////////////////
+  // Prepare the data for charting
+  /////////////////////////////////////////////////////////////////
 
   //Create a dataset nested by [ chart.config.variables.group ] and [ chart.config.variables.id ].
     var sub = chart.raw_data.filter(function(e) {
@@ -73,6 +77,10 @@ export function init(chart) {
             return max_a < max_b ? 1 : -1;
         });
     });
+  
+  /////////////////////////////////////////////////////////////////
+  // Allow the user to download a csv of the current view 
+  /////////////////////////////////////////////////////////////////
 
   //Output the data if the validation setting is flagged.
     if (chart.config.validation && d3.select('#downloadCSV')[0][0] === null) {
@@ -98,7 +106,7 @@ export function init(chart) {
     }
 
   /////////////////////////////////////
-  //Draw the summary table headers.
+  // Draw the summary table headers.
   /////////////////////////////////////
 
     var totalCol = (chart.config.defaults.totalCol === 'Show');
@@ -233,6 +241,7 @@ export function init(chart) {
   ////////////////////////////
   // Add Rows to the table //
   ////////////////////////////
+
     if (!dataMajor.length) {
         if (chart.wrap.select('.missing-data-alert').empty()) {
             chart.wrap.select('.SummaryTable')
@@ -307,36 +316,11 @@ export function init(chart) {
             return e.key === 'None/Unknown'; })
         .classed('hidden', true)
 
-  ////////////////////////////////////////////////
-  // Mouseover/Mouseout for header columns values
-  ////////////////////////////////////////////////
-    chart.wrap.selectAll('.summaryTable th.values')
-        .on('mouseover', function(d) {
-          //change colors for points and values to gray
-            chart.wrap.selectAll('td.prevplot svg g.points circle')
-                .attr('fill', '#555')
-                .attr('opacity', 0.1);
-            chart.wrap.selectAll('.values')
-                .style('color', '#ccc');
+  //////////////////////////////////////////////////
+  // Initialize event listeners for summary Table //
+  //////////////////////////////////////////////////
 
-          //highlight the selected group
-            annoteDetails(chart, chart.wrap, chart.wrap.selectAll('.SummaryTable tr'), d.key, 'right');
-        })
-        .on('mouseout', function(d) {
-          //Clear annotations
-            chart.wrap.selectAll('td.prevplot svg g.points circle')
-                .attr('fill', function(d) {
-                    return chart.colorScale(d.key); })
-                .attr('opacity', 1);
-            chart.wrap.selectAll('.values')
-                .style('color', function(d) {
-                    return chart.colorScale(d.key); });
-            chart.wrap.selectAll('.annote').remove();
-        });
-
-  ///////////////////////////////////////////////
-  // Mouseover/Mouseout for difference diamonds
-  ///////////////////////////////////////////////
+  // Show cell counts on Mouseover/Mouseout of difference diamonds
     chart.wrap.selectAll('td.diffplot svg g path.diamond')
         .on('mouseover', function(d) {
             var currentRow = chart.wrap.selectAll('.SummaryTable tbody tr')
@@ -344,51 +328,25 @@ export function init(chart) {
                     return  e.values[0].values.major === d.major &&
                             e.values[0].values.minor === d.minor; });
 
-            var sameGroups = chart.wrap.selectAll('td.diffplot svg g')
-                .filter(function(e) {
-                    return e.group1 === d.group1 && e.group2 === d.group2; });
-
           //Display CI;
-            d3.select(this.parentNode).select('.ci')
-                .classed('hidden', false);
+            d3.select(this.parentNode).select('.ci').classed('hidden', false);
 
-          //Highlight text/points of selected groups.
-            annoteDetails(chart, chart.wrap, currentRow, d.group1, ((d.n1/d.tot1) > (d.n2/d.tot2)) ? 'right' : 'left');
-            annoteDetails(chart, chart.wrap, currentRow, d.group2, ((d.n1/d.tot1) > (d.n2/d.tot2)) ? 'left' : 'right');
-
+          //show cell counts for selected groups
+            showCellCounts(chart, currentRow, d.group1); 
+            showCellCounts(chart, currentRow, d.group2);
         })
         .on('mouseout', function(d) {
-            chart.wrap.selectAll('td.diffplot svg g').selectAll('path')
-                .attr('fill-opacity', function(d) {
-                    return (d.sig === 1) ? 1 : 0.1; })
-                .attr('stroke-opacity', 0.3);
-
-            d3.select(this.parentNode).select('.ci')
-                .classed('hidden', true);
-
-          //Restore the percentage colors.
-            chart.wrap.selectAll('td.prevplot svg g.points circle')
-                .attr('fill', function(d) {
-                    return chart.colorScale(d.key); })
-                .attr('opacity', 1);
-            chart.wrap.selectAll('.values')
-                .style('color', function(d) {
-                    return chart.colorScale(d.key); });
-          //Delete annotations.
-            chart.wrap.selectAll('.annote').remove();
+            d3.select(this.parentNode).select('.ci').classed('hidden', true); //hide CI
+            chart.wrap.selectAll('.annote').remove(); //Delete annotations.
         })
 
-  //////////////////////////////////
-  // Click Control for table rows //
-  //////////////////////////////////
+    // Highlight rows on mouseover
     chart.wrap.selectAll('.SummaryTable tr')
         .on('mouseover', function(d) {
-            d3.select(this).select('td.rowLabel')
-                .classed('highlight', true);
+            d3.select(this).select('td.rowLabel').classed('highlight', true);
         })
         .on('mouseout', function(d) {
-            d3.select(this).select('td.rowLabel')
-                .classed('highlight', false);
+            d3.select(this).select('td.rowLabel').classed('highlight', false);
         });
 
   //Expand/collapse a section
@@ -405,9 +363,8 @@ export function init(chart) {
                     return toggle ? '+' : '-'; });
         });
 
-  ///////////////////////////
-  // Show the details table
-  ///////////////////////////
+  
+  // Render the details table
     chart.wrap.selectAll('td.rowLabel')
         .on('click',function(d) {
           //Update classes (row visibility handeled via css)
