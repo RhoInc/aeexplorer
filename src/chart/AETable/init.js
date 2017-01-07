@@ -8,49 +8,53 @@ import { util } from '../util';
 import { collapse } from './collapse';
 import { json2csv } from './json2csv';
 
-export function init(table, canvas, data, vars, settings) {
-    var chart = table;
+
+export function init(chart) {
+    //convinience mappings
+    var vars = chart.config.variables
+
+
     var summary = d3.selectAll('.summaryDiv label')
         .filter(function(d) {
             return d3.select(this).selectAll('.summaryRadio').property('checked'); })[0][0]
         .textContent;
 
-  //Create a dataset nested by [ settings.variables.group ] and [ settings.variables.id ].
-    var sub = data.filter(function(e) {
+  //Create a dataset nested by [ chart.config.variables.group ] and [ chart.config.variables.id ].
+    var sub = chart.raw_data.filter(function(e) {
         return e.flag === 0; });
     var dataAny = util.cross
         (sub
-        ,settings.groups
+        ,chart.config.groups
         ,vars['id']
         ,'All'        
         ,'All'
         ,vars['group']
-        ,settings.groups);
-  //Create a dataset nested by [ settings.variables.major ], [ settings.variables.group ], and
-  //[ settings.variables.id ].
+        ,chart.config.groups);
+  //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.group ], and
+  //[ chart.config.variables.id ].
     var dataMajor = util.cross
-        (data
-        ,settings.groups
+        (chart.raw_data
+        ,chart.config.groups
         ,vars['id']
         ,vars['major']
         ,'All'
         ,vars['group']
-        ,settings.groups);
-  //Create a dataset nested by [ settings.variables.major ], [ settings.variables.minor ],
-  //[ settings.variables.group ], and [ settings.variables.id ].
+        ,chart.config.groups);
+  //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.minor ],
+  //[ chart.config.variables.group ], and [ chart.config.variables.id ].
     var dataMinor = util.cross
-        (data
-        ,settings.groups
+        (chart.raw_data
+        ,chart.config.groups
         ,vars['id']
         ,vars['major']
         ,vars['minor']
         ,vars['group']
-        ,settings.groups);
+        ,chart.config.groups);
 
   //Add a 'differences' object to each row.
-    dataMajor = util.addDifferences(dataMajor,settings.groups)
-    dataMinor = util.addDifferences(dataMinor,settings.groups)
-    dataAny   = util.addDifferences(dataAny,settings.groups)
+    dataMajor = util.addDifferences(dataMajor,chart.config.groups)
+    dataMinor = util.addDifferences(dataMinor,chart.config.groups)
+    dataAny   = util.addDifferences(dataAny,chart.config.groups)
 
   //Sort the data based by maximum prevelence.
     dataMajor = dataMajor.sort(util.sort.maxPer);
@@ -72,7 +76,7 @@ export function init(table, canvas, data, vars, settings) {
     });
 
   //Output the data if the validation setting is flagged.
-    if (settings.validation && d3.select('#downloadCSV')[0][0] === null) {
+    if (chart.config.validation && d3.select('#downloadCSV')[0][0] === null) {
 
         var majorValidation = collapse(dataMajor);
         var minorValidation = collapse(dataMinor);
@@ -85,7 +89,7 @@ export function init(table, canvas, data, vars, settings) {
 
         var CSV = json2csv(fullValidation)
 
-        canvas
+        chart.wrap
             .append('a')
             .attr(
                 {'href': 'data:text/csv;charset=utf-8,' + escape(CSV)
@@ -95,10 +99,10 @@ export function init(table, canvas, data, vars, settings) {
     }
 
   //Draw the summary table headers.
-    var totalCol = (settings.defaults.totalCol === 'Show');
-    var tab = canvas.select('.SummaryTable')
+    var totalCol = (chart.config.defaults.totalCol === 'Show');
+    var tab = chart.wrap.select('.SummaryTable')
         .append('table');
-    var nGroups = settings.groups.length + totalCol;
+    var nGroups = chart.config.groups.length + totalCol;
     var header1 = tab
         .append('thead')
             .append('tr')
@@ -132,19 +136,19 @@ export function init(table, canvas, data, vars, settings) {
         .append('tr');
     header2.selectAll('td.values')
         .data((totalCol ?
-            settings.groups.concat(
+            chart.config.groups.concat(
                 {key: 'Total'
-                ,n: d3.sum(settings.groups, d => d.n)
-                ,nEvents: d3.sum(settings.groups, d => d.nEvents)}) :
-            settings.groups))
+                ,n: d3.sum(chart.config.groups, d => d.n)
+                ,nEvents: d3.sum(chart.config.groups, d => d.nEvents)}) :
+            chart.config.groups))
         .enter()
         .append('th')
             .html(d => '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + (summary === 'participant' ? d.n : d.nEvents) + ')</span>')
-            .style('color', d => table.colorScale(d.key))
+            .style('color', d => chart.colorScale(d.key))
             .attr('class', 'values');
     header2.append('th')
         .attr('class', 'prevHeader');
-    if (nGroups > 1 && settings.defaults.diffCol === 'Show') {
+    if (nGroups > 1 && chart.config.defaults.diffCol === 'Show') {
         header1.append('th')
             .text('Difference Between Groups')
             .attr('class', 'diffplot');
@@ -161,7 +165,6 @@ export function init(table, canvas, data, vars, settings) {
                 }));
             }));
         }));
-    console.log(chart)
     chart.percentScale = d3.scale.linear()
         .range([0, chart.config.plotSettings.w])
         .domain([0, d3.max(allPercents)]);
@@ -172,7 +175,7 @@ export function init(table, canvas, data, vars, settings) {
         .orient('top')
         .ticks(6);
 
-    var prevAxis = canvas.select('th.prevHeader')
+    var prevAxis = chart.wrap.select('th.prevHeader')
         .append('svg')
         .attr('height', '34px')
         .attr('width', chart.config.plotSettings.w + 10)
@@ -183,7 +186,7 @@ export function init(table, canvas, data, vars, settings) {
     
 
   //Difference Scale 
-    if (settings.groups.length > 1) {
+    if (chart.config.groups.length > 1) {
       //Difference Scale 
         var allDiffs = d3.merge(
             dataMajor.map(function(major) {
@@ -214,7 +217,7 @@ export function init(table, canvas, data, vars, settings) {
             .orient('top')
             .ticks(8);
 
-        var prevAxis = canvas.select('th.diffplot.axis')
+        var prevAxis = chart.wrap.select('th.diffplot.axis')
             .append('svg')
             .attr('height', '34px')
             .attr('width', chart.config.plotSettings.w + 10)
@@ -229,8 +232,8 @@ export function init(table, canvas, data, vars, settings) {
   // Add Rows to the table //
   ////////////////////////////
     if (!dataMajor.length) {
-        if (canvas.select('.missing-data-alert').empty()) {
-            canvas.select('.SummaryTable')
+        if (chart.wrap.select('.missing-data-alert').empty()) {
+            chart.wrap.select('.SummaryTable')
                 .insert('div', 'table')
                 .attr('class', 'alert alert-error alert-danger missing-data-alert')
                 .text('No data found in the column specified for major category.');
@@ -305,41 +308,41 @@ export function init(table, canvas, data, vars, settings) {
   ////////////////////////////////////////////////
   // Mouseover/Mouseout for header columns values
   ////////////////////////////////////////////////
-    canvas.selectAll('.summaryTable th.values')
+    chart.wrap.selectAll('.summaryTable th.values')
         .on('mouseover', function(d) {
           //change colors for points and values to gray
-            canvas.selectAll('td.prevplot svg g.points circle')
+            chart.wrap.selectAll('td.prevplot svg g.points circle')
                 .attr('fill', '#555')
                 .attr('opacity', 0.1);
-            canvas.selectAll('.values')
+            chart.wrap.selectAll('.values')
                 .style('color', '#ccc');
 
           //highlight the selected group
-            annoteDetails(table, canvas, canvas.selectAll('.SummaryTable tr'), d.key, 'right');
+            annoteDetails(chart, chart.wrap, chart.wrap.selectAll('.SummaryTable tr'), d.key, 'right');
         })
         .on('mouseout', function(d) {
           //Clear annotations
-            canvas.selectAll('td.prevplot svg g.points circle')
+            chart.wrap.selectAll('td.prevplot svg g.points circle')
                 .attr('fill', function(d) {
-                    return table.colorScale(d.key); })
+                    return chart.colorScale(d.key); })
                 .attr('opacity', 1);
-            canvas.selectAll('.values')
+            chart.wrap.selectAll('.values')
                 .style('color', function(d) {
-                    return table.colorScale(d.key); });
-            canvas.selectAll('.annote').remove();
+                    return chart.colorScale(d.key); });
+            chart.wrap.selectAll('.annote').remove();
         });
 
   ///////////////////////////////////////////////
   // Mouseover/Mouseout for difference diamonds
   ///////////////////////////////////////////////
-    canvas.selectAll('td.diffplot svg g path.diamond')
+    chart.wrap.selectAll('td.diffplot svg g path.diamond')
         .on('mouseover', function(d) {
-            var currentRow = canvas.selectAll('.SummaryTable tbody tr')
+            var currentRow = chart.wrap.selectAll('.SummaryTable tbody tr')
                 .filter(function(e) {
                     return  e.values[0].values.major === d.major &&
                             e.values[0].values.minor === d.minor; });
 
-            var sameGroups = canvas.selectAll('td.diffplot svg g')
+            var sameGroups = chart.wrap.selectAll('td.diffplot svg g')
                 .filter(function(e) {
                     return e.group1 === d.group1 && e.group2 === d.group2; });
 
@@ -348,12 +351,12 @@ export function init(table, canvas, data, vars, settings) {
                 .classed('hidden', false);
 
           //Highlight text/points of selected groups.
-            annoteDetails(table, canvas, currentRow, d.group1, ((d.n1/d.tot1) > (d.n2/d.tot2)) ? 'right' : 'left');
-            annoteDetails(table, canvas, currentRow, d.group2, ((d.n1/d.tot1) > (d.n2/d.tot2)) ? 'left' : 'right');
+            annoteDetails(chart, chart.wrap, currentRow, d.group1, ((d.n1/d.tot1) > (d.n2/d.tot2)) ? 'right' : 'left');
+            annoteDetails(chart, chart.wrap, currentRow, d.group2, ((d.n1/d.tot1) > (d.n2/d.tot2)) ? 'left' : 'right');
 
         })
         .on('mouseout', function(d) {
-            canvas.selectAll('td.diffplot svg g').selectAll('path')
+            chart.wrap.selectAll('td.diffplot svg g').selectAll('path')
                 .attr('fill-opacity', function(d) {
                     return (d.sig === 1) ? 1 : 0.1; })
                 .attr('stroke-opacity', 0.3);
@@ -362,21 +365,21 @@ export function init(table, canvas, data, vars, settings) {
                 .classed('hidden', true);
 
           //Restore the percentage colors.
-            canvas.selectAll('td.prevplot svg g.points circle')
+            chart.wrap.selectAll('td.prevplot svg g.points circle')
                 .attr('fill', function(d) {
-                    return table.colorScale(d.key); })
+                    return chart.colorScale(d.key); })
                 .attr('opacity', 1);
-            canvas.selectAll('.values')
+            chart.wrap.selectAll('.values')
                 .style('color', function(d) {
-                    return table.colorScale(d.key); });
+                    return chart.colorScale(d.key); });
           //Delete annotations.
-            canvas.selectAll('.annote').remove();
+            chart.wrap.selectAll('.annote').remove();
         })
 
   //////////////////////////////////
   // Click Control for table rows //
   //////////////////////////////////
-    canvas.selectAll('.SummaryTable tr')
+    chart.wrap.selectAll('.SummaryTable tr')
         .on('mouseover', function(d) {
             d3.select(this).select('td.rowLabel')
                 .classed('highlight', true);
@@ -387,7 +390,7 @@ export function init(table, canvas, data, vars, settings) {
         });
 
   //Expand/collapse a section
-    canvas.selectAll('tr.major').selectAll('td.controls')
+    chart.wrap.selectAll('tr.major').selectAll('td.controls')
         .on('click',function(d) {
             var current = d3.select(this.parentNode.parentNode);
             var toggle = !(current.classed('minorHidden'));
@@ -403,29 +406,29 @@ export function init(table, canvas, data, vars, settings) {
   ///////////////////////////
   // Show the details table
   ///////////////////////////
-    canvas.selectAll('td.rowLabel')
+    chart.wrap.selectAll('td.rowLabel')
         .on('click',function(d) {
           //Update classes (row visibility handeled via css)
-            var toggle = !(canvas.select('.SummaryTable table').classed('summary'));
-            canvas.select('.SummaryTable table')
+            var toggle = !(chart.wrap.select('.SummaryTable table').classed('summary'));
+            chart.wrap.select('.SummaryTable table')
                 .classed('summary', toggle);
-            canvas.select('div.controls')
+            chart.wrap.select('div.controls')
                 .classed('hidden', toggle);
 
           //Create/remove the participant level table        
             if (toggle) {
                 var major = d.values[0].values['major'];
                 var minor = d.values[0].values['minor'];
-                table.detailTable
-                    (canvas
-                    ,data
+                chart.detailTable
+                    (chart.wrap
+                    ,chart.raw_data
                     ,vars
                     ,{detailTable:
                         {'major': major
                         ,'minor': minor}});
             } else {
-                canvas.select('.DetailTable').remove();
-                canvas.select('div.closeDetailTable').remove();
+                chart.wrap.select('.DetailTable').remove();
+                chart.wrap.select('div.closeDetailTable').remove();
             }
         });
 }

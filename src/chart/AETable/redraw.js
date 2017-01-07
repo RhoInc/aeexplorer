@@ -6,6 +6,6 @@ export function redraw(chart) {
     chart.controls.search.clear(chart);
     chart.AETable.wipe(chart.wrap);
     var filteredData = chart.AETable.prepareData(chart);
-    chart.AETable.init(chart, chart.wrap, filteredData, chart.config.variables, chart.config);
+    chart.AETable.init(chart);
     chart.AETable.toggleRows(chart.wrap);
 }
