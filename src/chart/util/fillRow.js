@@ -1,16 +1,19 @@
 
 /**-------------------------------------------------------------------------------------------\
 
-  fillrow(d)
+  fillrow(currentRow, chart, d)
+  
+  inputs (all required): 
+  currentRow = d3.selector for a 'tr' element
+  chart = the chart object
+  d = the raw data for the row
+
     - Convienence function which fills each table row and draws the plots.
 
-      + Note1: We'll call this 2x. Once for the major rows and once for
-        the minor rows. Will probably want to add a 3rd for overall too.
+      + Note1: We'll call this 3x. Once for the major rows, once for
+        the minor rows and once for overall row.
 
-      + Note2: Scoped within AETable() to avoid passing the big data
-        sets around.
-
-      + Note3: Would be good to split out separate plotting functions if
+      + Note2: Would be good to split out separate plotting functions if
         this gets too much more complex.
 
 \-------------------------------------------------------------------------------------------**/
