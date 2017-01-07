@@ -7,10 +7,13 @@ import { AETable } from './chart/AETable';
 import { detailTable } from './chart/detailTable';
 import { util } from './chart/util';
 
-export function createChart(element = 'body', config = defaultSettings) {
+export function createChart(element = 'body', config) {
+    //Get default settings for parameters not specified by user
+    var mergedConfig = Object.assign({}, config, defaultSettings)
+
     let chart =
         {element: element
-        ,config: config
+        ,config:  mergedConfig
         ,init: init
         ,colorScale: colorScale
         ,layout: layout

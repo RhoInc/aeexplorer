@@ -21,6 +21,12 @@ const defaultSettings =
         ,'totalCol': 'Show'
         ,'diffCol': 'Show'
         ,'prefTerms': 'Hide'}
+    ,'plotSettings':
+        {'h':15
+        ,'w':200
+        ,'margin':{'left':40, 'right':40}
+        ,'diffMargin': {"left":5, "right":5}
+        ,'r':7}
     ,'validation': false};
 
 export default defaultSettings;

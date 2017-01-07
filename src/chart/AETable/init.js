@@ -9,201 +9,11 @@ import { collapse } from './collapse';
 import { json2csv } from './json2csv';
 
 export function init(table, canvas, data, vars, settings) {
+    var chart = table;
     var summary = d3.selectAll('.summaryDiv label')
         .filter(function(d) {
             return d3.select(this).selectAll('.summaryRadio').property('checked'); })[0][0]
         .textContent;
-
-    /**-------------------------------------------------------------------------------------------\
-
-      fillrow(d)
-        - Convienence function which fills each table row and draws the plots.
-
-          + Note1: We'll call this 2x. Once for the major rows and once for
-            the minor rows. Will probably want to add a 3rd for overall too.
-
-          + Note2: Scoped within AETable() to avoid passing the big data
-            sets around.
-
-          + Note3: Would be good to split out separate plotting functions if
-            this gets too much more complex.
-
-    \-------------------------------------------------------------------------------------------**/
-
-    function fillRow(d) {
-      //Append major row expand/collapse control.
-        var controlCell = d3.select(this)
-            .append('td')
-            .attr('class', 'controls');
-
-        if (d.key === 'All') {
-            controlCell
-                .append('span')
-                .attr('title', 'Expand')
-                .text('+');
-        }
-
-      //Append row label.
-        var category = d3.select(this)
-            .append('td')
-            .attr(
-                {'class': 'rowLabel'
-                ,'title': 'Show listing'});
-        category
-            .append('a')
-            .text(function(rowValues) {
-                return rowValues.values[0].values['label'];
-            });
-
-      //Calculate total frequency, number of records, population denominator, and rate.
-        if (settings.defaults.totalCol === 'Show') {
-            var total = {};
-            total.major     = d.values[0].values.major;
-            total.minor     = d.values[0].values.minor;
-            total.label     = d.values[0].values.label;
-            total.group     = 'Total';
-
-            total.n   = d3.sum (d.values, di => di.values.n);
-            total.tot = d3.sum (d.values, di => di.values.tot);
-
-            total.per = total.n/total.tot*100;
-
-            d.values[d.values.length] =
-                {key: 'Total'
-                ,values: total};
-        }
-
-      //Append textual rates.
-        var values = d3.select(this).selectAll('td.values')
-            .data(d.values,function(d) {
-                return d.key; })
-            .enter()
-            .append('td')
-            .attr('class', 'values')
-            .attr('title', function(d) {
-                return d.values.n + '/' + d.values.tot; })
-            .text(function(d) {
-                return d3.format('0.1f')(d['values'].per) + '%'; })
-            .style('color', function(d) {
-                return table.colorScale(d.key); });
-
-      //Append graphical rates.
-        var prevalencePlot = d3.select(this)
-            .append('td')
-            .classed('prevplot', true)
-                .append('svg')
-                .attr('height', h)
-                .attr('width', w + 10)
-                    .append('svg:g')
-                    .attr('transform', 'translate(5,0)');
-
-        var points = prevalencePlot.selectAll('g.points')
-            .data(d.values)
-            .enter()
-            .append('g')
-            .attr('class', 'points');
-        points
-            .append('svg:circle')
-            .attr('cx', function(d) {
-                return percentScale(d.values['per']); })
-            .attr('cy', h/2)
-            .attr('r', r - 2)
-            .attr('fill', function(d) {
-                    return table.colorScale(d.values['group']); })
-                .append('title')
-                .text(function(d) {
-                    return d.key + ': ' + d3.format(',.1%')(d.values.per/100); });
-
-      //Handle rate differences between groups if settings reference more then one group.
-        if (settings.groups.length > 1 && settings.defaults.diffCol === 'Show') {
-
-          //Append container for group rate differences.
-            var differencePlot = d3.select(this)
-                .append('td')
-                .classed('diffplot', true)
-                    .append('svg')
-                    .attr('height', h)
-                    .attr('width', w + 10)
-                        .append('svg:g')
-                        .attr('transform', 'translate(5,0)');
-
-            var diffPoints = differencePlot.selectAll('g')
-                .data(d.differences)
-                .enter()
-                .append('svg:g');
-            diffPoints
-                .append('title')
-                .text(function(d) {
-                    return  d.group1 + ' (' + d3.format(',.1%')(d.p1) + ') vs. ' +
-                            d.group2 + ' (' + d3.format(',.1%')(d.p2) + '): ' +
-                            d3.format(',.1%')(d.diff/100); });
-
-          //Append graphical rate difference confidence intervals.
-            diffPoints
-                .append('svg:line')
-                .attr('x1', function(d) {
-                    return diffScale(d.upper); })
-                .attr('x2', function(d) {
-                    return diffScale(d.lower); })
-                .attr('y1', h/2)
-                .attr('y2', h/2)
-                .attr('class', 'ci')
-                .classed('hidden', settings.groups.length > 2)
-                .attr('stroke', '#bbb');
-
-          //Append graphical rate differences.
-            var triangle = d3.svg.line()
-                .x(function(d) { return d.x; })
-                .y(function(d) { return d.y; })
-                .interpolate('linear-closed');
-            
-            diffPoints
-                .append('svg:path')
-                .attr('d', function(d) { 
-                    var leftpoints =
-                        [{x:diffScale(d.diff)     ,y:h/2 + r}//bottom
-                        ,{x:diffScale(d.diff) - r ,y:h/2    }//middle-left
-                        ,{x:diffScale(d.diff)     ,y:h/2 - r}//top
-                        ];
-                    return triangle(leftpoints); 
-                })
-                .attr('class', 'diamond')
-                .attr('fill-opacity', function(d) {
-                    return (d.sig === 1) ? 1 : 0.1; })
-                .attr('fill', function(d) {
-                    return d.diff < 0 ?
-                        table.colorScale(d.group1) :
-                        table.colorScale(d.group2); })
-                .attr('stroke', function(d) {
-                    return d.diff < 0 ?
-                        table.colorScale(d.group1) :
-                        table.colorScale(d.group2); })
-                .attr('stroke-opacity', 0.3);
-
-            diffPoints
-                .append('svg:path')
-                .attr('d', function(d) { 
-                    var rightpoints =
-                        [{x:diffScale(d.diff)    ,y:h/2 + r}//bottom
-                        ,{x:diffScale(d.diff) + r,y:h/2    }//middle-right
-                        ,{x:diffScale(d.diff)    ,y:h/2 - r}//top
-                        ];
-                    return triangle(rightpoints); 
-                })
-                .attr('class', 'diamond')
-                .attr('fill-opacity', function(d) {
-                    return (d.sig === 1) ? 1 : 0.1; })
-                .attr('fill', function(d) {
-                    return d.diff<0 ?
-                        table.colorScale(d.group2) :
-                        table.colorScale(d.group1) })
-                .attr('stroke', function(d) {
-                    return d.diff < 0 ?
-                        table.colorScale(d.group2) :
-                        table.colorScale(d.group1)})
-                .attr('stroke-opacity', 0.3)
-        }
-    }
 
   //Create a dataset nested by [ settings.variables.group ] and [ settings.variables.id ].
     var sub = data.filter(function(e) {
@@ -342,13 +152,6 @@ export function init(table, canvas, data, vars, settings) {
             .attr('class', 'diffplot axis');
     }
 
-  //Plot size
-    var h = 15,
-        w = 200,
-        margin = {left:40, right:40},
-        diffMargin = {left:5, right:5},
-        r = 7;
-
   //Prevalence scales
     var allPercents = d3.merge(
         dataMajor.map(function(major) {
@@ -358,21 +161,21 @@ export function init(table, canvas, data, vars, settings) {
                 }));
             }));
         }));
-
-    var percentScale = d3.scale.linear()
-        .range([0, w])
+    console.log(chart)
+    chart.percentScale = d3.scale.linear()
+        .range([0, chart.config.plotSettings.w])
         .domain([0, d3.max(allPercents)]);
 
   //Add Prevalence Axis
     var percentAxis = d3.svg.axis()
-        .scale(percentScale)
+        .scale(chart.percentScale)
         .orient('top')
         .ticks(6);
 
     var prevAxis = canvas.select('th.prevHeader')
         .append('svg')
         .attr('height', '34px')
-        .attr('width', w + 10)
+        .attr('width', chart.config.plotSettings.w + 10)
             .append('svg:g')
             .attr('transform', 'translate(5,34)')         
             .attr('class', 'axis percent')
@@ -401,7 +204,8 @@ export function init(table, canvas, data, vars, settings) {
             }));
 
         var diffScale = d3.scale.linear()
-            .range([diffMargin.left, w - diffMargin.right])
+            .range([chart.config.plotSettings.diffMargin.left, 
+                chart.config.plotSettings.w - chart.config.plotSettings.diffMargin.right])
             .domain(d3.extent(d3.merge([minorDiffs, allDiffs])));
 
       //Difference Axis
@@ -413,7 +217,7 @@ export function init(table, canvas, data, vars, settings) {
         var prevAxis = canvas.select('th.diffplot.axis')
             .append('svg')
             .attr('height', '34px')
-            .attr('width', w + 10)
+            .attr('width', chart.config.plotSettings.w + 10)
                 .append('svg:g')
                 .attr('transform', 'translate(5,34)')         
                 .attr('class', 'axis')
@@ -447,14 +251,16 @@ export function init(table, canvas, data, vars, settings) {
   //Append a row summarizing all minor categories for each major category.
     var majorRows = majorGroups.selectAll('tr')
         .data(
-            function(d) {
-                return d.values; },
-            function(datum) {
-                return datum.key; })
+            function(d) {return d.values; },
+            function(datum) {return datum.key; }
+        )
         .enter()
         .append('tr')
         .attr('class', 'major')
-        .each(fillRow);
+        .each(function(d){
+            var thisRow = d3.select(this)
+            chart.util.fillRow(thisRow, chart,d)
+        });
 
   //Append rows for each minor category.
     var majorGroups = tab.selectAll('tbody')
@@ -463,22 +269,26 @@ export function init(table, canvas, data, vars, settings) {
 
     var minorRows = majorGroups.selectAll('tr')
         .data(
-            function(d) {
-                return d.values; },
-            function(datum) {
-                return datum.key; })
+            function(d) {return d.values;},
+            function(datum) {return datum.key;}
+        )
         .enter()
         .append('tr')
         .attr('class', 'minor')
-        .each(fillRow);
-
+        .each(function(d){
+            var thisRow = d3.select(this)
+            chart.util.fillRow(thisRow, chart,d)
+        });
   //Add a footer for overall rates.
     tab.append('tfoot')
         .selectAll('tr')
         .data(dataAny.length > 0 ? dataAny[0].values : [])
         .enter()
         .append('tr')
-        .each(fillRow)
+        .each(function(d){
+            var thisRow = d3.select(this)
+            chart.util.fillRow(thisRow, chart,d)
+        });
 
   //Remove unwanted elements from the footer.
     tab.selectAll('tfoot svg').remove();
