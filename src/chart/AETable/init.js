@@ -378,13 +378,10 @@ export function init(chart) {
             if (toggle) {
                 var major = d.values[0].values['major'];
                 var minor = d.values[0].values['minor'];
-                chart.detailTable
-                    (chart.wrap
-                    ,chart.raw_data
-                    ,vars
-                    ,{detailTable:
-                        {'major': major
-                        ,'minor': minor}});
+                console.log(major)
+                console.log(minor)
+                var detailTableSettings = {'major': major,'minor': minor}
+                chart.detailTable.init(chart,detailTableSettings);
             } else {
                 chart.wrap.select('.DetailTable').remove();
                 chart.wrap.select('div.closeDetailTable').remove();
