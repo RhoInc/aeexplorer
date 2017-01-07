@@ -71,6 +71,6 @@ export function init(chart) {
 
   //Initialize event listeners
     filterCustom.on('change', function() {
-        chart.AETable.redraw(chart, chart.wrap, chart.raw_data, chart.config.variables, chart.config);
+        chart.AETable.redraw(chart);
     });
 }

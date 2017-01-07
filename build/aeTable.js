@@ -92,7 +92,7 @@ var aeTable = function () {
         //Initialize adverse event eplorer.
         this.layout();
         this.controls.init(this);
-        this.AETable.redraw(this, this.wrap, data, settings.variables, settings);
+        this.AETable.redraw(this);
     }
 
     /*------------------------------------------------------------------------------------------------\
@@ -232,7 +232,7 @@ var aeTable = function () {
 
         //Initialize event listeners
         filterCustom.on('change', function () {
-            chart.AETable.redraw(chart, chart.wrap, chart.raw_data, chart.config.variables, chart.config);
+            chart.AETable.redraw(chart);
         });
     }
 
@@ -284,7 +284,7 @@ var aeTable = function () {
             d3.select(this)[0][0].checked = true;
             d3.select(this.parentNode).style('font-weight', 'bold');
             var summary = d3.select(this.parentNode)[0][0].textContent;
-            chart.AETable.redraw(chart, chart.wrap, chart.raw_data, chart.config.variables, chart.config);
+            chart.AETable.redraw(chart);
         });
     }
 
@@ -431,15 +431,16 @@ var aeTable = function () {
         search: search };
 
     /*------------------------------------------------------------------------------------------------\
-      Clear the current table and draw a new one.
+      Clear the current chart and draw a new one.
     \------------------------------------------------------------------------------------------------*/
 
-    function redraw(table, canvas, data, vars, settings) {
-        table.controls.search.clear(table, canvas);
-        table.AETable.wipe(canvas);
-        var filteredData = table.AETable.prepareData(canvas, data, vars, settings);
-        table.AETable.init(table, canvas, filteredData, vars, settings);
-        table.AETable.toggleRows(canvas);
+    function redraw(chart) {
+        console.log(chart);
+        chart.controls.search.clear(chart, chart.wrap);
+        chart.AETable.wipe(chart.wrap);
+        var filteredData = chart.AETable.prepareData(chart.wrap, chart.raw_data, chart.config.variables, chart.config);
+        chart.AETable.init(chart, chart.wrap, filteredData, chart.config.variables, chart.config);
+        chart.AETable.toggleRows(chart.wrap);
     }
 
     /*------------------------------------------------------------------------------------------------\
@@ -700,13 +701,16 @@ var aeTable = function () {
     };
 
     /**-------------------------------------------------------------------------------------------\
-       fillrow(d)
-        - Convienence function which fills each table row and draws the plots.
-           + Note1: We'll call this 2x. Once for the major rows and once for
-            the minor rows. Will probably want to add a 3rd for overall too.
-           + Note2: Scoped within AETable() to avoid passing the big data
-            sets around.
-           + Note3: Would be good to split out separate plotting functions if
+       fillrow(currentRow, chart, d)
+      
+      inputs (all required): 
+      currentRow = d3.selector for a 'tr' element
+      chart = the chart object
+      d = the raw data for the row
+         - Convienence function which fills each table row and draws the plots.
+           + Note1: We'll call this 3x. Once for the major rows, once for
+            the minor rows and once for overall row.
+           + Note2: Would be good to split out separate plotting functions if
             this gets too much more complex.
      \-------------------------------------------------------------------------------------------**/
 

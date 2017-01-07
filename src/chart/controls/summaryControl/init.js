@@ -54,6 +54,6 @@ export function init(chart) {
         d3.select(this)[0][0].checked = true;
         d3.select(this.parentNode).style('font-weight', 'bold');
         var summary = d3.select(this.parentNode)[0][0].textContent;
-        chart.AETable.redraw(chart, chart.wrap, chart.raw_data, chart.config.variables, chart.config);
+        chart.AETable.redraw(chart);
     });
 }

@@ -72,5 +72,5 @@ export function init(data) {
   //Initialize adverse event eplorer.
     this.layout();
     this.controls.init(this);
-    this.AETable.redraw(this, this.wrap, data, settings.variables, settings)
+    this.AETable.redraw(this)
 }
