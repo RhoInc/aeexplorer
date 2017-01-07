@@ -125,14 +125,14 @@ export function init(chart) {
                         .classed('search', false);
 
                   //Reset the filters and row toggle.
-                    chart.AETable.toggleRows(canvas);
+                    chart.AETable.toggleRows(chart);
                 }
             } else  chart.controls.search.clear(chart)
         });
 
     chart.wrap.select('span.clear-search')
         .on('click', function() {
-            chart.controls.search.clear(chart, chart.wrap);
+            chart.controls.search.clear(chart);
         });
 
 

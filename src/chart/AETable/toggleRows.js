@@ -2,22 +2,22 @@
   Apply basic filters and toggles.
 \------------------------------------------------------------------------------------------------*/
 
-export function toggleRows(canvas) {
+export function toggleRows(chart) {
   //Toggle minor rows.
-    var minorToggle = (settings.defaults.prefTerms !== 'Show');
-    canvas.selectAll('.SummaryTable tbody')
+    var minorToggle = (chart.config.defaults.prefTerms !== 'Show');
+    chart.wrap.selectAll('.SummaryTable tbody')
         .classed('minorHidden', minorToggle);
-    canvas.selectAll('.SummaryTable table tbody').select('tr.major td.controls span')
+    chart.wrap.selectAll('.SummaryTable table tbody').select('tr.major td.controls span')
         .text(minorToggle ? '+':'-');
 
   //Toggle Difference plots
     var differenceToggle = false;
-    canvas.selectAll('.SummaryTable .diffplot')
+    chart.wrap.selectAll('.SummaryTable .diffplot')
         .classed('hidden', differenceToggle);
 
   //Filter based on prevalence.
-    var filterVal = canvas.select('div.controls input.rateFilter').property('value');
-    canvas.selectAll('div.SummaryTable table tbody')
+    var filterVal = chart.wrap.select('div.controls input.rateFilter').property('value');
+    chart.wrap.selectAll('div.SummaryTable table tbody')
         .each(function(d) {
             var allRows = d3.select(this).selectAll('tr');
             var filterRows = allRows.filter(function(d) {

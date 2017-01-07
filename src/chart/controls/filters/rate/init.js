@@ -41,7 +41,7 @@ export function init(chart) {
             .classed('filter', false);
 
       //Add filter flags.
-        chart.AETable.toggleRows(chart.wrap) ;
+        chart.AETable.toggleRows(chart) ;
     });
 
 

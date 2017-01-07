@@ -30,5 +30,5 @@ export function clear(chart) {
         .classed('search', false);
 
   //Reset filters and row toggle.
-    chart.AETable.toggleRows(chart.wrap);
+    chart.AETable.toggleRows(chart);
 }
