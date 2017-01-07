@@ -5,7 +5,7 @@
 export function init(chart) {
   //draw the search control
   var selector = chart.controls.wrap
-        .append('form')
+        .append('div')
         .attr('class', 'searchForm navbar-search pull-right')
         .attr('onsubmit', 'return false;');
 

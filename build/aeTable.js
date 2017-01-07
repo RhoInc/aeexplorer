@@ -120,14 +120,17 @@ var aeTable = function () {
         chart.controls.wrap.attr('onsubmit', 'return false;');
         chart.controls.wrap.selectAll('*').remove(); //Clear controls.
 
-        //Draw UI component.
+        //Draw UI components
         chart.controls.filters.rate.init(chart);
         chart.controls.summaryControl.init(chart);
-        chart.controls.filters.custom.init(chart);
         chart.controls.search.init(chart);
+        chart.controls.filters.custom.init(chart);
 
         //Initialize the filter rate.
         chart.controls.filters.rate.set(chart);
+
+        //assign filterDiv class to all filter wrappers
+        chart.controls.wrap.selectAll("div").classed("filterDiv", true);
     }
 
     /*------------------------------------------------------------------------------------------------\
@@ -283,7 +286,7 @@ var aeTable = function () {
 
     function init$5(chart) {
         //draw the search control
-        var selector = chart.controls.wrap.append('form').attr('class', 'searchForm navbar-search pull-right').attr('onsubmit', 'return false;');
+        var selector = chart.controls.wrap.append('div').attr('class', 'searchForm navbar-search pull-right').attr('onsubmit', 'return false;');
 
         //Clear search control.
         selector.selectAll('span.seach-label, input.searchBar').remove();

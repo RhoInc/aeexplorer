@@ -2,7 +2,7 @@
   Initialize adverse event explorer.
 \------------------------------------------------------------------------------------------------*/
 
-function init(data) {
+export function init(data) {
     var settings = this.config;
 
     //create chart wrapper in specified div
