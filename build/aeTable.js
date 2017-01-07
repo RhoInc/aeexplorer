@@ -711,10 +711,6 @@ var aeTable = function () {
      \-------------------------------------------------------------------------------------------**/
 
     function fillRow(currentRow, chart, d) {
-        console.log(this);
-        console.log(chart);
-        console.log(d);
-
         var table = chart;
         //Append major row expand/collapse control.
         var controlCell = currentRow.append('td').attr('class', 'controls');
@@ -731,7 +727,7 @@ var aeTable = function () {
         });
 
         //Calculate total frequency, number of records, population denominator, and rate.
-        if (settings.defaults.totalCol === 'Show') {
+        if (chart.config.defaults.totalCol === 'Show') {
             var total = {};
             total.major = d.values[0].values.major;
             total.minor = d.values[0].values.minor;
@@ -771,7 +767,7 @@ var aeTable = function () {
         });
 
         //Handle rate differences between groups if settings reference more then one group.
-        if (settings.groups.length > 1 && settings.defaults.diffCol === 'Show') {
+        if (chart.config.groups.length > 1 && chart.config.defaults.diffCol === 'Show') {
 
             //Append container for group rate differences.
             var differencePlot = currentRow.append('td').classed('diffplot', true).append('svg').attr('height', chart.config.plotSettings.h).attr('width', chart.config.plotSettings.w + 10).append('svg:g').attr('transform', 'translate(5,0)');
@@ -783,10 +779,10 @@ var aeTable = function () {
 
             //Append graphical rate difference confidence intervals.
             diffPoints.append('svg:line').attr('x1', function (d) {
-                return diffScale(d.upper);
+                return chart.diffScale(d.upper);
             }).attr('x2', function (d) {
-                return diffScale(d.lower);
-            }).attr('y1', chart.config.plotSettings.h / 2).attr('y2', chart.config.plotSettings.h / 2).attr('class', 'ci').classed('hidden', settings.groups.length > 2).attr('stroke', '#bbb');
+                return chart.diffScale(d.lower);
+            }).attr('y1', chart.config.plotSettings.h / 2).attr('y2', chart.config.plotSettings.h / 2).attr('class', 'ci').classed('hidden', chart.config.groups.length > 2).attr('stroke', '#bbb');
 
             //Append graphical rate differences.
             var triangle = d3.svg.line().x(function (d) {
@@ -799,9 +795,9 @@ var aeTable = function () {
                 var h = chart.config.plotSettings.h,
                     r = chart.config.plotSettings.r;
 
-                var leftpoints = [{ x: diffScale(d.diff), y: h / 2 + r } //bottom
-                , { x: diffScale(d.diff) - r, y: h / 2 } //middle-left
-                , { x: diffScale(d.diff), y: h / 2 - r } //top
+                var leftpoints = [{ x: chart.diffScale(d.diff), y: h / 2 + r } //bottom
+                , { x: chart.diffScale(d.diff) - r, y: h / 2 } //middle-left
+                , { x: chart.diffScale(d.diff), y: h / 2 - r } //top
                 ];
                 return triangle(leftpoints);
             }).attr('class', 'diamond').attr('fill-opacity', function (d) {
@@ -816,9 +812,9 @@ var aeTable = function () {
                 var h = chart.config.plotSettings.h,
                     r = chart.config.plotSettings.r;
 
-                var rightpoints = [{ x: diffScale(d.diff), y: h / 2 + r } //bottom
-                , { x: diffScale(d.diff) + r, y: h / 2 } //middle-right
-                , { x: diffScale(d.diff), y: h / 2 - r } //top
+                var rightpoints = [{ x: chart.diffScale(d.diff), y: h / 2 + r } //bottom
+                , { x: chart.diffScale(d.diff) + r, y: h / 2 } //middle-right
+                , { x: chart.diffScale(d.diff), y: h / 2 - r } //top
                 ];
                 return triangle(rightpoints);
             }).attr('class', 'diamond').attr('fill-opacity', function (d) {
@@ -1028,10 +1024,10 @@ var aeTable = function () {
                 }));
             }));
 
-            var diffScale = d3.scale.linear().range([chart.config.plotSettings.diffMargin.left, chart.config.plotSettings.w - chart.config.plotSettings.diffMargin.right]).domain(d3.extent(d3.merge([minorDiffs, allDiffs])));
+            chart.diffScale = d3.scale.linear().range([chart.config.plotSettings.diffMargin.left, chart.config.plotSettings.w - chart.config.plotSettings.diffMargin.right]).domain(d3.extent(d3.merge([minorDiffs, allDiffs])));
 
             //Difference Axis
-            var diffAxis = d3.svg.axis().scale(diffScale).orient('top').ticks(8);
+            var diffAxis = d3.svg.axis().scale(chart.diffScale).orient('top').ticks(8);
 
             var prevAxis = canvas.select('th.diffplot.axis').append('svg').attr('height', '34px').attr('width', chart.config.plotSettings.w + 10).append('svg:g').attr('transform', 'translate(5,34)').attr('class', 'axis').attr('class', 'percent').call(diffAxis);
         }

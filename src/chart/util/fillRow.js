@@ -42,7 +42,7 @@ export function fillRow(currentRow, chart, d) {
         });
 
   //Calculate total frequency, number of records, population denominator, and rate.
-    if (settings.defaults.totalCol === 'Show') {
+    if (chart.config.defaults.totalCol === 'Show') {
         var total = {};
         total.major     = d.values[0].values.major;
         total.minor     = d.values[0].values.minor;
@@ -101,7 +101,7 @@ export function fillRow(currentRow, chart, d) {
                 return d.key + ': ' + d3.format(',.1%')(d.values.per/100); });
 
   //Handle rate differences between groups if settings reference more then one group.
-    if (settings.groups.length > 1 && settings.defaults.diffCol === 'Show') {
+    if (chart.config.groups.length > 1 && chart.config.defaults.diffCol === 'Show') {
 
       //Append container for group rate differences.
         var differencePlot = currentRow
@@ -128,13 +128,13 @@ export function fillRow(currentRow, chart, d) {
         diffPoints
             .append('svg:line')
             .attr('x1', function(d) {
-                return diffScale(d.upper); })
+                return chart.diffScale(d.upper); })
             .attr('x2', function(d) {
-                return diffScale(d.lower); })
+                return chart.diffScale(d.lower); })
             .attr('y1', chart.config.plotSettings.h/2)
             .attr('y2', chart.config.plotSettings.h/2)
             .attr('class', 'ci')
-            .classed('hidden', settings.groups.length > 2)
+            .classed('hidden', chart.config.groups.length > 2)
             .attr('stroke', '#bbb');
 
       //Append graphical rate differences.
@@ -150,9 +150,9 @@ export function fillRow(currentRow, chart, d) {
                     r = chart.config.plotSettings.r
 
                 var leftpoints =
-                    [{x:diffScale(d.diff)     ,y:h/2 + r}//bottom
-                    ,{x:diffScale(d.diff) - r ,y:h/2    }//middle-left
-                    ,{x:diffScale(d.diff)     ,y:h/2 - r}//top
+                    [{x:chart.diffScale(d.diff)     ,y:h/2 + r}//bottom
+                    ,{x:chart.diffScale(d.diff) - r ,y:h/2    }//middle-left
+                    ,{x:chart.diffScale(d.diff)     ,y:h/2 - r}//top
                     ];
                 return triangle(leftpoints); 
             })
@@ -176,9 +176,9 @@ export function fillRow(currentRow, chart, d) {
                     r = chart.config.plotSettings.r;
 
                 var rightpoints =
-                    [{x:diffScale(d.diff)    ,y:h/2 + r}//bottom
-                    ,{x:diffScale(d.diff) + r,y:h/2    }//middle-right
-                    ,{x:diffScale(d.diff)    ,y:h/2 - r}//top
+                    [{x:chart.diffScale(d.diff)    ,y:h/2 + r}//bottom
+                    ,{x:chart.diffScale(d.diff) + r,y:h/2    }//middle-right
+                    ,{x:chart.diffScale(d.diff)    ,y:h/2 - r}//top
                     ];
                 return triangle(rightpoints); 
             })

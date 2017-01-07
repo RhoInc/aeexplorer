@@ -203,14 +203,14 @@ export function init(table, canvas, data, vars, settings) {
                 }));
             }));
 
-        var diffScale = d3.scale.linear()
+        chart.diffScale = d3.scale.linear()
             .range([chart.config.plotSettings.diffMargin.left, 
                 chart.config.plotSettings.w - chart.config.plotSettings.diffMargin.right])
             .domain(d3.extent(d3.merge([minorDiffs, allDiffs])));
 
       //Difference Axis
         var diffAxis = d3.svg.axis()
-            .scale(diffScale)
+            .scale(chart.diffScale)
             .orient('top')
             .ticks(8);
 
