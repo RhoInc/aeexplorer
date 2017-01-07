@@ -1,12 +1,13 @@
 /*------------------------------------------------------------------------------------------------\
   Filter the raw data per the current filter and group selections.
 \------------------------------------------------------------------------------------------------*/
-
-export function prepareData(canvas, data, vars, settings) {
+export function prepareData(chart) {
     var noAEs = ['', 'na', 'n/a', 'no ae', 'no aes', 'none', 'unknown', 'none/unknown'];
 
+    var vars = chart.config.variables //convenience mapping
+
   //Flag records which represent [vars.id] values without an adverse event.
-    data.forEach(d => {
+    chart.raw_data.forEach(d => {
         d.data_all = 'All';
         d.flag = 0;
 
@@ -24,10 +25,10 @@ export function prepareData(canvas, data, vars, settings) {
     var nestedData = d3.nest()
         .key(d => d[vars.group])
         .key(d => d[vars.id])
-        .entries(data);
+        .entries(chart.raw_data);
 
   //Calculate number of [vars.id] and number of events.
-    settings.groups
+    chart.config.groups
         .forEach(d => {
           //Filter nested data on [vars.group].
             var groupData = nestedData
@@ -41,19 +42,19 @@ export function prepareData(canvas, data, vars, settings) {
                         .map(di => di.values.length));
 
           //Calculate number of events.
-            d.nEvents = data
+            d.nEvents = chart.raw_data
                 .filter(di => di[vars.group] === d.key && di.flag === 0)
                 .length;
         });
 
-  //Subset data on groups specified in settings.groups.
-    var groupNames = settings.groups
+  //Subset data on groups specified in chart.config.groups.
+    var groupNames = chart.config.groups
         .map(d => d.key);
-    var sub = data
+    var sub = chart.raw_data
         .filter(d => groupNames.indexOf(d[vars['group']]) >= 0);
 
   //Filter without bootstrap multiselect
-    canvas.select('.custom-filters').selectAll('select')
+    chart.wrap.select('.custom-filters').selectAll('select')
         .each(function(d) {
             d3.select(this).selectAll('option')
                 .each(function(di) {

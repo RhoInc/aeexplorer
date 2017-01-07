@@ -438,7 +438,7 @@ var aeTable = function () {
     function redraw(chart) {
         chart.controls.search.clear(chart);
         chart.AETable.wipe(chart.wrap);
-        var filteredData = chart.AETable.prepareData(chart.wrap, chart.raw_data, chart.config.variables, chart.config);
+        var filteredData = chart.AETable.prepareData(chart);
         chart.AETable.init(chart, chart.wrap, filteredData, chart.config.variables, chart.config);
         chart.AETable.toggleRows(chart.wrap);
     }
@@ -457,12 +457,13 @@ var aeTable = function () {
     /*------------------------------------------------------------------------------------------------\
       Filter the raw data per the current filter and group selections.
     \------------------------------------------------------------------------------------------------*/
-
-    function prepareData(canvas, data, vars, settings) {
+    function prepareData(chart) {
         var noAEs = ['', 'na', 'n/a', 'no ae', 'no aes', 'none', 'unknown', 'none/unknown'];
 
+        var vars = chart.config.variables; //convenience mapping
+
         //Flag records which represent [vars.id] values without an adverse event.
-        data.forEach(d => {
+        chart.raw_data.forEach(d => {
             d.data_all = 'All';
             d.flag = 0;
 
@@ -477,10 +478,10 @@ var aeTable = function () {
         });
 
         //Nest data by [vars.group] and [vars.id].
-        var nestedData = d3.nest().key(d => d[vars.group]).key(d => d[vars.id]).entries(data);
+        var nestedData = d3.nest().key(d => d[vars.group]).key(d => d[vars.id]).entries(chart.raw_data);
 
         //Calculate number of [vars.id] and number of events.
-        settings.groups.forEach(d => {
+        chart.config.groups.forEach(d => {
             //Filter nested data on [vars.group].
             var groupData = nestedData.filter(di => di.key === d.key);
 
@@ -488,15 +489,15 @@ var aeTable = function () {
             d.n = groupData.length > 0 ? groupData[0].values.length : d3.sum(nestedData.map(di => di.values.length));
 
             //Calculate number of events.
-            d.nEvents = data.filter(di => di[vars.group] === d.key && di.flag === 0).length;
+            d.nEvents = chart.raw_data.filter(di => di[vars.group] === d.key && di.flag === 0).length;
         });
 
-        //Subset data on groups specified in settings.groups.
-        var groupNames = settings.groups.map(d => d.key);
-        var sub = data.filter(d => groupNames.indexOf(d[vars['group']]) >= 0);
+        //Subset data on groups specified in chart.config.groups.
+        var groupNames = chart.config.groups.map(d => d.key);
+        var sub = chart.raw_data.filter(d => groupNames.indexOf(d[vars['group']]) >= 0);
 
         //Filter without bootstrap multiselect
-        canvas.select('.custom-filters').selectAll('select').each(function (d) {
+        chart.wrap.select('.custom-filters').selectAll('select').each(function (d) {
             d3.select(this).selectAll('option').each(function (di) {
                 if (!d3.select(this).property('selected')) sub = sub.filter(dii => dii[d.value_col] !== di);
             });
