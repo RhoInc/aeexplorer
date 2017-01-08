@@ -418,7 +418,7 @@ var aeTable = function () {
     function redraw(chart) {
         chart.controls.search.clear(chart);
         chart.AETable.wipe(chart.wrap);
-        var filteredData = chart.util.prepareData(chart);
+        chart.filtered_data = chart.util.prepareData(chart);
         chart.AETable.init(chart);
         chart.AETable.toggleRows(chart);
     }
@@ -878,18 +878,18 @@ var aeTable = function () {
         /////////////////////////////////////////////////////////////////
 
         //Create a dataset nested by [ chart.config.variables.group ] and [ chart.config.variables.id ].
-        var sub = chart.raw_data.filter(function (e) {
+        var sub = chart.filtered_data.filter(function (e) {
             return e.flag === 0;
         });
         var dataAny = util.cross(sub, chart.config.groups, vars['id'], 'All', 'All', vars['group'], chart.config.groups);
 
         //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.group ], and
         //[ chart.config.variables.id ].
-        var dataMajor = util.cross(chart.raw_data, chart.config.groups, vars['id'], vars['major'], 'All', vars['group'], chart.config.groups);
+        var dataMajor = util.cross(chart.filtered_data, chart.config.groups, vars['id'], vars['major'], 'All', vars['group'], chart.config.groups);
 
         //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.minor ],
         //[ chart.config.variables.group ], and [ chart.config.variables.id ].
-        var dataMinor = util.cross(chart.raw_data, chart.config.groups, vars['id'], vars['major'], vars['minor'], vars['group'], chart.config.groups);
+        var dataMinor = util.cross(chart.filtered_data, chart.config.groups, vars['id'], vars['major'], vars['minor'], vars['group'], chart.config.groups);
 
         //Add a 'differences' object to each row.
         dataMajor = util.addDifferences(dataMajor, chart.config.groups);

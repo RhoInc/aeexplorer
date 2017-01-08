@@ -21,7 +21,7 @@ export function init(chart) {
   /////////////////////////////////////////////////////////////////
 
   //Create a dataset nested by [ chart.config.variables.group ] and [ chart.config.variables.id ].
-    var sub = chart.raw_data.filter(function(e) {
+    var sub = chart.filtered_data.filter(function(e) {
         return e.flag === 0; });
     var dataAny = util.cross
         (sub
@@ -35,7 +35,7 @@ export function init(chart) {
   //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.group ], and
   //[ chart.config.variables.id ].
     var dataMajor = util.cross
-        (chart.raw_data
+        (chart.filtered_data
         ,chart.config.groups
         ,vars['id']
         ,vars['major']
@@ -46,7 +46,7 @@ export function init(chart) {
   //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.minor ],
   //[ chart.config.variables.group ], and [ chart.config.variables.id ].
     var dataMinor = util.cross
-        (chart.raw_data
+        (chart.filtered_data
         ,chart.config.groups
         ,vars['id']
         ,vars['major']

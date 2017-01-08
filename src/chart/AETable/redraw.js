@@ -5,7 +5,7 @@
 export function redraw(chart) {
     chart.controls.search.clear(chart);
     chart.AETable.wipe(chart.wrap);
-    var filteredData = chart.util.prepareData(chart);
+    chart.filtered_data = chart.util.prepareData(chart);
     chart.AETable.init(chart);
     chart.AETable.toggleRows(chart);
 }
