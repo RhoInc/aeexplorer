@@ -7,10 +7,16 @@ var aeTable = function () {
             'group': 'ARM',
             'details': [] },
         'filters': [{ 'value_col': 'AESER',
-            'label': 'Serious?' }, { 'value_col': 'AESEV',
-            'label': 'Severity' }, { 'value_col': 'AEREL',
-            'label': 'Relationship' }, { 'value_col': 'AEOUT',
-            'label': 'Outcome' }],
+            'label': 'Serious?',
+            'type': 'event' }, { 'value_col': 'AESEV',
+            'label': 'Severity',
+            'type': 'event' }, { 'value_col': 'AEREL',
+            'label': 'Relationship',
+            'type': 'event' }, { 'value_col': 'AEOUT',
+            'label': 'Outcome',
+            'type': 'event' }, { 'value_col': 'SEX',
+            'label': 'Sex',
+            'type': 'participant' }],
         'groups': [],
         'defaults': { 'maxPrevalence': 0,
             'totalCol': 'Show',
@@ -187,6 +193,7 @@ var aeTable = function () {
         var filterVars = chart.config.filters.map(function (e) {
             return {
                 value_col: e.value_col,
+                type: e.type,
                 values: [] };
         });
 
@@ -225,7 +232,7 @@ var aeTable = function () {
                 return ['NA', '', ' '].indexOf(di) === -1;
             });
         }).enter().append('option').html(function (d) {
-            return '<span><i class = "icon-remove icon-white fa fa-times"></i></span>' + (['NA', '', ' '].indexOf(d) > -1 ? '[None]' : d);
+            return ['NA', '', ' '].indexOf(d) > -1 ? '[None]' : d;
         }).attr('value', function (d) {
             return d;
         }).attr('selected', 'selected');
@@ -418,7 +425,7 @@ var aeTable = function () {
     function redraw(chart) {
         chart.controls.search.clear(chart);
         chart.AETable.wipe(chart.wrap);
-        chart.filtered_data = chart.util.prepareData(chart);
+        chart.util.prepareData(chart);
         chart.AETable.init(chart);
         chart.AETable.toggleRows(chart);
     }
@@ -808,8 +815,21 @@ var aeTable = function () {
     \------------------------------------------------------------------------------------------------*/
     function prepareData(chart) {
         var noAEs = ['', 'na', 'n/a', 'no ae', 'no aes', 'none', 'unknown', 'none/unknown'];
-
         var vars = chart.config.variables; //convenience mapping
+
+        //get filter information
+        var currentFilters = [];
+        chart.wrap.select('.custom-filters').selectAll('select').each(function (filter_d) {
+            //get a list of values that are currently selected
+            filter_d.currentValues = [];
+            d3.select(this).selectAll('option').each(function (di) {
+                if (d3.select(this).property('selected')) {
+                    filter_d.currentValues.push(di);
+                }
+            });
+            currentFilters.push(filter_d);
+        });
+        console.log(currentFilters);
 
         //Flag records which represent [vars.id] values without an adverse event.
         chart.raw_data.forEach(d => {
@@ -826,8 +846,22 @@ var aeTable = function () {
             }
         });
 
+        //Subset data on groups specified in chart.config.groups.
+        var groupNames = chart.config.groups.map(d => d.key);
+        chart.population_data = chart.raw_data.filter(d => groupNames.indexOf(d[vars['group']]) >= 0);
+
+        //Filter data to reflect the current population (based on filters where type = `participant`)
+        currentFilters.filter(function (d) {
+            return d.type == "participant";
+        }).forEach(function (filter_d) {
+            //remove the filtered values from the population data
+            chart.population_data = chart.population_data.filter(function (rowData) {
+                return filter_d.currentValues.indexOf(rowData[filter_d.value_col]) > -1;
+            });
+        });
+
         //Nest data by [vars.group] and [vars.id].
-        var nestedData = d3.nest().key(d => d[vars.group]).key(d => d[vars.id]).entries(chart.raw_data);
+        var nestedData = d3.nest().key(d => d[vars.group]).key(d => d[vars.id]).entries(chart.population_data);
 
         //Calculate number of [vars.id] and number of events.
         chart.config.groups.forEach(d => {
@@ -841,18 +875,18 @@ var aeTable = function () {
             d.nEvents = chart.raw_data.filter(di => di[vars.group] === d.key && di.flag === 0).length;
         });
 
-        //Subset data on groups specified in chart.config.groups.
-        var groupNames = chart.config.groups.map(d => d.key);
-        var sub = chart.raw_data.filter(d => groupNames.indexOf(d[vars['group']]) >= 0);
-
-        //Filter without bootstrap multiselect
-        chart.wrap.select('.custom-filters').selectAll('select').each(function (d) {
-            d3.select(this).selectAll('option').each(function (di) {
-                if (!d3.select(this).property('selected')) sub = sub.filter(dii => dii[d.value_col] !== di);
+        //Filter event level data - clone population data and then filter 
+        chart.filtered_data = chart.population_data;
+        currentFilters.filter(function (d) {
+            return d.type == "event";
+        }).forEach(function (filter_d) {
+            //remove the filtered values from the population data
+            chart.filtered_data = chart.filtered_data.filter(function (rowData) {
+                return filter_d.currentValues.indexOf(rowData[filter_d.value_col]) > -1;
             });
         });
 
-        return sub;
+        console.log('raw records:' + chart.raw_data.length + " - pop records: " + chart.population_data.length + " - filtered records: " + chart.filtered_data.length);
     }
 
     const util = { calculateDifference: calculateDifference,

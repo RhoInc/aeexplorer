@@ -14,6 +14,7 @@ export function init(chart) {
         .map(function(e) {
             return {
                 value_col: e.value_col,
+                type:e.type,
                 values: []}; });
 
   //Create list for each filter variable of its distinct values.
@@ -62,11 +63,8 @@ export function init(chart) {
                     return ['NA', '', ' '].indexOf(di) === -1; }); })
         .enter()
         .append('option')
-        .html(function(d) {
-                return  '<span><i class = "icon-remove icon-white fa fa-times"></i></span>'
-                    +   (['NA', '', ' '].indexOf(d) > -1 ? '[None]' : d); })
-        .attr('value', function(d) {
-            return d; })
+        .html(function(d) {return ['NA', '', ' '].indexOf(d) > -1 ? '[None]' : d})
+        .attr('value', function(d) {return d})
         .attr('selected', 'selected');
 
   //Initialize event listeners
