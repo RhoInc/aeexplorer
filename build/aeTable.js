@@ -232,7 +232,7 @@ var aeTable = function () {
                 return ['NA', '', ' '].indexOf(di) === -1;
             });
         }).enter().append('option').html(function (d) {
-            return ['NA', '', ' '].indexOf(d) > -1 ? '[None]' : d;
+            return d;
         }).attr('value', function (d) {
             return d;
         }).attr('selected', 'selected');
