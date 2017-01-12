@@ -812,7 +812,7 @@ var aeTable = function () {
 	function setDefaults(chart) {
 
 		function errorNote(msg) {
-			element.append('div').attr('class', 'alert alert-error alert-danger').text(msg);
+			chart.wrap.append('div').attr('class', 'alert').text("Fatal Error: " + msg);
 		};
 
 		/////////////////////////////
@@ -899,6 +899,13 @@ var aeTable = function () {
 			}
 		});
 
+		/////////////////////////////////////////////////////////////////////////////////
+		//Check that group values defined in settings are actually present in dataset. //
+		/////////////////////////////////////////////////////////////////////////////////
+		if (chart.config.groups.length > 6) {
+			errorNote('Too Many Group Variables specified. You specified ' + chart.config.groups.length + ', but the maximum supported is 6.');
+			throw new Error('Too Many Group Variables specified. You specified ' + chart.config.groups.length + ', but the maximum supported is 6.');
+		}
 		////////////////////////////////////////////////////////
 		//Set the domain for the color scale based on groups. //
 		////////////////////////////////////////////////////////
