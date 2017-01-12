@@ -109,10 +109,9 @@ export function init(chart) {
   // Draw the summary table headers.
   /////////////////////////////////////
 
-    var totalCol = (chart.config.defaults.totalCol === 'Show');
     var tab = chart.wrap.select('.SummaryTable')
         .append('table');
-    var nGroups = chart.config.groups.length + totalCol;
+    var nGroups = chart.config.groups.length + chart.config.defaults.totalCol;
     var header1 = tab
         .append('thead')
             .append('tr')
@@ -129,11 +128,11 @@ export function init(chart) {
 
   //Group column headers
     header1.append('th')
-        .attr('colspan',nGroups - totalCol)
+        .attr('colspan',nGroups - chart.config.defaults.totalCol)
         .text('Groups');
 
   //Total column header
-    if (totalCol)
+    if (chart.config.defaults.totalCol)
         header1.append('th')
             .text('');
 
@@ -145,7 +144,7 @@ export function init(chart) {
     var header2 = tab.select('thead')
         .append('tr');
     header2.selectAll('td.values')
-        .data((totalCol ?
+        .data((chart.config.defaults.totalCol ?
             chart.config.groups.concat(
                 {key: 'Total'
                 ,n: d3.sum(chart.config.groups, d => d.n)
@@ -158,7 +157,7 @@ export function init(chart) {
             .attr('class', 'values');
     header2.append('th')
         .attr('class', 'prevHeader');
-    if (nGroups > 1 && chart.config.defaults.diffCol === 'Show') {
+    if (nGroups > 1 && chart.config.defaults.diffCol) {
         header1.append('th')
             .text('Difference Between Groups')
             .attr('class', 'diffplot');

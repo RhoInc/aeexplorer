@@ -565,7 +565,7 @@ var aeTable = function () {
 		});
 
 		//Calculate total frequency, number of records, population denominator, and rate.
-		if (chart.config.defaults.totalCol === 'Show') {
+		if (chart.config.defaults.totalCol) {
 			var total = {};
 			total.major = d.values[0].values.major;
 			total.minor = d.values[0].values.minor;
@@ -605,7 +605,7 @@ var aeTable = function () {
 		});
 
 		//Handle rate differences between groups if settings reference more then one group.
-		if (chart.config.groups.length > 1 && chart.config.defaults.diffCol === 'Show') {
+		if (chart.config.groups.length > 1 && chart.config.defaults.diffCol) {
 
 			//Append container for group rate differences.
 			var differencePlot = currentRow.append('td').classed('diffplot', true).append('svg').attr('height', chart.config.plotSettings.h).attr('width', chart.config.plotSettings.w + 10).append('svg:g').attr('transform', 'translate(5,0)');
@@ -796,9 +796,9 @@ var aeTable = function () {
 			'label': 'Outcome' }],
 		'groups': [],
 		'defaults': { 'maxPrevalence': 0,
-			'totalCol': 'Show',
-			'diffCol': 'Show',
-			'prefTerms': 'Hide' },
+			'totalCol': true,
+			'diffCol': true,
+			'prefTerms': false },
 		'plotSettings': { 'h': 15,
 			'w': 200,
 			'margin': { 'left': 40, 'right': 40 },
@@ -834,11 +834,12 @@ var aeTable = function () {
 		chart.config.groups = chart.config.groups || defaultSettings.groups;
 
 		//defaults  
-		chart.config.defaults = chart.config.defaults || {};
 		var defaults = ["maxPrevalence", "totalCol", "diffCol", "prefTerms"];
-		defaults.forEach(function (varName) {
-			chart.config.defaults[varName] = chart.config.defaults[varName] || defaultSettings.defaults[varName];
-		});
+		chart.config.defaults = chart.config.defaults || {};
+		chart.config.defaults["maxPrevalence"] = chart.config.defaults["maxPrevalence"] || defaultSettings.defaults["maxPrevalence"];
+		chart.config.defaults["totalCol"] = chart.config.defaults["totalCol"] != undefined ? chart.config.defaults["totalCol"] : defaultSettings.defaults["totalCol"];
+		chart.config.defaults["diffCol"] = chart.config.defaults["diffCol"] != undefined ? chart.config.defaults["diffCol"] : defaultSettings.defaults["diffCol"];
+		chart.config.defaults["prefTerms"] = chart.config.defaults["prefTerms"] != undefined ? chart.config.defaults["prefTerms"] : defaultSettings.defaults["prefTerms"];
 
 		//plot settings
 		chart.config.plotSettings = chart.config.plotSettings || {};
@@ -854,7 +855,7 @@ var aeTable = function () {
 		////////////////////////////////////////////////////////////
 		if (!chart.config.variables.group || ['', ' '].indexOf(chart.config.variables.group) > -1) {
 			chart.config.variables.group = 'data_all';
-			chart.config.defaults.totalCol = '';
+			chart.config.defaults.totalCol = false;
 			chart.config.groups = [{ 'key': 'All' }];
 		}
 
@@ -903,7 +904,7 @@ var aeTable = function () {
 		////////////////////////////////////////////////////////
 		chart.colorScale.domain(chart.config.groups.map(e => e.key));
 		//Set 'Total' column color to #777.
-		if (chart.config.defaults.totalCol === 'Show') chart.colorScale.range()[chart.config.groups.length] = '#777';
+		if (chart.config.defaults.totalCol) chart.colorScale.range()[chart.config.groups.length] = '#777';
 	}
 
 	const util = { calculateDifference: calculateDifference,
@@ -990,9 +991,8 @@ var aeTable = function () {
 		// Draw the summary table headers.
 		/////////////////////////////////////
 
-		var totalCol = chart.config.defaults.totalCol === 'Show';
 		var tab = chart.wrap.select('.SummaryTable').append('table');
-		var nGroups = chart.config.groups.length + totalCol;
+		var nGroups = chart.config.groups.length + chart.config.defaults.totalCol;
 		var header1 = tab.append('thead').append('tr');
 
 		//Expand/collapse control column header
@@ -1002,21 +1002,21 @@ var aeTable = function () {
 		header1.append('th').attr('rowspan', 2).text('Category');
 
 		//Group column headers
-		header1.append('th').attr('colspan', nGroups - totalCol).text('Groups');
+		header1.append('th').attr('colspan', nGroups - chart.config.defaults.totalCol).text('Groups');
 
 		//Total column header
-		if (totalCol) header1.append('th').text('');
+		if (chart.config.defaults.totalCol) header1.append('th').text('');
 
 		//Graphical AE rates column header
 		header1.append('th').text('AE Rate by group');
 
 		//Group differences column header
 		var header2 = tab.select('thead').append('tr');
-		header2.selectAll('td.values').data(totalCol ? chart.config.groups.concat({ key: 'Total',
+		header2.selectAll('td.values').data(chart.config.defaults.totalCol ? chart.config.groups.concat({ key: 'Total',
 			n: d3.sum(chart.config.groups, d => d.n),
 			nEvents: d3.sum(chart.config.groups, d => d.nEvents) }) : chart.config.groups).enter().append('th').html(d => '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + (summary === 'participant' ? d.n : d.nEvents) + ')</span>').style('color', d => chart.colorScale(d.key)).attr('class', 'values');
 		header2.append('th').attr('class', 'prevHeader');
-		if (nGroups > 1 && chart.config.defaults.diffCol === 'Show') {
+		if (nGroups > 1 && chart.config.defaults.diffCol) {
 			header1.append('th').text('Difference Between Groups').attr('class', 'diffplot');
 			header2.append('th').attr('class', 'diffplot axis');
 		}
@@ -1185,7 +1185,7 @@ var aeTable = function () {
 
 	function toggleRows(chart) {
 		//Toggle minor rows.
-		var minorToggle = chart.config.defaults.prefTerms !== 'Show';
+		var minorToggle = !chart.config.defaults.prefTerms;
 		chart.wrap.selectAll('.SummaryTable tbody').classed('minorHidden', minorToggle);
 		chart.wrap.selectAll('.SummaryTable table tbody').select('tr.major td.controls span').text(minorToggle ? '+' : '-');
 

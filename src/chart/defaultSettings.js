@@ -18,9 +18,9 @@ const defaultSettings =
         []
     ,'defaults':
         {'maxPrevalence': 0
-        ,'totalCol': 'Show'
-        ,'diffCol': 'Show'
-        ,'prefTerms': 'Hide'}
+        ,'totalCol': true
+        ,'diffCol': true
+        ,'prefTerms': false}
     ,'plotSettings':
         {'h':15
         ,'w':200

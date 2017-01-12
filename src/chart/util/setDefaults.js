@@ -28,11 +28,19 @@ export function setDefaults(chart) {
     chart.config.groups = chart.config.groups || defaultSettings.groups
   
     //defaults  
-    chart.config.defaults = chart.config.defaults || {}
     var defaults = ["maxPrevalence","totalCol","diffCol","prefTerms"]
-    defaults.forEach(function(varName){
-        chart.config.defaults[varName] = chart.config.defaults[varName] || defaultSettings.defaults[varName]
-    })
+    chart.config.defaults = chart.config.defaults || {}
+    chart.config.defaults["maxPrevalence"] = chart.config.defaults["maxPrevalence"] || defaultSettings.defaults["maxPrevalence"]
+    chart.config.defaults["totalCol"] = chart.config.defaults["totalCol"]  != undefined ? 
+      chart.config.defaults["totalCol"]: 
+      defaultSettings.defaults["totalCol"]
+    chart.config.defaults["diffCol"] = chart.config.defaults["diffCol"]!= undefined?
+      chart.config.defaults["diffCol"]: 
+      defaultSettings.defaults["diffCol"]
+    chart.config.defaults["prefTerms"] = chart.config.defaults["prefTerms"]!=undefined?
+      chart.config.defaults["prefTerms"]:
+      defaultSettings.defaults["prefTerms"]
+
 
     //plot settings
     chart.config.plotSettings = chart.config.plotSettings || {}
@@ -48,7 +56,7 @@ export function setDefaults(chart) {
     ////////////////////////////////////////////////////////////
     if (!(chart.config.variables.group) || ['', ' '].indexOf(chart.config.variables.group) > -1) {
         chart.config.variables.group = 'data_all';
-        chart.config.defaults.totalCol = '';
+        chart.config.defaults.totalCol = false;
         chart.config.groups = [{'key':'All'}];
     }
 
@@ -99,7 +107,7 @@ export function setDefaults(chart) {
     ////////////////////////////////////////////////////////
     chart.colorScale.domain(chart.config.groups.map(e => e.key));
     //Set 'Total' column color to #777.
-    if (chart.config.defaults.totalCol === 'Show')
+    if (chart.config.defaults.totalCol)
         chart.colorScale.range()[chart.config.groups.length] = '#777'; 
     
 

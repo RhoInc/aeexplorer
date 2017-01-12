@@ -45,7 +45,7 @@ export function fillRow(currentRow, chart, d) {
         });
 
   //Calculate total frequency, number of records, population denominator, and rate.
-    if (chart.config.defaults.totalCol === 'Show') {
+    if (chart.config.defaults.totalCol) {
         var total = {};
         total.major     = d.values[0].values.major;
         total.minor     = d.values[0].values.minor;
@@ -104,7 +104,7 @@ export function fillRow(currentRow, chart, d) {
                 return d.key + ': ' + d3.format(',.1%')(d.values.per/100); });
 
   //Handle rate differences between groups if settings reference more then one group.
-    if (chart.config.groups.length > 1 && chart.config.defaults.diffCol === 'Show') {
+    if (chart.config.groups.length > 1 && chart.config.defaults.diffCol) {
 
       //Append container for group rate differences.
         var differencePlot = currentRow
