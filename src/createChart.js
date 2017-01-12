@@ -1,4 +1,3 @@
-import defaultSettings from './defaultSettings';
 import { init } from './chart/init';
 import { colorScale } from './chart/colorScale';
 import { layout } from './chart/layout';
@@ -8,12 +7,9 @@ import { detailTable } from './chart/detailTable';
 import { util } from './chart/util';
 
 export function createChart(element = 'body', config) {
-    //Get default settings for parameters not specified by user
-    var mergedConfig = Object.assign({}, config, defaultSettings)
-
     let chart =
         {element: element
-        ,config:  mergedConfig
+        ,config:  config
         ,init: init
         ,colorScale: colorScale
         ,layout: layout
