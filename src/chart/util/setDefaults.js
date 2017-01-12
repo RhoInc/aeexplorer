@@ -18,8 +18,6 @@ export function setDefaults(chart) {
     variables.forEach(function(varName){
         chart.config.variables[varName] = chart.config.variables[varName] || defaultSettings.variables[varName]
     })
-    //variables.details
-//    chart.config.variables.details = chart.config.variables.length ? chart.config.variables || []
 
     //filters
     chart.config.filters = chart.config.filters || defaultSettings.filters
@@ -48,8 +46,6 @@ export function setDefaults(chart) {
     plotSettings.forEach(function(varName){
         chart.config.plotSettings[varName] = chart.config.plotSettings[varName] || defaultSettings.plotSettings[varName]
     })
-
-    //plotSettings.margin & .diffMargin
 
     ////////////////////////////////////////////////////////////
     //Render single column if no group variable is specified. //
