@@ -43,7 +43,8 @@ export function init(chart) {
     var filterLabel = filterItem
         .append('span')
         .attr('class', 'filterLabel')
-        .text(function(d) {
+    filterLabel.append("span")
+        .html(function(d) {
             if (chart.config.filters) {
                 var filterLabel = chart.config.filters.filter(function(d1) {
                     return d1.value_col === d.value_col;
@@ -51,6 +52,15 @@ export function init(chart) {
 
                 return filterLabel ? filterLabel : d.key;
             } else return d.key; });
+    
+    filterLabel.append("sup")
+    .attr('class',"filterType")
+    .text(function(d){return d.type == "event" ? "E" : "P" })
+    .property("title", function(d){return d.type=="event"? 
+        "Event filter: Changes rate counts only. Does not change population.":
+        "Participant filter: Changes rate counts and populations."
+    })
+
     var filterCustom = filterItem
         .append('select')
         .attr('multiple', true);

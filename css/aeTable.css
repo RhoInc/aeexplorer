@@ -135,6 +135,10 @@
             color: white;
         }
 
+        div.aeTable  .controls .custom-filters ul li .filterType{
+            font-size: 0.8em
+        }
+
         div.aeTable .controls .custom-filters ul li.filterCustom {
             display:inline-block ;
             padding-right:5px;
@@ -142,6 +146,16 @@
 
         div.aeTable .controls .custom-filters ul li.filterCustom * {
             display:block ;
+        }
+
+        div.aeTable .controls .custom-filters ul li.filterCustom span.filterLabel * {
+            display:inline-block ;
+        }
+
+        div.aeTable .controls .custom-filters ul li.filterCustom span.filterLabel .filterType {
+            text-decoration: underline; 
+            padding-left:3px;
+            cursor: pointer;
         }
 
         /*Search*/
