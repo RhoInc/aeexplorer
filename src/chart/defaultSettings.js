@@ -18,10 +18,6 @@ const defaultSettings =
         ,   {'value_col': 'AEOUT'
             ,'label': 'Outcome'
             ,'type':'event'}
-        ,  {'value_col': 'SEX'
-            ,'label': 'Sex'
-            ,'type':'participant'}
-
         ]
     ,'groups':
         []
