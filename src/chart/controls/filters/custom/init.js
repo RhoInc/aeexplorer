@@ -14,6 +14,7 @@ export function init(chart) {
         .map(function(e) {
             return {
                 value_col: e.value_col,
+                type:e.type,
                 values: []}; });
 
   //Create list for each filter variable of its distinct values.
@@ -42,7 +43,8 @@ export function init(chart) {
     var filterLabel = filterItem
         .append('span')
         .attr('class', 'filterLabel')
-        .text(function(d) {
+    filterLabel.append("span")
+        .html(function(d) {
             if (chart.config.filters) {
                 var filterLabel = chart.config.filters.filter(function(d1) {
                     return d1.value_col === d.value_col;
@@ -50,6 +52,15 @@ export function init(chart) {
 
                 return filterLabel ? filterLabel : d.key;
             } else return d.key; });
+    
+    filterLabel.append("sup")
+    .attr('class',"filterType")
+    .text(function(d){return d.type == "event" ? "E" : "P" })
+    .property("title", function(d){return d.type=="event"? 
+        "Event filter: Changes rate counts only. Does not change population.":
+        "Participant filter: Changes rate counts and populations."
+    })
+
     var filterCustom = filterItem
         .append('select')
         .attr('multiple', true);
@@ -62,11 +73,8 @@ export function init(chart) {
                     return ['NA', '', ' '].indexOf(di) === -1; }); })
         .enter()
         .append('option')
-        .html(function(d) {
-                return  '<span><i class = "icon-remove icon-white fa fa-times"></i></span>'
-                    +   (['NA', '', ' '].indexOf(d) > -1 ? '[None]' : d); })
-        .attr('value', function(d) {
-            return d; })
+        .html(function(d) {return d})
+        .attr('value', function(d) {return d})
         .attr('selected', 'selected');
 
   //Initialize event listeners
