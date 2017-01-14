@@ -7,13 +7,22 @@ const defaultSettings =
         ,'details': []}
     ,'filters':
         [   {'value_col': 'AESER'
-            ,'label': 'Serious?'}
+            ,'label': 'Serious?'
+            ,'type':'event'}
         ,   {'value_col': 'AESEV'
-            ,'label': 'Severity'}
+            ,'label': 'Severity'
+            ,'type':'event'}
         ,   {'value_col': 'AEREL'
-            ,'label': 'Relationship'}
+            ,'label': 'Relationship'
+            ,'type':'event'}
         ,   {'value_col': 'AEOUT'
-            ,'label': 'Outcome'}]
+            ,'label': 'Outcome'
+            ,'type':'event'}
+        ,  {'value_col': 'SEX'
+            ,'label': 'Sex'
+            ,'type':'participant'}
+
+        ]
     ,'groups':
         []
     ,'defaults':
