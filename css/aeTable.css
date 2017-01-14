@@ -41,6 +41,8 @@
             display:block;
         }
 
+
+
         /*Rate filter*/
         div.aeTable .controls .rate-filter {
             margin-bottom: 10px;
@@ -262,10 +264,12 @@
             display:none; 
         }
 
-        div.aeTable .hidden {
+        div.aeTable .hidden,
+        div.aeTable .controls .hidden,
+        div.aeTable .controls .filterDiv.custom-filters.hidden {
             display: none;
         }
-
+        
         /*using set widths to avoid funky behavior on mouseover - could maybe make the width interactive based on the data? */
         div.aeTable .SummaryTable tr td.values {
             min-width:100px;

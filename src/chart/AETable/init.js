@@ -369,10 +369,8 @@ export function init(chart) {
         .on('click',function(d) {
           //Update classes (row visibility handeled via css)
             var toggle = !(chart.wrap.select('.SummaryTable table').classed('summary'));
-            chart.wrap.select('.SummaryTable table')
-                .classed('summary', toggle);
-            chart.wrap.select('div.controls')
-                .classed('hidden', toggle);
+            chart.wrap.select('.SummaryTable table').classed('summary', toggle);
+            chart.wrap.select('div.controls').selectAll("div").classed('hidden', toggle);
 
           //Create/remove the participant level table        
             if (toggle) {
