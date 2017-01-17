@@ -18,9 +18,7 @@ export function setDefaults(chart) {
     variables.forEach(function(varName){
         chart.config.variables[varName] = chart.config.variables[varName] || defaultSettings.variables[varName]
     })
-
-    //filters
-    chart.config.filters = chart.config.filters || defaultSettings.filters
+    chart.config.variables.filters = chart.config.variables.filters || defaultSettings.variables.filters
 
     //groups
     chart.config.groups = chart.config.groups || defaultSettings.groups
@@ -76,7 +74,8 @@ export function setDefaults(chart) {
         if (varList.indexOf(chart.config.variables[x]) === -1) {
             if (chart.config.variables[x] instanceof Array) {
                 chart.config.variables[x].forEach(function(e) {
-                    if (d3.keys(chart.raw_data[0]).indexOf(e) === -1) {
+                    var value_col = e instanceof Object ? e.value_col : e
+                    if (varList.indexOf(value_col) === -1) {
                         errorNote('Error in variables object.');
                         throw new Error(x + ' variable ' + '(\'' + e + '\') not found in dataset.');
                     }

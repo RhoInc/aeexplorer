@@ -110,7 +110,7 @@ var aeTable = function () {
 		var selector = chart.controls.wrap.append('div').attr('class', 'custom-filters');
 
 		//Create list of filter variables.
-		var filterVars = chart.config.filters.map(function (e) {
+		var filterVars = chart.config.variables.filters.map(function (e) {
 			return {
 				value_col: e.value_col,
 				type: e.type,
@@ -137,8 +137,8 @@ var aeTable = function () {
 		});
 		var filterLabel = filterItem.append('span').attr('class', 'filterLabel');
 		filterLabel.append("span").html(function (d) {
-			if (chart.config.filters) {
-				var filterLabel = chart.config.filters.filter(function (d1) {
+			if (chart.config.variables.filters) {
+				var filterLabel = chart.config.variables.filters.filter(function (d1) {
 					return d1.value_col === d.value_col;
 				})[0].label;
 
@@ -823,16 +823,17 @@ var aeTable = function () {
 			'major': 'AEBODSYS',
 			'minor': 'AEDECOD',
 			'group': 'ARM',
-			'details': [] },
-		'filters': [{ 'value_col': 'AESER',
-			'label': 'Serious?',
-			'type': 'event' }, { 'value_col': 'AESEV',
-			'label': 'Severity',
-			'type': 'event' }, { 'value_col': 'AEREL',
-			'label': 'Relationship',
-			'type': 'event' }, { 'value_col': 'AEOUT',
-			'label': 'Outcome',
-			'type': 'event' }],
+			'details': [],
+			'filters': [{ 'value_col': 'AESER',
+				'label': 'Serious?',
+				'type': 'event' }, { 'value_col': 'AESEV',
+				'label': 'Severity',
+				'type': 'event' }, { 'value_col': 'AEREL',
+				'label': 'Relationship',
+				'type': 'event' }, { 'value_col': 'AEOUT',
+				'label': 'Outcome',
+				'type': 'event' }]
+		},
 		'groups': [],
 		'defaults': { 'maxPrevalence': 0,
 			'maxGroups': 6,
@@ -864,9 +865,7 @@ var aeTable = function () {
 		variables.forEach(function (varName) {
 			chart.config.variables[varName] = chart.config.variables[varName] || defaultSettings.variables[varName];
 		});
-
-		//filters
-		chart.config.filters = chart.config.filters || defaultSettings.filters;
+		chart.config.variables.filters = chart.config.variables.filters || defaultSettings.variables.filters;
 
 		//groups
 		chart.config.groups = chart.config.groups || defaultSettings.groups;
@@ -915,7 +914,8 @@ var aeTable = function () {
 			if (varList.indexOf(chart.config.variables[x]) === -1) {
 				if (chart.config.variables[x] instanceof Array) {
 					chart.config.variables[x].forEach(function (e) {
-						if (d3.keys(chart.raw_data[0]).indexOf(e) === -1) {
+						var value_col = e instanceof Object ? e.value_col : e;
+						if (varList.indexOf(value_col) === -1) {
 							errorNote('Error in variables object.');
 							throw new Error(x + ' variable ' + '(\'' + e + '\') not found in dataset.');
 						}
