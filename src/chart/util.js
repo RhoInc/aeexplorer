@@ -10,6 +10,8 @@ import { fillRow } from './util/fillRow'
 import { collapse } from './util/collapse'
 import { json2csv } from './util/json2csv'
 import { prepareData } from './util/prepareData'
+import { setDefaults } from './util/setDefaults'
+
 
 export const util =
     {calculateDifference: calculateDifference
@@ -19,4 +21,5 @@ export const util =
 	,fillRow: fillRow
 	,collapse:collapse
 	,json2csv:json2csv
-	,prepareData:prepareData};
+	,prepareData:prepareData
+	,setDefaults:setDefaults};
