@@ -10,7 +10,7 @@ export function init(chart) {
         .attr('class', 'custom-filters');
 
   //Create list of filter variables.
-    var filterVars = chart.config.filters
+    var filterVars = chart.config.variables.filters
         .map(function(e) {
             return {
                 value_col: e.value_col,
@@ -45,8 +45,8 @@ export function init(chart) {
         .attr('class', 'filterLabel')
     filterLabel.append("span")
         .html(function(d) {
-            if (chart.config.filters) {
-                var filterLabel = chart.config.filters.filter(function(d1) {
+            if (chart.config.variables.filters) {
+                var filterLabel = chart.config.variables.filters.filter(function(d1) {
                     return d1.value_col === d.value_col;
                 })[0].label;
 

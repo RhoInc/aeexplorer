@@ -153,7 +153,7 @@
         }
 
         div.aeTable .controls .custom-filters ul li.filterCustom span.filterLabel .filterType {
-            text-decoration: underline; 
+            font-style:italic;
             padding-left:3px;
             cursor: pointer;
         }

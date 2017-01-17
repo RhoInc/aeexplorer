@@ -4,7 +4,7 @@
 
 export function toggleRows(chart) {
   //Toggle minor rows.
-    var minorToggle = (chart.config.defaults.prefTerms !== 'Show');
+    var minorToggle = (!chart.config.defaults.prefTerms);
     chart.wrap.selectAll('.SummaryTable tbody')
         .classed('minorHidden', minorToggle);
     chart.wrap.selectAll('.SummaryTable table tbody').select('tr.major td.controls span')
