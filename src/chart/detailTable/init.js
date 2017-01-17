@@ -2,6 +2,7 @@
   Generate data listing.
 \------------------------------------------------------------------------------------------------*/
 export function init(chart,detailTableSettings) {
+    console.log(chart)
 
     //convenience mappings
     var major = detailTableSettings.major;
@@ -9,14 +10,14 @@ export function init(chart,detailTableSettings) {
     var vars = chart.config.variables 
 
   //Filter the raw data given the select major and/or minor category.
-    var details = chart.raw_data.filter(d => {
+    var details = chart.population_data.filter(d => {
         var majorMatch = major === 'All' ? true : (major === d[vars['major']]);
         var minorMatch = minor === 'All' ? true : (minor === d[vars['minor']]);
         return majorMatch && minorMatch && d[vars['major']] !== 'None/Unknown';
     });
 
     if (vars.details.length === 0)
-        vars.details = Object.keys(chart.raw_data[0])
+        vars.details = Object.keys(chart.population_data[0])
             .filter(d => ['data_all', 'flag'].indexOf(d) === -1);
 
   //Keep only those columns specified in settings.variables.details.
@@ -31,8 +32,12 @@ export function init(chart,detailTableSettings) {
         .append('div')
         .attr('class', 'DetailTable');
     
+    chart.detailTable.head = chart.wrap.select('div.table-wrapper')
+        .insert('div',".controls")
+        .attr('class', 'DetailHeader');
+
   //Add button to return to standard view.
-    var closeButton = chart.wrap.select('div.DetailTable')
+    var closeButton = chart.detailTable.head
         .append('button')
         .attr('class', 'closeDetailTable btn btn-primary');
 
@@ -41,19 +46,31 @@ export function init(chart,detailTableSettings) {
     
     closeButton.on('click', () => {
         chart.wrap.select('.SummaryTable table').classed('summary', false);
-        chart.wrap.select('div.controls').classed('hidden', false);
+        chart.wrap.select('div.controls').selectAll("div").classed('hidden', false);
+        chart.wrap.select('div.controls').select("div.custom-filters").selectAll("select").property('disabled', "");
         chart.wrap.selectAll('.SummaryTable table tbody tr').classed('active', false);
-        chart.wrap.select('.DetailTable').remove();
-        chart.wrap.select('button.closeDetailTable').remove();
+        chart.detailTable.wrap.remove();
+        chart.detailTable.head.remove();
     });
 
   //Add explanatory listing title.
-    chart.wrap.select('.DetailTable')
-        .append('h4')
+    chart.detailTable.head.append('h4')
         .html(minor === 'All' ?
             'Details for ' + details.length + ' <b>' + major + '</b> records' :
             'Details for ' + details.length + ' <b>' + minor + ' (' + major + ')</b> records' );
-    
+
+  //Details about current population filters
+    var filtered = chart.raw_data.length != chart.population_data.length
+    if(filtered){
+        chart.wrap.select('div.controls').select("div.custom-filters")
+        .classed("hidden",false)
+        .selectAll("select")
+        .property('disabled', 'disabled');
+        chart.detailTable.head
+            .append('span')
+            .html(filtered? "The listing is filtered as shown:":"");
+    }
+
   //Generate listing.    
     chart.detailTable.draw(chart.detailTable.wrap, details);
  
