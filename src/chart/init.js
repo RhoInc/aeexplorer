@@ -13,7 +13,6 @@ export function init(data) {
 
   //Initialize adverse event eplorer.
     this.util.setDefaults(this)
-    console.log(this)
     this.layout();
     this.controls.init(this);
     this.AETable.redraw(this)

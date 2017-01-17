@@ -29,6 +29,7 @@ export function setDefaults(chart) {
     var defaults = ["maxPrevalence","totalCol","diffCol","prefTerms"]
     chart.config.defaults = chart.config.defaults || {}
     chart.config.defaults["maxPrevalence"] = chart.config.defaults["maxPrevalence"] || defaultSettings.defaults["maxPrevalence"]
+    chart.config.defaults["maxGroups"] = chart.config.defaults["maxGroups"] || defaultSettings.defaults["maxGroups"]
     chart.config.defaults["totalCol"] = chart.config.defaults["totalCol"]  != undefined ? 
       chart.config.defaults["totalCol"]: 
       defaultSettings.defaults["totalCol"]
@@ -100,9 +101,10 @@ export function setDefaults(chart) {
     /////////////////////////////////////////////////////////////////////////////////
     //Check that group values defined in settings are actually present in dataset. //
     /////////////////////////////////////////////////////////////////////////////////
-            if (chart.config.groups.length > 6) {
-                errorNote('Too Many Group Variables specified. You specified '+chart.config.groups.length+', but the maximum supported is 6.');
-                throw new Error('Too Many Group Variables specified. You specified '+chart.config.groups.length+', but the maximum supported is 6.');
+            if (chart.config.groups.length > chart.config.defaults.maxGroups) {
+                var errorText = 'Too Many Group Variables specified. You specified '+chart.config.groups.length+', but the maximum supported is 6'+chart.config.defaults.maxGroups+'.'
+                errorNote(errorText);
+                throw new Error(errorText);
             }
     ////////////////////////////////////////////////////////
     //Set the domain for the color scale based on groups. //

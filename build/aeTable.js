@@ -16,7 +16,6 @@ var aeTable = function () {
 
 		//Initialize adverse event eplorer.
 		this.util.setDefaults(this);
-		console.log(this);
 		this.layout();
 		this.controls.init(this);
 		this.AETable.redraw(this);
@@ -836,6 +835,7 @@ var aeTable = function () {
 			'type': 'event' }],
 		'groups': [],
 		'defaults': { 'maxPrevalence': 0,
+			'maxGroups': 6,
 			'totalCol': true,
 			'diffCol': true,
 			'prefTerms': false },
@@ -875,6 +875,7 @@ var aeTable = function () {
 		var defaults = ["maxPrevalence", "totalCol", "diffCol", "prefTerms"];
 		chart.config.defaults = chart.config.defaults || {};
 		chart.config.defaults["maxPrevalence"] = chart.config.defaults["maxPrevalence"] || defaultSettings.defaults["maxPrevalence"];
+		chart.config.defaults["maxGroups"] = chart.config.defaults["maxGroups"] || defaultSettings.defaults["maxGroups"];
 		chart.config.defaults["totalCol"] = chart.config.defaults["totalCol"] != undefined ? chart.config.defaults["totalCol"] : defaultSettings.defaults["totalCol"];
 		chart.config.defaults["diffCol"] = chart.config.defaults["diffCol"] != undefined ? chart.config.defaults["diffCol"] : defaultSettings.defaults["diffCol"];
 		chart.config.defaults["prefTerms"] = chart.config.defaults["prefTerms"] != undefined ? chart.config.defaults["prefTerms"] : defaultSettings.defaults["prefTerms"];
@@ -938,9 +939,10 @@ var aeTable = function () {
 		/////////////////////////////////////////////////////////////////////////////////
 		//Check that group values defined in settings are actually present in dataset. //
 		/////////////////////////////////////////////////////////////////////////////////
-		if (chart.config.groups.length > 6) {
-			errorNote('Too Many Group Variables specified. You specified ' + chart.config.groups.length + ', but the maximum supported is 6.');
-			throw new Error('Too Many Group Variables specified. You specified ' + chart.config.groups.length + ', but the maximum supported is 6.');
+		if (chart.config.groups.length > chart.config.defaults.maxGroups) {
+			var errorText = 'Too Many Group Variables specified. You specified ' + chart.config.groups.length + ', but the maximum supported is 6' + chart.config.defaults.maxGroups + '.';
+			errorNote(errorText);
+			throw new Error(errorText);
 		}
 		////////////////////////////////////////////////////////
 		//Set the domain for the color scale based on groups. //
