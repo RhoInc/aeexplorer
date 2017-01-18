@@ -23,7 +23,9 @@ const defaultSettings =
     ,'groups':
         []
     ,'defaults':
-        {'maxPrevalence': 0
+        {
+        'placeholderFlag':{'value_col':"AEBODSYS", 'values':["NA"]}
+        ,'maxPrevalence': 0
         ,'maxGroups':6
         ,'totalCol': true
         ,'diffCol': true

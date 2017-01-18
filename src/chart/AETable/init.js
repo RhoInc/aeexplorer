@@ -21,10 +21,8 @@ export function init(chart) {
   /////////////////////////////////////////////////////////////////
 
   //Create a dataset nested by [ chart.config.variables.group ] and [ chart.config.variables.id ].
-    var sub = chart.filtered_data.filter(function(e) {
-        return e.flag === 0; });
     var dataAny = util.cross
-        (sub
+        (chart.population_event_data
         ,chart.config.groups
         ,vars['id']
         ,'All'        
@@ -35,7 +33,7 @@ export function init(chart) {
   //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.group ], and
   //[ chart.config.variables.id ].
     var dataMajor = util.cross
-        (chart.filtered_data
+        (chart.population_event_data
         ,chart.config.groups
         ,vars['id']
         ,vars['major']
@@ -46,7 +44,7 @@ export function init(chart) {
   //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.minor ],
   //[ chart.config.variables.group ], and [ chart.config.variables.id ].
     var dataMinor = util.cross
-        (chart.filtered_data
+        (chart.population_event_data
         ,chart.config.groups
         ,vars['id']
         ,vars['major']
@@ -308,12 +306,6 @@ export function init(chart) {
     tab.select('tfoot i').remove();
     tab.select('tfoot td.controls span')
         .text('');
-
-  //Hide the rows covering missing data (we could convert this to an option later)
-     tab.selectAll('tbody')
-        .filter(function(e) {
-            return e.key === 'None/Unknown'; })
-        .classed('hidden', true)
 
   //////////////////////////////////////////////////
   // Initialize event listeners for summary Table //

@@ -12,11 +12,20 @@ var aeTable = function () {
 		this.wrap = d3.select(this.element).append('div');
 		this.wrap.attr("class", "aeExplorer");
 
+		//save raw data
 		this.raw_data = data;
 
-		//Initialize adverse event eplorer.
+		//settings and defaults
 		this.util.setDefaults(this);
 		this.layout();
+
+		//Flag placeholder rows in raw data save a separate event-only data set
+		var placeholderValues = this.config.defaults.placeholderFlag.values;
+		var placeholderCol = this.config.defaults.placeholderFlag.value_col;
+		this.raw_data.forEach(d => d.placeholderFlag = placeholderValues.indexOf(d[placeholderCol]) > -1);
+		this.raw_event_data = data.filter(d => !d.placeholderFlag);
+		console.log(this);
+		//draw controls and initial chart
 		this.controls.init(this);
 		this.AETable.redraw(this);
 	}
@@ -109,22 +118,12 @@ var aeTable = function () {
 		//initialize the wrapper
 		var selector = chart.controls.wrap.append('div').attr('class', 'custom-filters');
 
-		//Create list of filter variables.
-		var filterVars = chart.config.variables.filters.map(function (e) {
-			return {
-				value_col: e.value_col,
-				type: e.type,
-				values: [] };
-		});
-
-		//Create list for each filter variable of its distinct values.
-		filterVars.forEach(function (e) {
-			var varLevels = d3.nest().key(function (d) {
+		//add a list of values to each filter object
+		chart.config.variables.filters.forEach(function (e) {
+			var currentData = e.type == "Participant" ? chart.raw_data : chart.raw_event_data;
+			e.values = d3.nest().key(function (d) {
 				return d[e.value_col];
-			}).entries(chart.raw_data);
-			e.values = varLevels.map(function (d) {
-				return d.key;
-			});
+			}).entries(currentData).map(d => d.key);
 		});
 
 		//Clear custom controls.
@@ -132,19 +131,12 @@ var aeTable = function () {
 
 		//Add filter controls.
 		var filterList = selector.append('ul').attr('class', 'nav');
-		var filterItem = filterList.selectAll('li').data(filterVars).enter().append('li').attr('class', function (d) {
+		var filterItem = filterList.selectAll('li').data(chart.config.variables.filters).enter().append('li').attr('class', function (d) {
 			return 'custom-' + d.key + ' filterCustom';
 		});
 		var filterLabel = filterItem.append('span').attr('class', 'filterLabel');
-		filterLabel.append("span").html(function (d) {
-			if (chart.config.variables.filters) {
-				var filterLabel = chart.config.variables.filters.filter(function (d1) {
-					return d1.value_col === d.value_col;
-				})[0].label;
 
-				return filterLabel ? filterLabel : d.key;
-			} else return d.key;
-		});
+		filterLabel.append("span").html(d => d.label || d.value_col);
 
 		filterLabel.append("sup").attr('class', "filterType").text(function (d) {
 			return d.type == "event" ? "E" : "P";
@@ -156,9 +148,7 @@ var aeTable = function () {
 
 		//Add data-driven filter options.
 		var filterItems = filterCustom.selectAll('option').data(function (d) {
-			return d.values.filter(function (di) {
-				return ['NA', '', ' '].indexOf(di) === -1;
-			});
+			return d.values;
 		}).enter().append('option').html(function (d) {
 			return d;
 		}).attr('value', function (d) {
@@ -744,36 +734,21 @@ var aeTable = function () {
    Filter the raw data per the current filter and group selections.
  \------------------------------------------------------------------------------------------------*/
 	function prepareData(chart) {
-		var noAEs = ['', 'na', 'n/a', 'no ae', 'no aes', 'none', 'unknown', 'none/unknown'];
 		var vars = chart.config.variables; //convenience mapping
 
 		//get filter information
-		var currentFilters = [];
-		chart.wrap.select('.custom-filters').selectAll('select').each(function (filter_d) {
+		chart.config.variables.filters.forEach(function (filter_d) {
+
 			//get a list of values that are currently selected
 			filter_d.currentValues = [];
-			d3.select(this).selectAll('option').each(function (di) {
+			var thisFilter = chart.wrap.select('.custom-filters').selectAll('select').filter(function (select_d) {
+				return select_d.value_col == filter_d.value_col;
+			});
+			thisFilter.selectAll('option').each(function (option_d) {
 				if (d3.select(this).property('selected')) {
-					filter_d.currentValues.push(di);
+					filter_d.currentValues.push(option_d);
 				}
 			});
-			currentFilters.push(filter_d);
-		});
-		console.log(currentFilters);
-
-		//Flag records which represent [vars.id] values without an adverse event.
-		chart.raw_data.forEach(d => {
-			d.data_all = 'All';
-			d.flag = 0;
-
-			if (noAEs.indexOf(d[vars.major].trim().toLowerCase()) > -1) {
-				d[vars.major] = 'None/Unknown';
-				d.flag = 1;
-			}
-
-			if (noAEs.indexOf(d[vars.minor].trim().toLowerCase()) > -1) {
-				d[vars.minor] = 'None/Unknown';
-			}
 		});
 
 		//Subset data on groups specified in chart.config.groups.
@@ -781,9 +756,7 @@ var aeTable = function () {
 		chart.population_data = chart.raw_data.filter(d => groupNames.indexOf(d[vars['group']]) >= 0);
 
 		//Filter data to reflect the current population (based on filters where type = `participant`)
-		currentFilters.filter(function (d) {
-			return d.type == "participant";
-		}).forEach(function (filter_d) {
+		chart.config.variables.filters.filter(d => d.type == "participant").forEach(function (filter_d) {
 			//remove the filtered values from the population data
 			chart.population_data = chart.population_data.filter(function (rowData) {
 				return filter_d.currentValues.indexOf(rowData[filter_d.value_col]) > -1;
@@ -802,21 +775,21 @@ var aeTable = function () {
 			d.n = groupData.length > 0 ? groupData[0].values.length : d3.sum(nestedData.map(di => di.values.length));
 
 			//Calculate number of events.
-			d.nEvents = chart.raw_data.filter(di => di[vars.group] === d.key && di.flag === 0).length;
+			d.nEvents = chart.raw_data.filter(di => di[vars.group] === d.key && di.placeholderFlag === false).length;
 		});
 
-		//Filter event level data - clone population data and then filter 
-		chart.filtered_data = chart.population_data;
-		currentFilters.filter(function (d) {
+		//Filter event level data
+		chart.population_event_data = chart.population_data;
+		chart.config.variables.filters.filter(function (d) {
 			return d.type == "event";
 		}).forEach(function (filter_d) {
 			//remove the filtered values from the population data
-			chart.filtered_data = chart.filtered_data.filter(function (rowData) {
+			chart.population_event_data = chart.population_event_data.filter(function (rowData) {
 				return filter_d.currentValues.indexOf(rowData[filter_d.value_col]) > -1;
 			});
 		});
 
-		console.log('raw records:' + chart.raw_data.length + " - pop records: " + chart.population_data.length + " - filtered records: " + chart.filtered_data.length);
+		console.log('raw records:' + chart.raw_data.length + ' | raw event records:' + chart.raw_event_data.length + " | pop records: " + chart.population_data.length + " | population event (filtered) records: " + chart.population_event_data.length);
 	}
 
 	const defaultSettings = { 'variables': { 'id': 'USUBJID',
@@ -835,7 +808,9 @@ var aeTable = function () {
 				'type': 'event' }]
 		},
 		'groups': [],
-		'defaults': { 'maxPrevalence': 0,
+		'defaults': {
+			'placeholderFlag': { 'value_col': "AEBODSYS", 'values': ["NA"] },
+			'maxPrevalence': 0,
 			'maxGroups': 6,
 			'totalCol': true,
 			'diffCol': true,
@@ -878,6 +853,9 @@ var aeTable = function () {
 		chart.config.defaults["totalCol"] = chart.config.defaults["totalCol"] != undefined ? chart.config.defaults["totalCol"] : defaultSettings.defaults["totalCol"];
 		chart.config.defaults["diffCol"] = chart.config.defaults["diffCol"] != undefined ? chart.config.defaults["diffCol"] : defaultSettings.defaults["diffCol"];
 		chart.config.defaults["prefTerms"] = chart.config.defaults["prefTerms"] != undefined ? chart.config.defaults["prefTerms"] : defaultSettings.defaults["prefTerms"];
+		chart.config.defaults["placeholderFlag"] = chart.config.defaults["placeholderFlag"] || {};
+		chart.config.defaults.placeholderFlag.value_col = chart.config.defaults.placeholderFlag.value_col || defaultSettings.defaults.placeholderFlag.value_col;
+		chart.config.defaults.placeholderFlag.values = chart.config.defaults.placeholderFlag.values || defaultSettings.defaults.placeholderFlag.values;
 
 		//plot settings
 		chart.config.plotSettings = chart.config.plotSettings || {};
@@ -976,18 +954,15 @@ var aeTable = function () {
 		/////////////////////////////////////////////////////////////////
 
 		//Create a dataset nested by [ chart.config.variables.group ] and [ chart.config.variables.id ].
-		var sub = chart.filtered_data.filter(function (e) {
-			return e.flag === 0;
-		});
-		var dataAny = util.cross(sub, chart.config.groups, vars['id'], 'All', 'All', vars['group'], chart.config.groups);
+		var dataAny = util.cross(chart.population_event_data, chart.config.groups, vars['id'], 'All', 'All', vars['group'], chart.config.groups);
 
 		//Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.group ], and
 		//[ chart.config.variables.id ].
-		var dataMajor = util.cross(chart.filtered_data, chart.config.groups, vars['id'], vars['major'], 'All', vars['group'], chart.config.groups);
+		var dataMajor = util.cross(chart.population_event_data, chart.config.groups, vars['id'], vars['major'], 'All', vars['group'], chart.config.groups);
 
 		//Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.minor ],
 		//[ chart.config.variables.group ], and [ chart.config.variables.id ].
-		var dataMinor = util.cross(chart.filtered_data, chart.config.groups, vars['id'], vars['major'], vars['minor'], vars['group'], chart.config.groups);
+		var dataMinor = util.cross(chart.population_event_data, chart.config.groups, vars['id'], vars['major'], vars['minor'], vars['group'], chart.config.groups);
 
 		//Add a 'differences' object to each row.
 		dataMajor = util.addDifferences(dataMajor, chart.config.groups);
@@ -1159,11 +1134,6 @@ var aeTable = function () {
 		tab.selectAll('tfoot svg').remove();
 		tab.select('tfoot i').remove();
 		tab.select('tfoot td.controls span').text('');
-
-		//Hide the rows covering missing data (we could convert this to an option later)
-		tab.selectAll('tbody').filter(function (e) {
-			return e.key === 'None/Unknown';
-		}).classed('hidden', true);
 
 		//////////////////////////////////////////////////
 		// Initialize event listeners for summary Table //

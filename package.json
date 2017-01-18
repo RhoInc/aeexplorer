@@ -28,7 +28,7 @@
     "rollup-plugin-babel": "^2.4.0"
   },
   "dependencies": {
-    "d3": "~3.5"
+    "d3": "~3"
   },
   "bugs": {
     "url": "https://github.com/rhoinc/aeexplorer/issues"
