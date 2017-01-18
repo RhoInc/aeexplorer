@@ -106,6 +106,13 @@ export function init(chart) {
   /////////////////////////////////////
   // Draw the summary table headers.
   /////////////////////////////////////
+    //Check to make sure there is some data
+    if (!dataMajor.length) {
+        chart.wrap.select('.SummaryTable').append('div').attr('class', 'alert')
+        .text("Error: No data matches the current filters. Update the filters to see results.");
+        throw new Error('No data found in the column specified for major category. ');
+    }
+
 
     var tab = chart.wrap.select('.SummaryTable')
         .append('table');
@@ -239,15 +246,7 @@ export function init(chart) {
   // Add Rows to the table //
   ////////////////////////////
 
-    if (!dataMajor.length) {
-        if (chart.wrap.select('.missing-data-alert').empty()) {
-            chart.wrap.select('.SummaryTable')
-                .insert('div', 'table')
-                .attr('class', 'alert alert-error alert-danger missing-data-alert')
-                .text('No data found in the column specified for major category.');
-            throw new Error('No data found in the column specified for major category.');
-        }
-    }
+
 
   //Append a group of rows (<tbody>) for each major category.
     var majorGroups = tab.selectAll('tbody')

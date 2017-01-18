@@ -355,6 +355,7 @@ var aeTable = function () {
  \------------------------------------------------------------------------------------------------*/
 
 	function wipe(canvas) {
+		canvas.select(".table-wrapper .SummaryTable .alert").remove();
 		canvas.select(".table-wrapper .SummaryTable table").remove();
 		canvas.select(".table-wrapper .SummaryTable button").remove();
 		canvas.select(".table-wrapper .DetailTable").remove();
@@ -799,19 +800,18 @@ var aeTable = function () {
 		//Nest data by [vars.group] and [vars.id].
 		var nestedData = d3.nest().key(d => d[vars.group]).key(d => d[vars.id]).entries(chart.population_data);
 
-		//Calculate number of [vars.id] and number of events.
-		chart.config.groups.forEach(d => {
-			//Filter nested data on [vars.group].
-			var groupData = nestedData.filter(di => di.key === d.key);
+		//Calculate number of participants and number of events for each group.
 
-			//Calculate number of [vars.id].
-			d.n = groupData.length > 0 ? groupData[0].values.length : d3.sum(nestedData.map(di => di.values.length));
+		chart.config.groups.forEach(function (groupObj) {
+			//count unique participants
+			var groupVar = chart.config.variables.group;
+			var groupValue = groupObj.key;
+			var groupEvents = chart.population_data.filter(f => f[groupVar] == groupValue);
+			groupObj.n = d3.set(groupEvents.map(m => m[chart.config.variables.id])).values().length;
 
-			//Calculate number of events.
-			d.nEvents = chart.raw_data.filter(di => di[vars.group] === d.key && di.placeholderFlag === false).length;
+			//count number of events
+			groupObj.nEvents = chart.population_event_data.filter(f => f[groupVar] == groupValue).length;
 		});
-
-		console.log('raw records:' + chart.raw_data.length + ' | raw event records:' + chart.raw_event_data.length + " | pop records: " + chart.population_data.length + " | population event (filtered) records: " + chart.population_event_data.length);
 	}
 
 	const defaultSettings = { 'variables': { 'id': 'USUBJID',
@@ -1032,6 +1032,11 @@ var aeTable = function () {
 		/////////////////////////////////////
 		// Draw the summary table headers.
 		/////////////////////////////////////
+		//Check to make sure there is some data
+		if (!dataMajor.length) {
+			chart.wrap.select('.SummaryTable').append('div').attr('class', 'alert').text("Error: No data matches the current filters. Update the filters to see results.");
+			throw new Error('No data found in the column specified for major category. ');
+		}
 
 		var tab = chart.wrap.select('.SummaryTable').append('table');
 		var nGroups = chart.config.groups.length + chart.config.defaults.totalCol;
@@ -1109,12 +1114,6 @@ var aeTable = function () {
 		// Add Rows to the table //
 		////////////////////////////
 
-		if (!dataMajor.length) {
-			if (chart.wrap.select('.missing-data-alert').empty()) {
-				chart.wrap.select('.SummaryTable').insert('div', 'table').attr('class', 'alert alert-error alert-danger missing-data-alert').text('No data found in the column specified for major category.');
-				throw new Error('No data found in the column specified for major category.');
-			}
-		}
 
 		//Append a group of rows (<tbody>) for each major category.
 		var majorGroups = tab.selectAll('tbody').data(dataMajor, function (d) {

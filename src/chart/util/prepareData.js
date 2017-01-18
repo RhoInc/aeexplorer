@@ -70,26 +70,17 @@ export function prepareData(chart) {
         .key(d => d[vars.id])
         .entries(chart.population_data);
 
-  //Calculate number of [vars.id] and number of events.
-    chart.config.groups
-        .forEach(d => {
-          //Filter nested data on [vars.group].
-            var groupData = nestedData
-                .filter(di => di.key === d.key);
+  //Calculate number of participants and number of events for each group.
 
-          //Calculate number of [vars.id].
-            d.n = groupData.length > 0 ?
-                groupData[0].values.length :
-                d3.sum(
-                    nestedData
-                        .map(di => di.values.length));
+    chart.config.groups.forEach(function(groupObj){
+        //count unique participants
+        var groupVar = chart.config.variables.group
+        var groupValue =groupObj.key
+        var groupEvents = chart.population_data.filter(f=>f[groupVar]==groupValue)
+        groupObj.n = d3.set(groupEvents.map(m=>m[chart.config.variables.id])).values().length
 
-          //Calculate number of events.
-            d.nEvents = chart.raw_data
-                .filter(di => di[vars.group] === d.key && di.placeholderFlag === false)
-                .length;
-        });
-
-console.log('raw records:' + chart.raw_data.length + ' | raw event records:' + chart.raw_event_data.length +" | pop records: "+chart.population_data.length +" | population event (filtered) records: "+chart.population_event_data.length)
+        //count number of events
+        groupObj.nEvents = chart.population_event_data.filter(f=>f[groupVar]==groupValue).length
+    })
 
 }
