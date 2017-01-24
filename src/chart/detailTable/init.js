@@ -18,7 +18,7 @@ export function init(chart,detailTableSettings) {
 
     if (vars.details.length === 0)
         vars.details = Object.keys(chart.population_data[0])
-            .filter(d => ['data_all', 'flag'].indexOf(d) === -1);
+            .filter(d => ['data_all', "placeholderFlag"].indexOf(d) === -1);
 
   //Keep only those columns specified in settings.variables.details.
     var detailVars = vars.details;
