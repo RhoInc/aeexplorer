@@ -10,15 +10,15 @@ export function init(chart,detailTableSettings) {
     var vars = chart.config.variables 
 
   //Filter the raw data given the select major and/or minor category.
-    var details = chart.population_data.filter(d => {
+    var details = chart.population_event_data.filter(d => {
         var majorMatch = major === 'All' ? true : (major === d[vars['major']]);
         var minorMatch = minor === 'All' ? true : (minor === d[vars['minor']]);
-        return majorMatch && minorMatch && d[vars['major']] !== 'None/Unknown';
+        return majorMatch && minorMatch;
     });
 
     if (vars.details.length === 0)
         vars.details = Object.keys(chart.population_data[0])
-            .filter(d => ['data_all', 'flag'].indexOf(d) === -1);
+            .filter(d => ['data_all', "placeholderFlag"].indexOf(d) === -1);
 
   //Keep only those columns specified in settings.variables.details.
     var detailVars = vars.details;
@@ -60,7 +60,7 @@ export function init(chart,detailTableSettings) {
             'Details for ' + details.length + ' <b>' + minor + ' (' + major + ')</b> records' );
 
   //Details about current population filters
-    var filtered = chart.raw_data.length != chart.population_data.length
+    var filtered = chart.raw_event_data.length != chart.population_event_data.length
     if(filtered){
         chart.wrap.select('div.controls').select("div.custom-filters")
         .classed("hidden",false)

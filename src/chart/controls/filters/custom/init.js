@@ -9,50 +9,33 @@ export function init(chart) {
         .append('div')
         .attr('class', 'custom-filters');
 
-  //Create list of filter variables.
-    var filterVars = chart.config.variables.filters
-        .map(function(e) {
-            return {
-                value_col: e.value_col,
-                type:e.type,
-                values: []}; });
-
-  //Create list for each filter variable of its distinct values.
-    filterVars.forEach(function(e) {
-        var varLevels = d3.nest()
+   //add a list of values to each filter object
+    chart.config.variables.filters.forEach(function(e) {
+        var currentData = e.type == "Participant" ? chart.raw_data : chart.raw_event_data
+        e.values= d3.nest()
             .key(function(d) { return d[e.value_col]; })
-            .entries(chart.raw_data);
-        e.values = varLevels
-            .map(function(d) {
-                return d.key; });
+            .entries(currentData)
+            .map(d=>d.key);
     });
 
   //Clear custom controls.
-    selector.selectAll('ul.nav')
-        .remove();
+    selector.selectAll('ul.nav').remove();
 
   //Add filter controls.
     var filterList = selector
         .append('ul')
         .attr('class', 'nav');
     var filterItem = filterList.selectAll('li')
-        .data(filterVars).enter()
+        .data(chart.config.variables.filters).enter()
         .append('li')
         .attr('class', function(d) {
             return 'custom-' + d.key + ' filterCustom'; });
     var filterLabel = filterItem
         .append('span')
         .attr('class', 'filterLabel')
-    filterLabel.append("span")
-        .html(function(d) {
-            if (chart.config.variables.filters) {
-                var filterLabel = chart.config.variables.filters.filter(function(d1) {
-                    return d1.value_col === d.value_col;
-                })[0].label;
+   
+    filterLabel.append("span").html(d => d.label || d.value_col)
 
-                return filterLabel ? filterLabel : d.key;
-            } else return d.key; });
-    
     filterLabel.append("sup")
     .attr('class',"filterType")
     .text(function(d){return d.type == "event" ? "E" : "P" })
@@ -67,10 +50,7 @@ export function init(chart) {
 
   //Add data-driven filter options.
     var filterItems = filterCustom.selectAll('option')
-        .data(function(d) {
-            return d.values
-                .filter(function(di) {
-                    return ['NA', '', ' '].indexOf(di) === -1; }); })
+        .data(function(d){return d.values})
         .enter()
         .append('option')
         .html(function(d) {return d})

@@ -37,8 +37,10 @@ export function setDefaults(chart) {
     chart.config.defaults["prefTerms"] = chart.config.defaults["prefTerms"]!=undefined?
       chart.config.defaults["prefTerms"]:
       defaultSettings.defaults["prefTerms"]
-
-
+    chart.config.defaults["placeholderFlag"] = chart.config.defaults["placeholderFlag"] || {}
+    chart.config.defaults.placeholderFlag.value_col = chart.config.defaults.placeholderFlag.value_col || defaultSettings.defaults.placeholderFlag.value_col
+    chart.config.defaults.placeholderFlag.values = chart.config.defaults.placeholderFlag.values || defaultSettings.defaults.placeholderFlag.values
+    
     //plot settings
     chart.config.plotSettings = chart.config.plotSettings || {}
     var plotSettings = ["h","w","r", "margin","diffMargin"]
