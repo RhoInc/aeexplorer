@@ -369,15 +369,15 @@ var aeTable = function () {
     }
 
     /*------------------------------------------------------------------------------------------------\
-        annoteDetails(table, canvas, row, group)
+       annoteDetails(table, canvas, row, group)
         - Convenience function that shows the raw #s and annotates point values for a single group
-              + table
+             + table
                 - AE table object
             + rows
                 - highlighted row(s) (selection containing 'tr' objects)
             + group
                 - group to highlight
-      \------------------------------------------------------------------------------------------------*/
+     \------------------------------------------------------------------------------------------------*/
 
     function showCellCounts(chart, rows, group) {
         //Add raw counts for the specified row/groups .
@@ -564,18 +564,18 @@ var aeTable = function () {
     };
 
     /**-------------------------------------------------------------------------------------------\
-        fillrow(currentRow, chart, d)
+       fillrow(currentRow, chart, d)
       
       inputs (all required): 
       currentRow = d3.selector for a 'tr' element
       chart = the chart object
       d = the raw data for the row
-          - Convienence function which fills each table row and draws the plots.
-            + Note1: We'll call this 3x. Once for the major rows, once for
+         - Convienence function which fills each table row and draws the plots.
+           + Note1: We'll call this 3x. Once for the major rows, once for
             the minor rows and once for overall row.
-            + Note2: Would be good to split out separate plotting functions if
+           + Note2: Would be good to split out separate plotting functions if
             this gets too much more complex.
-      \-------------------------------------------------------------------------------------------**/
+     \-------------------------------------------------------------------------------------------**/
 
     function fillRow(currentRow, chart, d) {
         var table = chart;
