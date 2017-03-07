@@ -132,6 +132,14 @@ var aeTable = function () {
             });
         });
 
+        //drop filters with 0 or 1 levels and throw a warning
+        chart.config.variables.filters = chart.config.variables.filters.filter(function (d) {
+            if (d.values.length <= 1) {
+                console.warn(d.value_col + " filter not shown since the variable has less than 2 levels");
+            }
+            return d.values.length > 1;
+        });
+
         //Clear custom controls.
         selector.selectAll('ul.nav').remove();
 
