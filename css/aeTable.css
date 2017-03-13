@@ -47,6 +47,9 @@
             display:block;
         }
 
+        div.aeTable .controls .filterDiv.custom-filters select{
+            min-width: 3em;
+        }
 
 
         /*Rate filter*/
