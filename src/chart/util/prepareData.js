@@ -39,7 +39,7 @@ export function prepareData(chart) {
         //remove the filtered values from the population data
         chart.population_data = chart.population_data
         .filter(function(rowData){
-            return filter_d.currentValues.indexOf(rowData[filter_d.value_col])>-1
+            return filter_d.currentValues.indexOf(""+rowData[filter_d.value_col])>-1
         }) 
     })
 
@@ -55,7 +55,7 @@ export function prepareData(chart) {
         //remove the filtered values from the population data
         chart.population_event_data = chart.population_event_data
         .filter(function(rowData){
-            return filter_d.currentValues.indexOf(rowData[filter_d.value_col])>-1
+            return filter_d.currentValues.indexOf(""+rowData[filter_d.value_col])>-1
         }) 
     })
 
