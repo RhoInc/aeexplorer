@@ -1123,7 +1123,7 @@ var aeTable = function () {
         //Check that group values defined in settings are actually present in dataset. //
         /////////////////////////////////////////////////////////////////////////////////
         if (chart.config.groups.length > chart.config.defaults.maxGroups) {
-            var errorText = 'Too Many Group Variables specified. You specified ' + chart.config.groups.length + ', but the maximum supported is 6' + chart.config.defaults.maxGroups + '.';
+            var errorText = 'Too Many Group Variables specified. You specified ' + chart.config.groups.length + ', but the maximum supported is ' + chart.config.defaults.maxGroups + '.';
             errorNote(errorText);
             throw new Error(errorText);
         }
