@@ -174,12 +174,19 @@ function init$3(chart) {
 
     //Add data-driven filter options.
     var filterItems = filterCustom.selectAll('option').data(function (d) {
-        return d.values;
+        return d.values.map(function (di) {
+            return {
+                value: di,
+                selected: d.start.length ? d.start.indexOf(di) > -1 : true
+            };
+        });
     }).enter().append('option').html(function (d) {
-        return d;
+        return d.value;
     }).attr('value', function (d) {
-        return d;
-    }).attr('selected', 'selected');
+        return d.value;
+    }).attr('selected', function (d) {
+        return d.selected ? 'selected' : null;
+    });
 
     //Initialize event listeners
     filterCustom.on('change', function () {
@@ -863,7 +870,7 @@ function prepareData(chart) {
         });
         thisFilter.selectAll('option').each(function (option_d) {
             if (d3.select(this).property('selected')) {
-                filter_d.currentValues.push(option_d);
+                filter_d.currentValues.push(option_d.value);
             }
         });
     });
@@ -949,19 +956,23 @@ var defaultSettings = {
         filters: [{
             value_col: 'AESER',
             label: 'Serious?',
-            type: 'event'
+            type: 'event',
+            start: []
         }, {
             value_col: 'AESEV',
             label: 'Severity',
-            type: 'event'
+            type: 'event',
+            start: []
         }, {
             value_col: 'AEREL',
             label: 'Relationship',
-            type: 'event'
+            type: 'event',
+            start: []
         }, {
             value_col: 'AEOUT',
             label: 'Outcome',
-            type: 'event'
+            type: 'event',
+            start: []
         }]
     },
     groups: [],

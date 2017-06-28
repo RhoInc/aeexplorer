@@ -25,7 +25,7 @@ export function prepareData(chart) {
             });
         thisFilter.selectAll('option').each(function(option_d) {
             if (d3.select(this).property('selected')) {
-                filter_d.currentValues.push(option_d);
+                filter_d.currentValues.push(option_d.value);
             }
         });
     });

@@ -64,17 +64,22 @@ export function init(chart) {
     var filterItems = filterCustom
         .selectAll('option')
         .data(function(d) {
-            return d.values;
+            return d.values.map(di => {
+                return {
+                    value: di,
+                    selected: d.start.length ? d.start.indexOf(di) > -1 : true
+                };
+            });
         })
         .enter()
         .append('option')
         .html(function(d) {
-            return d;
+            return d.value;
         })
         .attr('value', function(d) {
-            return d;
+            return d.value;
         })
-        .attr('selected', 'selected');
+        .attr('selected', d => (d.selected ? 'selected' : null));
 
     //Initialize event listeners
     filterCustom.on('change', function() {

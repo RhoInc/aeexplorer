@@ -9,22 +9,26 @@ const defaultSettings = {
             {
                 value_col: 'AESER',
                 label: 'Serious?',
-                type: 'event'
+                type: 'event',
+                start: []
             },
             {
                 value_col: 'AESEV',
                 label: 'Severity',
-                type: 'event'
+                type: 'event',
+                start: []
             },
             {
                 value_col: 'AEREL',
                 label: 'Relationship',
-                type: 'event'
+                type: 'event',
+                start: []
             },
             {
                 value_col: 'AEOUT',
                 label: 'Outcome',
-                type: 'event'
+                type: 'event',
+                start: []
             }
         ]
     },
