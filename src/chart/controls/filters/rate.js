@@ -5,6 +5,7 @@
 import { init } from './rate/init';
 import { set } from './rate/set';
 
-export const rate =
-    {init: init
-    ,set: set};
+export const rate = {
+    init: init,
+    set: set
+};

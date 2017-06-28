@@ -4,12 +4,10 @@
 \------------------------------------------------------------------------------------------------*/
 
 export function json2csv(objArray) {
-    var array = typeof objArray !== 'object' ?
-        JSON.parse(objArray) :
-        objArray;
+    var array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
     var CSV = '';
 
-  //Output column headers.
+    //Output column headers.
     var header = '';
     for (var index in array[0]) {
         header += index + ', ';
@@ -17,7 +15,7 @@ export function json2csv(objArray) {
     header.slice(0, header.length - 1);
     CSV += header + '\r\n';
 
-  //Output column data.
+    //Output column data.
     for (var i = 0; i < array.length; i++) {
         var row = '';
 
@@ -25,7 +23,7 @@ export function json2csv(objArray) {
             row += array[i][index] + ', ';
         }
 
-        row.slice(0, row.length - 1); 
+        row.slice(0, row.length - 1);
         CSV += row + '\r\n';
     }
 

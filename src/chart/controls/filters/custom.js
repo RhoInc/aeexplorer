@@ -4,4 +4,4 @@
 
 import { init } from './custom/init';
 
-export const custom ={init: init};
+export const custom = { init: init };
