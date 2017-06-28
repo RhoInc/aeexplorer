@@ -10,4 +10,11 @@ export function layout() {
         .attr('class', 'table-wrapper');
     wrapper.append('div').attr('class', 'controls form-inline row-fluid');
     wrapper.append('div').attr('class', 'SummaryTable');
+    if (this.config.validation)
+        this.wrap
+            .append('a')
+            .attr({
+                id: 'downloadCSV'
+            })
+            .text('Download Summarized Data');
 }

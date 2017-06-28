@@ -11,16 +11,17 @@ export function init(chart) {
     var vars = chart.config.variables;
 
     //Get current chart type ("participant" or "event")
-    var summary = d3.selectAll('.summaryDiv label').filter(function(d) {
+    chart.config.summary = d3.selectAll('.summaryDiv label').filter(function(d) {
         return d3.select(this).selectAll('.summaryRadio').property('checked');
     })[0][0].textContent;
 
     /////////////////////////////////////////////////////////////////
     // Prepare the data for charting
     /////////////////////////////////////////////////////////////////
+    chart.data = {};
 
     //Create a dataset nested by [ chart.config.variables.group ] and [ chart.config.variables.id ].
-    var dataAny = util.cross(
+    chart.data.any = util.cross(
         chart.population_event_data,
         chart.config.groups,
         vars['id'],
@@ -32,7 +33,7 @@ export function init(chart) {
 
     //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.group ], and
     //[ chart.config.variables.id ].
-    var dataMajor = util.cross(
+    chart.data.major = util.cross(
         chart.population_event_data,
         chart.config.groups,
         vars['id'],
@@ -44,7 +45,7 @@ export function init(chart) {
 
     //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.minor ],
     //[ chart.config.variables.group ], and [ chart.config.variables.id ].
-    var dataMinor = util.cross(
+    chart.data.minor = util.cross(
         chart.population_event_data,
         chart.config.groups,
         vars['id'],
@@ -55,13 +56,13 @@ export function init(chart) {
     );
 
     //Add a 'differences' object to each row.
-    dataMajor = util.addDifferences(dataMajor, chart.config.groups);
-    dataMinor = util.addDifferences(dataMinor, chart.config.groups);
-    dataAny = util.addDifferences(dataAny, chart.config.groups);
+    chart.data.major = util.addDifferences(chart.data.major, chart.config.groups);
+    chart.data.minor = util.addDifferences(chart.data.minor, chart.config.groups);
+    chart.data.any = util.addDifferences(chart.data.any, chart.config.groups);
 
     //Sort the data based by maximum prevelence.
-    dataMajor = dataMajor.sort(util.sort.maxPer);
-    dataMinor.forEach(function(major) {
+    chart.data.major = chart.data.major.sort(util.sort.maxPer);
+    chart.data.minor.forEach(function(major) {
         major.values.sort(function(a, b) {
             var max_a = d3.max(
                 a.values.map(function(groups) {
@@ -81,38 +82,15 @@ export function init(chart) {
     /////////////////////////////////////////////////////////////////
     // Allow the user to download a csv of the current view
     /////////////////////////////////////////////////////////////////
-
+    //
     //Output the data if the validation setting is flagged.
-    if (chart.config.validation && d3.select('#downloadCSV')[0][0] === null) {
-        var majorValidation = chart.util.collapse(dataMajor);
-        var minorValidation = chart.util.collapse(dataMinor);
-
-        var fullValidation = d3
-            .merge([majorValidation, minorValidation])
-            .sort(function(a, b) {
-                return a.minorCategory < b.minorCategory ? -1 : 1;
-            })
-            .sort(function(a, b) {
-                return a.majorCategory < b.majorCategory ? -1 : 1;
-            });
-
-        var CSV = chart.util.json2csv(fullValidation);
-
-        chart.wrap
-            .append('a')
-            .attr({
-                href: 'data:text/csv;charset=utf-8,' + escape(CSV),
-                download: true,
-                id: 'downloadCSV'
-            })
-            .text('Download Summarized Data');
-    }
+    if (chart.config.validation) chart.data.CSVarray = util.json2csv(chart);
 
     /////////////////////////////////////
     // Draw the summary table headers.
     /////////////////////////////////////
     //Check to make sure there is some data
-    if (!dataMajor.length) {
+    if (!chart.data.major.length) {
         chart.wrap
             .select('.SummaryTable')
             .append('div')
@@ -161,7 +139,7 @@ export function init(chart) {
                 d.key +
                 '</span>' +
                 '<br><span id="group-num">(n=' +
-                (summary === 'participant' ? d.n : d.nEvents) +
+                (chart.config.summary === 'participant' ? d.n : d.nEvents) +
                 ')</span>'
         )
         .style('color', d => chart.colorScale(d.key))
@@ -174,7 +152,7 @@ export function init(chart) {
 
     //Prevalence scales
     var allPercents = d3.merge(
-        dataMajor.map(function(major) {
+        chart.data.major.map(function(major) {
             return d3.merge(
                 major.values.map(function(minor) {
                     return d3.merge(
@@ -208,7 +186,7 @@ export function init(chart) {
     if (chart.config.groups.length > 1) {
         //Difference Scale
         var allDiffs = d3.merge(
-            dataMajor.map(function(major) {
+            chart.data.major.map(function(major) {
                 return d3.merge(
                     major.values.map(function(minor) {
                         return d3.merge(
@@ -222,7 +200,7 @@ export function init(chart) {
         );
 
         var minorDiffs = d3.merge(
-            dataMinor.map(function(m) {
+            chart.data.minor.map(function(m) {
                 return d3.merge(
                     m.values.map(function(m2) {
                         return d3.merge(
@@ -265,7 +243,7 @@ export function init(chart) {
     //Append a group of rows (<tbody>) for each major category.
     var majorGroups = tab
         .selectAll('tbody')
-        .data(dataMajor, function(d) {
+        .data(chart.data.major, function(d) {
             return d.key;
         })
         .enter()
@@ -295,7 +273,7 @@ export function init(chart) {
         });
 
     //Append rows for each minor category.
-    var majorGroups = tab.selectAll('tbody').data(dataMinor, function(d) {
+    var majorGroups = tab.selectAll('tbody').data(chart.data.minor, function(d) {
         return d.key;
     });
 
@@ -320,7 +298,7 @@ export function init(chart) {
     tab
         .append('tfoot')
         .selectAll('tr')
-        .data(dataAny.length > 0 ? dataAny[0].values : [])
+        .data(chart.data.any.length > 0 ? chart.data.any[0].values : [])
         .enter()
         .append('tr')
         .each(function(d) {
