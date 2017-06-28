@@ -1,7 +1,7 @@
 import babel from 'rollup-plugin-babel';
 
 export default {
-    moduleName: 'aeexplorer',
+    moduleName: 'aeTable',
     entry: 'src/index.js',
     dest: 'build/aeTable.js',
     format: 'umd',
