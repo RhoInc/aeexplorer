@@ -17,22 +17,20 @@ export function init(chart) {
     var summaryControl = selector
         .append('div')
         .attr('class', 'input-prepend input-append input-medium summaryDiv');
-
     summaryControl
+        .selectAll('div')
+        .data(['participant', 'event'])
+        .enter()
         .append('div')
         .append('label')
-        .style('font-weight', 'bold')
-        .text('participant')
+        .style('font-weight', d => (d === chart.config.defaults.summarizeBy ? 'bold' : null))
+        .text(d => d)
         .append('input')
         .attr({
             class: 'appendedPrependedInput summaryRadio',
-            type: 'radio',
-            checked: true
-        });
-    summaryControl.append('div').append('label').text('event').append('input').attr({
-        class: 'appendedPrependedInput summaryRadio',
-        type: 'radio'
-    });
+            type: 'radio'
+        })
+        .property('checked', d => d === chart.config.defaults.summarizeBy);
 
     //initialize event listener
     var radios = chart.wrap.selectAll('div.summaryDiv .summaryRadio');
@@ -44,7 +42,7 @@ export function init(chart) {
         });
         d3.select(this)[0][0].checked = true;
         d3.select(this.parentNode).style('font-weight', 'bold');
-        var summary = d3.select(this.parentNode)[0][0].textContent;
+        chart.config.defaults.summarizeBy = d3.select(this.parentNode)[0][0].textContent;
         chart.AETable.redraw(chart);
     });
 }

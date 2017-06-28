@@ -23,8 +23,8 @@ function init(data) {
     this.layout();
 
     //Flag placeholder rows in raw data save a separate event-only data set
-    var placeholderValues = this.config.defaults.placeholderFlag.values;
     var placeholderCol = this.config.defaults.placeholderFlag.value_col;
+    var placeholderValues = this.config.defaults.placeholderFlag.values;
     this.raw_data.forEach(function (d) {
         return d.placeholderFlag = placeholderValues.indexOf(d[placeholderCol]) > -1;
     });
@@ -219,15 +219,15 @@ function init$4(chart) {
     selector.append('span').attr('class', 'sectionHead').text('Summarize by:');
 
     var summaryControl = selector.append('div').attr('class', 'input-prepend input-append input-medium summaryDiv');
-
-    summaryControl.append('div').append('label').style('font-weight', 'bold').text('participant').append('input').attr({
-        class: 'appendedPrependedInput summaryRadio',
-        type: 'radio',
-        checked: true
-    });
-    summaryControl.append('div').append('label').text('event').append('input').attr({
+    summaryControl.selectAll('div').data(['participant', 'event']).enter().append('div').append('label').style('font-weight', function (d) {
+        return d === chart.config.defaults.summarizeBy ? 'bold' : null;
+    }).text(function (d) {
+        return d;
+    }).append('input').attr({
         class: 'appendedPrependedInput summaryRadio',
         type: 'radio'
+    }).property('checked', function (d) {
+        return d === chart.config.defaults.summarizeBy;
     });
 
     //initialize event listener
@@ -240,7 +240,7 @@ function init$4(chart) {
         });
         d3.select(this)[0][0].checked = true;
         d3.select(this.parentNode).style('font-weight', 'bold');
-        var summary = d3.select(this.parentNode)[0][0].textContent;
+        chart.config.defaults.summarizeBy = d3.select(this.parentNode)[0][0].textContent;
         chart.AETable.redraw(chart);
     });
 }
@@ -971,7 +971,8 @@ var defaultSettings = {
         maxGroups: 6,
         totalCol: true,
         diffCol: true,
-        prefTerms: false
+        prefTerms: false,
+        summarizeBy: 'participant'
     },
     plotSettings: {
         h: 15,
@@ -1006,16 +1007,19 @@ function setDefaults(chart) {
     chart.config.groups = chart.config.groups || defaultSettings.groups;
 
     //defaults
-    var defaults = ['maxPrevalence', 'totalCol', 'diffCol', 'prefTerms'];
     chart.config.defaults = chart.config.defaults || {};
-    chart.config.defaults['maxPrevalence'] = chart.config.defaults['maxPrevalence'] || defaultSettings.defaults['maxPrevalence'];
-    chart.config.defaults['maxGroups'] = chart.config.defaults['maxGroups'] || defaultSettings.defaults['maxGroups'];
-    chart.config.defaults['totalCol'] = chart.config.defaults['totalCol'] != undefined ? chart.config.defaults['totalCol'] : defaultSettings.defaults['totalCol'];
-    chart.config.defaults['diffCol'] = chart.config.defaults['diffCol'] != undefined ? chart.config.defaults['diffCol'] : defaultSettings.defaults['diffCol'];
-    chart.config.defaults['prefTerms'] = chart.config.defaults['prefTerms'] != undefined ? chart.config.defaults['prefTerms'] : defaultSettings.defaults['prefTerms'];
-    chart.config.defaults['placeholderFlag'] = chart.config.defaults['placeholderFlag'] || {};
-    chart.config.defaults.placeholderFlag.value_col = chart.config.defaults.placeholderFlag.value_col || defaultSettings.defaults.placeholderFlag.value_col;
-    chart.config.defaults.placeholderFlag.values = chart.config.defaults.placeholderFlag.values || defaultSettings.defaults.placeholderFlag.values;
+    var defaults = Object.keys(defaultSettings.defaults);
+    defaults.forEach(function (dflt) {
+        if (dflt !== 'placeholderFlag' // handle primitive types such as maxPrevalence
+        ) chart.config.defaults[dflt] = chart.config.defaults[dflt] !== undefined ? chart.config.defaults[dflt] : defaultSettings.defaults[dflt];else {
+            // handle objects such as placeholderFlag
+            var object = {};
+            for (var prop in defaultSettings.defaults[dflt]) {
+                object[prop] = chart.config.defaults[dflt] !== undefined ? chart.config.defaults[dflt][prop] !== undefined ? chart.config.defaults[dflt][prop] : defaultSettings.defaults[dflt][prop] : defaultSettings.defaults[dflt][prop];
+            }
+            chart.config.defaults[dflt] = object;
+        }
+    });
 
     //plot settings
     chart.config.plotSettings = chart.config.plotSettings || {};
@@ -1121,11 +1125,6 @@ function init$6(chart) {
     //convinience mappings
     var vars = chart.config.variables;
 
-    //Get current chart type ("participant" or "event")
-    var summary = d3.selectAll('.summaryDiv label').filter(function (d) {
-        return d3.select(this).selectAll('.summaryRadio').property('checked');
-    })[0][0].textContent;
-
     /////////////////////////////////////////////////////////////////
     // Prepare the data for charting
     /////////////////////////////////////////////////////////////////
@@ -1224,7 +1223,7 @@ function init$6(chart) {
             return d.nEvents;
         })
     }) : chart.config.groups).enter().append('th').html(function (d) {
-        return '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + (summary === 'participant' ? d.n : d.nEvents) + ')</span>';
+        return '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + (chart.config.defaults.summarizeBy === 'participant' ? d.n : d.nEvents) + ')</span>';
     }).style('color', function (d) {
         return chart.colorScale(d.key);
     }).attr('class', 'values');

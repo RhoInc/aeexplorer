@@ -25,28 +25,28 @@ export function setDefaults(chart) {
     chart.config.groups = chart.config.groups || defaultSettings.groups;
 
     //defaults
-    var defaults = ['maxPrevalence', 'totalCol', 'diffCol', 'prefTerms'];
     chart.config.defaults = chart.config.defaults || {};
-    chart.config.defaults['maxPrevalence'] =
-        chart.config.defaults['maxPrevalence'] || defaultSettings.defaults['maxPrevalence'];
-    chart.config.defaults['maxGroups'] =
-        chart.config.defaults['maxGroups'] || defaultSettings.defaults['maxGroups'];
-    chart.config.defaults['totalCol'] = chart.config.defaults['totalCol'] != undefined
-        ? chart.config.defaults['totalCol']
-        : defaultSettings.defaults['totalCol'];
-    chart.config.defaults['diffCol'] = chart.config.defaults['diffCol'] != undefined
-        ? chart.config.defaults['diffCol']
-        : defaultSettings.defaults['diffCol'];
-    chart.config.defaults['prefTerms'] = chart.config.defaults['prefTerms'] != undefined
-        ? chart.config.defaults['prefTerms']
-        : defaultSettings.defaults['prefTerms'];
-    chart.config.defaults['placeholderFlag'] = chart.config.defaults['placeholderFlag'] || {};
-    chart.config.defaults.placeholderFlag.value_col =
-        chart.config.defaults.placeholderFlag.value_col ||
-        defaultSettings.defaults.placeholderFlag.value_col;
-    chart.config.defaults.placeholderFlag.values =
-        chart.config.defaults.placeholderFlag.values ||
-        defaultSettings.defaults.placeholderFlag.values;
+    var defaults = Object.keys(defaultSettings.defaults);
+    defaults.forEach(dflt => {
+        if (
+            dflt !== 'placeholderFlag' // handle primitive types such as maxPrevalence
+        )
+            chart.config.defaults[dflt] = chart.config.defaults[dflt] !== undefined
+                ? chart.config.defaults[dflt]
+                : defaultSettings.defaults[dflt];
+        else {
+            // handle objects such as placeholderFlag
+            const object = {};
+            for (const prop in defaultSettings.defaults[dflt]) {
+                object[prop] = chart.config.defaults[dflt] !== undefined
+                    ? chart.config.defaults[dflt][prop] !== undefined
+                      ? chart.config.defaults[dflt][prop]
+                      : defaultSettings.defaults[dflt][prop]
+                    : defaultSettings.defaults[dflt][prop];
+            }
+            chart.config.defaults[dflt] = object;
+        }
+    });
 
     //plot settings
     chart.config.plotSettings = chart.config.plotSettings || {};

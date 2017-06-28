@@ -17,8 +17,8 @@ export function init(data) {
     this.layout();
 
     //Flag placeholder rows in raw data save a separate event-only data set
-    var placeholderValues = this.config.defaults.placeholderFlag.values;
     var placeholderCol = this.config.defaults.placeholderFlag.value_col;
+    var placeholderValues = this.config.defaults.placeholderFlag.values;
     this.raw_data.forEach(
         d => (d.placeholderFlag = placeholderValues.indexOf(d[placeholderCol]) > -1)
     );
