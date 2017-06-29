@@ -6,7 +6,7 @@
 
 export function init(chart) {
     //set the initial summary status
-    chart.config.summary = chart.config.defaults.summarizeBy
+    chart.config.summary = chart.config.defaults.summarizeBy;
 
     //create element
     var selector = chart.controls.wrap.append('div').attr('class', 'summary-control');
