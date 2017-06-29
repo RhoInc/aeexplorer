@@ -7,8 +7,8 @@ export function collapse(nested) {
     var collapsed = nested.map(function(soc) {
         var allRows = soc.values.map(function(e) {
             var eCollapsed = {};
-            eCollapsed.majorCategory = '"' + e.values[0].values.major + '"';
-            eCollapsed.minorCategory = '"' + e.values[0].values.minor + '"';
+            eCollapsed.majorCategory = e.values[0].values.major;
+            eCollapsed.minorCategory = e.values[0].values.minor;
 
             e.values.forEach(function(val, i) {
                 var n = i + 1;

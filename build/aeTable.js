@@ -50,6 +50,9 @@ function layout() {
     var wrapper = this.wrap.append('div').attr('class', 'aeTable row-fluid').append('div').attr('class', 'table-wrapper');
     wrapper.append('div').attr('class', 'controls form-inline row-fluid');
     wrapper.append('div').attr('class', 'SummaryTable');
+    if (this.config.validation) this.wrap.append('a').attr({
+        id: 'downloadCSV'
+    }).text('Download Summarized Data');
 }
 
 /*------------------------------------------------------------------------------------------------\
@@ -209,6 +212,9 @@ var filters = {
 \------------------------------------------------------------------------------------------------*/
 
 function init$4(chart) {
+    //set the initial summary status
+    chart.config.summary = chart.config.defaults.summarizeBy;
+
     //create element
     var selector = chart.controls.wrap.append('div').attr('class', 'summary-control');
 
@@ -220,19 +226,18 @@ function init$4(chart) {
 
     var summaryControl = selector.append('div').attr('class', 'input-prepend input-append input-medium summaryDiv');
     summaryControl.selectAll('div').data(['participant', 'event']).enter().append('div').append('label').style('font-weight', function (d) {
-        return d === chart.config.defaults.summarizeBy ? 'bold' : null;
+        return d === chart.config.summary ? 'bold' : null;
     }).text(function (d) {
         return d;
     }).append('input').attr({
         class: 'appendedPrependedInput summaryRadio',
         type: 'radio'
     }).property('checked', function (d) {
-        return d === chart.config.defaults.summarizeBy;
+        return d === chart.config.summary;
     });
 
     //initialize event listener
     var radios = chart.wrap.selectAll('div.summaryDiv .summaryRadio');
-
     radios.on('change', function (d) {
         radios.each(function (di) {
             d3.select(this.parentNode).style('font-weight', 'normal');
@@ -240,7 +245,7 @@ function init$4(chart) {
         });
         d3.select(this)[0][0].checked = true;
         d3.select(this.parentNode).style('font-weight', 'bold');
-        chart.config.defaults.summarizeBy = d3.select(this.parentNode)[0][0].textContent;
+        chart.config.summary = d3.select(this.parentNode)[0][0].textContent;
         chart.AETable.redraw(chart);
     });
 }
@@ -736,8 +741,8 @@ function fillRow(currentRow, chart, d) {
 
             var leftpoints = [{ x: chart.diffScale(d.diff), y: h / 2 + r }, //bottom
             { x: chart.diffScale(d.diff) - r, y: h / 2 }, //middle-left
-            { x: chart.diffScale(d.diff), y: h / 2 - r //top
-            }];
+            { x: chart.diffScale(d.diff), y: h / 2 - r } //top
+            ];
             return triangle(leftpoints);
         }).attr('class', 'diamond').attr('fill-opacity', function (d) {
             return d.sig === 1 ? 1 : 0.1;
@@ -753,8 +758,8 @@ function fillRow(currentRow, chart, d) {
 
             var rightpoints = [{ x: chart.diffScale(d.diff), y: h / 2 + r }, //bottom
             { x: chart.diffScale(d.diff) + r, y: h / 2 }, //middle-right
-            { x: chart.diffScale(d.diff), y: h / 2 - r //top
-            }];
+            { x: chart.diffScale(d.diff), y: h / 2 - r } //top
+            ];
             return triangle(rightpoints);
         }).attr('class', 'diamond').attr('fill-opacity', function (d) {
             return d.sig === 1 ? 1 : 0.1;
@@ -775,8 +780,8 @@ function collapse(nested) {
     var collapsed = nested.map(function (soc) {
         var allRows = soc.values.map(function (e) {
             var eCollapsed = {};
-            eCollapsed.majorCategory = '"' + e.values[0].values.major + '"';
-            eCollapsed.minorCategory = '"' + e.values[0].values.minor + '"';
+            eCollapsed.majorCategory = e.values[0].values.major;
+            eCollapsed.minorCategory = e.values[0].values.minor;
 
             e.values.forEach(function (val, i) {
                 var n = i + 1;
@@ -801,42 +806,62 @@ function collapse(nested) {
     return d3.merge(collapsed);
 }
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-  return typeof obj;
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-};
+function json2csv(chart) {
+    var majorValidation = collapse(chart.data.major),
+        // flatten major data array
+    minorValidation = collapse(chart.data.minor),
+        // flatten minor data array
+    fullValidation = d3.merge([majorValidation, minorValidation]) // combine flattened major and minor data arrays
+    .sort(function (a, b) {
+        return a.majorCategory < b.majorCategory ? -1 : a.majorCategory > b.majorCategory ? 1 : a.minorCategory < b.minorCategory ? -1 : 1;
+    }),
+        CSVarray = [];
 
-/*------------------------------------------------------------------------------------------------\
-  Convert JSON data to comma separated values. Function found at
-  http://stackoverflow.com/questions/4130849/convert-json-format-to-csv-format-for-ms-excel.
-\------------------------------------------------------------------------------------------------*/
-
-function json2csv(objArray) {
-    var array = (typeof objArray === 'undefined' ? 'undefined' : _typeof(objArray)) !== 'object' ? JSON.parse(objArray) : objArray;
-    var CSV = '';
-
-    //Output column headers.
-    var header = '';
-    for (var index in array[0]) {
-        header += index + ', ';
-    }
-    header.slice(0, header.length - 1);
-    CSV += header + '\r\n';
-
-    //Output column data.
-    for (var i = 0; i < array.length; i++) {
-        var row = '';
-
-        for (var index in array[i]) {
-            row += array[i][index] + ', ';
+    fullValidation.forEach(function (d, i) {
+        //add headers to CSV array
+        if (i === 0) {
+            var headers = Object.keys(d).map(function (key) {
+                return '"' + key.replace(/"/g, '""') + '"';
+            });
+            CSVarray.push(headers);
         }
 
-        row.slice(0, row.length - 1);
-        CSV += row + '\r\n';
+        //add rows to CSV array
+        var row = Object.keys(d).map(function (key) {
+            if (typeof d[key] === 'string') d[key] = d[key].replace(/"/g, '""');
+
+            return '"' + d[key] + '"';
+        });
+
+        CSVarray.push(row);
+    });
+
+    //transform CSV array into CSV string
+    var CSV = new Blob([CSVarray.join('\n')], { type: 'text/csv;charset=utf-8;' }),
+        fileName = chart.config.variables.major + '-' + chart.config.variables.minor + '-' + chart.config.summary + '.csv',
+        link = chart.wrap.select('#downloadCSV');
+
+    if (navigator.msSaveBlob) {
+        // IE 10+
+        link.style({
+            cursor: 'pointer',
+            'text-decoration': 'underline',
+            color: 'blue'
+        });
+        link.on('click', function () {
+            navigator.msSaveBlob(CSV, fileName);
+        });
+    } else {
+        // Browsers that support HTML5 download attribute
+        if (link.node().download !== undefined) {
+            // feature detection
+            var url = URL.createObjectURL(CSV);
+            link.node().setAttribute('href', url);
+            link.node().setAttribute('download', fileName);
+        }
     }
 
-    return CSV;
+    return CSVarray;
 }
 
 /*------------------------------------------------------------------------------------------------\
@@ -1128,26 +1153,27 @@ function init$6(chart) {
     /////////////////////////////////////////////////////////////////
     // Prepare the data for charting
     /////////////////////////////////////////////////////////////////
+    chart.data = {};
 
     //Create a dataset nested by [ chart.config.variables.group ] and [ chart.config.variables.id ].
-    var dataAny = util.cross(chart.population_event_data, chart.config.groups, vars['id'], 'All', 'All', vars['group'], chart.config.groups);
+    chart.data.any = util.cross(chart.population_event_data, chart.config.groups, vars['id'], 'All', 'All', vars['group'], chart.config.groups);
 
     //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.group ], and
     //[ chart.config.variables.id ].
-    var dataMajor = util.cross(chart.population_event_data, chart.config.groups, vars['id'], vars['major'], 'All', vars['group'], chart.config.groups);
+    chart.data.major = util.cross(chart.population_event_data, chart.config.groups, vars['id'], vars['major'], 'All', vars['group'], chart.config.groups);
 
     //Create a dataset nested by [ chart.config.variables.major ], [ chart.config.variables.minor ],
     //[ chart.config.variables.group ], and [ chart.config.variables.id ].
-    var dataMinor = util.cross(chart.population_event_data, chart.config.groups, vars['id'], vars['major'], vars['minor'], vars['group'], chart.config.groups);
+    chart.data.minor = util.cross(chart.population_event_data, chart.config.groups, vars['id'], vars['major'], vars['minor'], vars['group'], chart.config.groups);
 
     //Add a 'differences' object to each row.
-    dataMajor = util.addDifferences(dataMajor, chart.config.groups);
-    dataMinor = util.addDifferences(dataMinor, chart.config.groups);
-    dataAny = util.addDifferences(dataAny, chart.config.groups);
+    chart.data.major = util.addDifferences(chart.data.major, chart.config.groups);
+    chart.data.minor = util.addDifferences(chart.data.minor, chart.config.groups);
+    chart.data.any = util.addDifferences(chart.data.any, chart.config.groups);
 
     //Sort the data based by maximum prevelence.
-    dataMajor = dataMajor.sort(util.sort.maxPer);
-    dataMinor.forEach(function (major) {
+    chart.data.major = chart.data.major.sort(util.sort.maxPer);
+    chart.data.minor.forEach(function (major) {
         major.values.sort(function (a, b) {
             var max_a = d3.max(a.values.map(function (groups) {
                 return groups.values.per;
@@ -1163,32 +1189,15 @@ function init$6(chart) {
     /////////////////////////////////////////////////////////////////
     // Allow the user to download a csv of the current view
     /////////////////////////////////////////////////////////////////
-
+    //
     //Output the data if the validation setting is flagged.
-    if (chart.config.validation && d3.select('#downloadCSV')[0][0] === null) {
-        var majorValidation = chart.util.collapse(dataMajor);
-        var minorValidation = chart.util.collapse(dataMinor);
-
-        var fullValidation = d3.merge([majorValidation, minorValidation]).sort(function (a, b) {
-            return a.minorCategory < b.minorCategory ? -1 : 1;
-        }).sort(function (a, b) {
-            return a.majorCategory < b.majorCategory ? -1 : 1;
-        });
-
-        var CSV = chart.util.json2csv(fullValidation);
-
-        chart.wrap.append('a').attr({
-            href: 'data:text/csv;charset=utf-8,' + escape(CSV),
-            download: true,
-            id: 'downloadCSV'
-        }).text('Download Summarized Data');
-    }
+    if (chart.config.validation) chart.data.CSVarray = util.json2csv(chart);
 
     /////////////////////////////////////
     // Draw the summary table headers.
     /////////////////////////////////////
     //Check to make sure there is some data
-    if (!dataMajor.length) {
+    if (!chart.data.major.length) {
         chart.wrap.select('.SummaryTable').append('div').attr('class', 'alert').text('Error: No data matches the current filters. Update the filters to see results.');
         throw new Error('No data found in the column specified for major category. ');
     }
@@ -1223,7 +1232,7 @@ function init$6(chart) {
             return d.nEvents;
         })
     }) : chart.config.groups).enter().append('th').html(function (d) {
-        return '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + (chart.config.defaults.summarizeBy === 'participant' ? d.n : d.nEvents) + ')</span>';
+        return '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + (chart.config.summary === 'participant' ? d.n : d.nEvents) + ')</span>';
     }).style('color', function (d) {
         return chart.colorScale(d.key);
     }).attr('class', 'values');
@@ -1234,7 +1243,7 @@ function init$6(chart) {
     }
 
     //Prevalence scales
-    var allPercents = d3.merge(dataMajor.map(function (major) {
+    var allPercents = d3.merge(chart.data.major.map(function (major) {
         return d3.merge(major.values.map(function (minor) {
             return d3.merge(minor.values.map(function (group) {
                 return [group.values.per];
@@ -1251,7 +1260,7 @@ function init$6(chart) {
     //Difference Scale
     if (chart.config.groups.length > 1) {
         //Difference Scale
-        var allDiffs = d3.merge(dataMajor.map(function (major) {
+        var allDiffs = d3.merge(chart.data.major.map(function (major) {
             return d3.merge(major.values.map(function (minor) {
                 return d3.merge(minor.differences.map(function (diff) {
                     return [diff.upper, diff.lower];
@@ -1259,7 +1268,7 @@ function init$6(chart) {
             }));
         }));
 
-        var minorDiffs = d3.merge(dataMinor.map(function (m) {
+        var minorDiffs = d3.merge(chart.data.minor.map(function (m) {
             return d3.merge(m.values.map(function (m2) {
                 return d3.merge(m2.differences.map(function (m3) {
                     return d3.merge([[m3.upper], [m3.lower]]);
@@ -1280,7 +1289,7 @@ function init$6(chart) {
     ////////////////////////////
 
     //Append a group of rows (<tbody>) for each major category.
-    var majorGroups = tab.selectAll('tbody').data(dataMajor, function (d) {
+    var majorGroups = tab.selectAll('tbody').data(chart.data.major, function (d) {
         return d.key;
     }).enter().append('tbody').attr('class', 'minorHidden').attr('class', function (d) {
         return 'major-' + d.key.replace(/[^A-Za-z0-9]/g, '');
@@ -1297,7 +1306,7 @@ function init$6(chart) {
     });
 
     //Append rows for each minor category.
-    var majorGroups = tab.selectAll('tbody').data(dataMinor, function (d) {
+    var majorGroups = tab.selectAll('tbody').data(chart.data.minor, function (d) {
         return d.key;
     });
 
@@ -1310,7 +1319,7 @@ function init$6(chart) {
         chart.util.fillRow(thisRow, chart, d);
     });
     //Add a footer for overall rates.
-    tab.append('tfoot').selectAll('tr').data(dataAny.length > 0 ? dataAny[0].values : []).enter().append('tr').each(function (d) {
+    tab.append('tfoot').selectAll('tr').data(chart.data.any.length > 0 ? chart.data.any[0].values : []).enter().append('tr').each(function (d) {
         var thisRow = d3.select(this);
         chart.util.fillRow(thisRow, chart, d);
     });
