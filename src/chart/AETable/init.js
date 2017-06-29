@@ -10,11 +10,6 @@ export function init(chart) {
     //convinience mappings
     var vars = chart.config.variables;
 
-    //Get current chart type ("participant" or "event")
-    chart.config.summary = d3.selectAll('.summaryDiv label').filter(function(d) {
-        return d3.select(this).selectAll('.summaryRadio').property('checked');
-    })[0][0].textContent;
-
     /////////////////////////////////////////////////////////////////
     // Prepare the data for charting
     /////////////////////////////////////////////////////////////////
