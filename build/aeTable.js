@@ -177,7 +177,7 @@ function init$3(chart) {
         return d.values.map(function (di) {
             return {
                 value: di,
-                selected: d.start.length ? d.start.indexOf(di) > -1 : true
+                selected: Array.isArray(d.start) && d.start.length ? d.start.indexOf(di) > -1 : true
             };
         });
     }).enter().append('option').html(function (d) {

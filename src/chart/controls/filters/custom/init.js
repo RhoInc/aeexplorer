@@ -67,7 +67,9 @@ export function init(chart) {
             return d.values.map(di => {
                 return {
                     value: di,
-                    selected: d.start.length ? d.start.indexOf(di) > -1 : true
+                    selected: Array.isArray(d.start) && d.start.length
+                        ? d.start.indexOf(di) > -1
+                        : true
                 };
             });
         })
