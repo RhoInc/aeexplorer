@@ -39,7 +39,8 @@ const defaultSettings = {
         maxGroups: 6,
         totalCol: true,
         diffCol: true,
-        prefTerms: false
+        prefTerms: false,
+        summarizeBy: 'participant'
     },
     plotSettings: {
         h: 15,
