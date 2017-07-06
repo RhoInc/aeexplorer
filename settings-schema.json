@@ -1,0 +1,185 @@
+{
+  "title": "config",
+  "description":"JSON Schema for AE Explorer configuration. Last updated with v3.1.1 release.",
+  "type": "object",
+  "properties": {
+    "variables": {
+      "description":"an object that specifies how to map columns from the data file to the chart settings",
+      "type": "object",
+      "properties":{
+        "id":{
+          "description":"participant ID variable name",
+          "type": "string",
+          "default":"USUBJID"
+        },
+        "major":{
+          "description":"higher-level term variable name",
+          "type": "string",
+          "default":"AEBODSYS"
+        },
+        "minor":{
+          "description":"lower-level term variable name",
+          "type": "string",
+          "default":"AEDECOD"
+        },
+        "group":{
+          "description":"group variable name, each value of which displays in its own column in the AE table unless settings.groups is defined.",
+          "type": "string",
+          "default":"ARM"
+        },
+        "details":{
+          "description":"an array listing each variable to display in the detail listing; if empty or unspecified, all variables in input data file will appear in detail listing",
+          "type": "array",
+          "items":{
+            "type":"object",
+            "properties":{
+              "value_col":{
+                "type":"string"
+              },
+              "label":{
+                "type":"string"
+              }
+            }
+          }
+        },
+        "filters":{
+          "description":"An array of objects specifying categorical data filters to be included with the histogram.",
+          "type": "array",
+          "items":{
+            "type":"object",
+            "properties":{
+              "value_col":{
+                "type":"string"
+              },
+              "label":{
+                "type":"string"
+              },
+              "type":{
+                "type":"string",
+                "enum":["event","participant"]
+              },
+              "start":{
+                "type":"array",
+                "items":{
+                  "type":"string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "groups": {
+      "description": "An array specifying which levels of settings.variables.groups will appear as columns in the table.",
+      "type": "array",
+      "items":{
+        "type":"string"
+      }
+    },
+    "defaults": {
+      "description": "an object containing default settings regarding appearance of the tables",
+      "type": "object",
+      "properties":{
+        "placeholderFlag":{
+          "description":"Object to specify how to identify placeholder rows for participants with no AEs.",
+          "type": "object",
+          "properties":{
+            "value_col":{
+              "type":"string"
+            },
+            "values":{
+              "type":"array"
+            }
+          }
+        },
+        "maxPrevalence":{
+          "description":"filters out any higher- and lower-level rows without at least one group rate above specified value.",
+          "type": "number"
+        },
+        "maxGroups":{
+          "description":"Maximum number of group levels allowed.",
+          "type": "number",
+          "default":6
+        },
+        "totalCol":{
+          "description":"specifies whether or not to render a column showing overall rates across all groups",
+          "type":"boolean",
+          "default":true
+        },
+        "diffCol":{
+          "description":"specifies whether or not to render a column of graphical differences",
+          "type":"boolean",
+          "default":"true"
+        },
+        "prefTerms":{
+          "description":"specifies whether or not to initially display all lower-level rows",
+          "type":"boolean",
+          "default":false
+        },
+        "summarizeBy":{
+          "description":"specifies whether to show participant or event rates by default",
+          "type":"string",
+          "enum":[
+            "participant",
+            "event"
+          ],
+          "default":"participant"
+        }
+      }
+    },
+    "plotSettings":{
+      "description": "Object to specify the appearance of the plots embedded in the table rows.",
+      "type": "object",
+      "properties":{
+        "h":{
+          "description":"height of the plot svg in pixels",
+          "type":"number",
+          "default":15
+        },
+        "w":{
+          "description":"width of the plot svg in pixels",
+          "type":"number",
+          "default":200
+        },
+        "margin":{
+          "description":"object specifying the dot plot margins",
+          "type":"object",
+          "properties":{
+            "left":{
+              "type":"number",
+              "default":40
+            },
+            "right":{
+              "type":"number",
+              "default":40
+            }
+          }
+        },
+        "plotMargin":{
+          "description":"object specifying the margins for the difference diamonds plot",
+          "type":"object",
+          "properties":{
+            "left":{
+              "type":"number",
+              "default":5
+            },
+            "right":{
+              "type":"number",
+              "default":5
+            }
+          }
+        },
+        "r":{
+          "description":"radius of the plotted points in pixels",
+          "type":"number",
+          "default":7
+        }
+      }
+    },
+    "validation":{
+      "description": "adds a link to download the summarized data in a comma-separated format",
+      "type": "boolean",
+      "default":false
+    }
+  }
+}
