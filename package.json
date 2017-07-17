@@ -1,6 +1,6 @@
 {
   "name": "aeexplorer",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "description": "An interactive tool that allows users to dynamically query adverse event data in real time.",
   "keywords": [
     "adverse",
