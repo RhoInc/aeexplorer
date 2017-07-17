@@ -7,16 +7,17 @@ import { detailTable } from './chart/detailTable';
 import { util } from './chart/util';
 
 export function createChart(element = 'body', config) {
-    let chart =
-        {element: element
-        ,config:  config
-        ,init: init
-        ,colorScale: colorScale
-        ,layout: layout
-        ,controls: controls
-        ,AETable: AETable
-        ,detailTable: detailTable
-        ,util: util};
+    let chart = {
+        element: element,
+        config: config,
+        init: init,
+        colorScale: colorScale,
+        layout: layout,
+        controls: controls,
+        AETable: AETable,
+        detailTable: detailTable,
+        util: util
+    };
 
     return chart;
 }

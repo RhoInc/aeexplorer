@@ -13,12 +13,15 @@
 \------------------------------------------------------------------------------------------------*/
 
 export function showCellCounts(chart, rows, group) {
-  //Add raw counts for the specified row/groups .
-    rows.selectAll('td.values')
+    //Add raw counts for the specified row/groups .
+    rows
+        .selectAll('td.values')
         .filter(function(e) {
-            return e.key === group; })
+            return e.key === group;
+        })
         .append('span.annote')
         .classed('annote', true)
         .text(function(d) {
-            return ' (' + d['values'].n + '/' + d['values'].tot + ')'; });
+            return ' (' + d['values'].n + '/' + d['values'].tot + ')';
+        });
 }

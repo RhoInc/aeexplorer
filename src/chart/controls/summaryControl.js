@@ -4,5 +4,4 @@
 
 import { init } from './summaryControl/init';
 
-export const summaryControl =
-    {init: init};
+export const summaryControl = { init: init };
