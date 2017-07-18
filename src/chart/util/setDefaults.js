@@ -103,7 +103,6 @@ export function setDefaults(chart) {
     /////////////////////////////////////////////////////////////////////////////////
     //Checks on group columns (if they're being renderered)                        //
     /////////////////////////////////////////////////////////////////////////////////
-    console.log(chart.config);
     if (chart.config.defaults.groupCols) {
         //Check that group values defined in settings are actually present in dataset. //
         chart.config.groups.forEach(d => {
@@ -133,8 +132,15 @@ export function setDefaults(chart) {
         //Set the domain for the color scale based on groups. //
         chart.colorScale.domain(chart.config.groups.map(e => e.key));
     }
-
-    //Set 'Total' column color to #777.
-    if (chart.config.defaults.totalCol)
-        chart.colorScale.range()[chart.config.groups.length] = '#777';
+    //make sure either group or total columns are being renderered
+    if (!chart.config.defaults.groupCols & !chart.config.defaults.totalCol) {
+        var errorText =
+            'No data to render. Make sure at least one of chart.config.defaults.groupCols or chart.config.defaults.totalCol is set to true.';
+        errorNote(errorText);
+        throw new Error(errorText);
+    }
+    if (chart.config.defaults.groupCols)
+        if (chart.config.defaults.totalCol)
+            //Set 'Total' column color to #777.
+            chart.colorScale.range()[chart.config.groups.length] = '#777';
 }

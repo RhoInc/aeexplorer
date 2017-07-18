@@ -105,7 +105,11 @@ export function init(chart) {
     header1.append('th').attr('rowspan', 2).text('Category');
 
     //Group column headers
-    header1.append('th').attr('colspan', nGroups - chart.config.defaults.totalCol).text('Groups');
+    if (chart.config.defaults.groupCols)
+        header1
+            .append('th')
+            .attr('colspan', nGroups - chart.config.defaults.totalCol)
+            .text('Groups');
 
     //Total column header
     if (chart.config.defaults.totalCol) header1.append('th').text('');
@@ -114,18 +118,19 @@ export function init(chart) {
     header1.append('th').text('AE Rate by group');
 
     //Group differences column header
+    var groupHeaders = chart.config.defaults.groupCols ? chart.config.groups : [];
+    if (chart.config.defaults.totalCol) {
+        groupHeaders = groupHeaders.concat({
+            key: 'Total',
+            n: d3.sum(chart.config.groups, d => d.n),
+            nEvents: d3.sum(chart.config.groups, d => d.nEvents)
+        });
+    }
+
     var header2 = tab.select('thead').append('tr');
     header2
         .selectAll('td.values')
-        .data(
-            chart.config.defaults.totalCol
-                ? chart.config.groups.concat({
-                      key: 'Total',
-                      n: d3.sum(chart.config.groups, d => d.n),
-                      nEvents: d3.sum(chart.config.groups, d => d.nEvents)
-                  })
-                : chart.config.groups
-        )
+        .data(groupHeaders)
         .enter()
         .append('th')
         .html(
@@ -138,7 +143,15 @@ export function init(chart) {
                 ')</span>'
         )
         .style('color', d => chart.colorScale(d.key))
-        .attr('class', 'values');
+        .attr('class', 'values')
+        .classed('total', d => d.key == 'Total')
+        .classed('hidden', function(d) {
+            if (d.key == 'Total') {
+                return !chart.config.defaults.totalCol;
+            } else {
+                return !chart.config.defaults.groupCols;
+            }
+        });
     header2.append('th').attr('class', 'prevHeader');
     if (nGroups > 1 && chart.config.defaults.diffCol) {
         header1.append('th').text('Difference Between Groups').attr('class', 'diffplot');

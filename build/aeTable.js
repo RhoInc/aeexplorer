@@ -638,8 +638,8 @@ var sort = {
 /**-------------------------------------------------------------------------------------------\
 
   fillrow(currentRow, chart, d)
-  
-  inputs (all required): 
+
+  inputs (all required):
   currentRow = d3.selector for a 'tr' element
   chart = the chart object
   d = the raw data for the row
@@ -698,7 +698,15 @@ function fillRow(currentRow, chart, d) {
     //Append textual rates.
     var values = currentRow.selectAll('td.values').data(d.values, function (d) {
         return d.key;
-    }).enter().append('td').attr('class', 'values').attr('title', function (d) {
+    }).enter().append('td').attr('class', 'values').classed('total', function (d) {
+        return d.key == 'Total';
+    }).classed('hidden', function (d) {
+        if (d.key == 'Total') {
+            return !chart.config.defaults.totalCol;
+        } else {
+            return !chart.config.defaults.groupCols;
+        }
+    }).attr('title', function (d) {
         return d.values.n + '/' + d.values.tot;
     }).text(function (d) {
         return d3.format('0.1f')(d['values'].per) + '%';
@@ -710,10 +718,17 @@ function fillRow(currentRow, chart, d) {
     var prevalencePlot = currentRow.append('td').classed('prevplot', true).append('svg').attr('height', chart.config.plotSettings.h).attr('width', chart.config.plotSettings.w + 10).append('svg:g').attr('transform', 'translate(5,0)');
 
     var points = prevalencePlot.selectAll('g.points').data(d.values).enter().append('g').attr('class', 'points');
+
     points.append('svg:circle').attr('cx', function (d) {
         return chart.percentScale(d.values['per']);
     }).attr('cy', chart.config.plotSettings.h / 2).attr('r', chart.config.plotSettings.r - 2).attr('fill', function (d) {
         return table.colorScale(d.values['group']);
+    }).classed('hidden', function (d) {
+        if (d.key == 'Total') {
+            return !chart.config.defaults.totalCol;
+        } else {
+            return !chart.config.defaults.groupCols;
+        }
     }).append('title').text(function (d) {
         return d.key + ': ' + d3.format(',.1%')(d.values.per / 100);
     });
@@ -1111,7 +1126,6 @@ function setDefaults(chart) {
     /////////////////////////////////////////////////////////////////////////////////
     //Checks on group columns (if they're being renderered)                        //
     /////////////////////////////////////////////////////////////////////////////////
-    console.log(chart.config);
     if (chart.config.defaults.groupCols) {
         //Check that group values defined in settings are actually present in dataset. //
         chart.config.groups.forEach(function (d) {
@@ -1133,9 +1147,15 @@ function setDefaults(chart) {
             return e.key;
         }));
     }
-
-    //Set 'Total' column color to #777.
-    if (chart.config.defaults.totalCol) chart.colorScale.range()[chart.config.groups.length] = '#777';
+    //make sure either group or total columns are being renderered
+    if (!chart.config.defaults.groupCols & !chart.config.defaults.totalCol) {
+        var errorText = 'No data to render. Make sure at least one of chart.config.defaults.groupCols or chart.config.defaults.totalCol is set to true.';
+        errorNote(errorText);
+        throw new Error(errorText);
+    }
+    if (chart.config.defaults.groupCols) if (chart.config.defaults.totalCol)
+        //Set 'Total' column color to #777.
+        chart.colorScale.range()[chart.config.groups.length] = '#777';
 }
 
 /*------------------------------------------------------------------------------------------------\
@@ -1226,7 +1246,7 @@ function init$6(chart) {
     header1.append('th').attr('rowspan', 2).text('Category');
 
     //Group column headers
-    header1.append('th').attr('colspan', nGroups - chart.config.defaults.totalCol).text('Groups');
+    if (chart.config.defaults.groupCols) header1.append('th').attr('colspan', nGroups - chart.config.defaults.totalCol).text('Groups');
 
     //Total column header
     if (chart.config.defaults.totalCol) header1.append('th').text('');
@@ -1235,20 +1255,33 @@ function init$6(chart) {
     header1.append('th').text('AE Rate by group');
 
     //Group differences column header
+    var groupHeaders = chart.config.defaults.groupCols ? chart.config.groups : [];
+    if (chart.config.defaults.totalCol) {
+        groupHeaders = groupHeaders.concat({
+            key: 'Total',
+            n: d3.sum(chart.config.groups, function (d) {
+                return d.n;
+            }),
+            nEvents: d3.sum(chart.config.groups, function (d) {
+                return d.nEvents;
+            })
+        });
+    }
+
     var header2 = tab.select('thead').append('tr');
-    header2.selectAll('td.values').data(chart.config.defaults.totalCol ? chart.config.groups.concat({
-        key: 'Total',
-        n: d3.sum(chart.config.groups, function (d) {
-            return d.n;
-        }),
-        nEvents: d3.sum(chart.config.groups, function (d) {
-            return d.nEvents;
-        })
-    }) : chart.config.groups).enter().append('th').html(function (d) {
+    header2.selectAll('td.values').data(groupHeaders).enter().append('th').html(function (d) {
         return '<span>' + d.key + '</span>' + '<br><span id="group-num">(n=' + (chart.config.summary === 'participant' ? d.n : d.nEvents) + ')</span>';
     }).style('color', function (d) {
         return chart.colorScale(d.key);
-    }).attr('class', 'values');
+    }).attr('class', 'values').classed('total', function (d) {
+        return d.key == 'Total';
+    }).classed('hidden', function (d) {
+        if (d.key == 'Total') {
+            return !chart.config.defaults.totalCol;
+        } else {
+            return !chart.config.defaults.groupCols;
+        }
+    });
     header2.append('th').attr('class', 'prevHeader');
     if (nGroups > 1 && chart.config.defaults.diffCol) {
         header1.append('th').text('Difference Between Groups').attr('class', 'diffplot');

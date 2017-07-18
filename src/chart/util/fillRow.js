@@ -1,8 +1,8 @@
 /**-------------------------------------------------------------------------------------------\
 
   fillrow(currentRow, chart, d)
-  
-  inputs (all required): 
+
+  inputs (all required):
   currentRow = d3.selector for a 'tr' element
   chart = the chart object
   d = the raw data for the row
@@ -63,6 +63,16 @@ export function fillRow(currentRow, chart, d) {
         .enter()
         .append('td')
         .attr('class', 'values')
+        .classed('total', function(d) {
+            return d.key == 'Total';
+        })
+        .classed('hidden', function(d) {
+            if (d.key == 'Total') {
+                return !chart.config.defaults.totalCol;
+            } else {
+                return !chart.config.defaults.groupCols;
+            }
+        })
         .attr('title', function(d) {
             return d.values.n + '/' + d.values.tot;
         })
@@ -89,6 +99,7 @@ export function fillRow(currentRow, chart, d) {
         .enter()
         .append('g')
         .attr('class', 'points');
+
     points
         .append('svg:circle')
         .attr('cx', function(d) {
@@ -98,6 +109,13 @@ export function fillRow(currentRow, chart, d) {
         .attr('r', chart.config.plotSettings.r - 2)
         .attr('fill', function(d) {
             return table.colorScale(d.values['group']);
+        })
+        .classed('hidden', function(d) {
+            if (d.key == 'Total') {
+                return !chart.config.defaults.totalCol;
+            } else {
+                return !chart.config.defaults.groupCols;
+            }
         })
         .append('title')
         .text(function(d) {
