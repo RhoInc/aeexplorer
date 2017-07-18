@@ -146,6 +146,11 @@ export function setDefaults(chart) {
         chart.config.defaults.diffCol = false;
     }
 
+    //hide the total column if only one group is selected
+    if (chart.config.groups.length == 1) {
+        chart.config.defaults.totalCol = false;
+    }
+
     //set color for total column
     if (chart.config.defaults.totalCol)
         //Set 'Total' column color to #777.
