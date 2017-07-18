@@ -59,14 +59,25 @@ export function setDefaults(chart) {
     ////////////////////////////////////////////////////////////
     // Convert group levels from string to objects (if needed)//
     ////////////////////////////////////////////////////////////
-    chart.config.groups = chart.config.groups.map(function(d) {
-        return typeof d == 'string' ? { key: d } : d;
-    });
+    var allGroups = d3.set(chart.raw_data.map(d => d[chart.config.variables.group])).values();
+    chart.config.groups = chart.config.groups
+        .map(function(d) {
+            return typeof d == 'string' ? { key: d } : d;
+        })
+        .filter(function(d) {
+            if (allGroups.indexOf(d.key) === -1)
+                console.log(
+                    'Warning: You specified a group level ("' +
+                        d.key +
+                        '") that was not found in the data. It is being ignored.'
+                );
+            return allGroups.indexOf(d.key) > -1;
+        });
 
     ////////////////////////////////////////////////////
     // Include all group levels if none are specified //
     ////////////////////////////////////////////////////
-    var allGroups = d3.set(chart.raw_data.map(d => d[chart.config.variables.group])).values();
+
     var groupsObject = allGroups.map(d => {
         return { key: d };
     });
@@ -104,16 +115,6 @@ export function setDefaults(chart) {
     //Checks on group columns (if they're being renderered)                        //
     /////////////////////////////////////////////////////////////////////////////////
     if (chart.config.defaults.groupCols) {
-        //Check that group values defined in settings are actually present in dataset. //
-        chart.config.groups.forEach(d => {
-            if (allGroups.indexOf(d.key) === -1) {
-                errorNote('Error in settings object.');
-                throw new Error(
-                    "'" + e.key + "' in the Groups setting is not found in the dataset."
-                );
-            }
-        });
-
         //Check that group values defined in settings are actually present in dataset. //
         if (
             chart.config.defaults.groupCols &
