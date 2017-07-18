@@ -1006,6 +1006,7 @@ var defaultSettings = {
         maxPrevalence: 0,
         maxGroups: 6,
         totalCol: true,
+        groupCols: true,
         diffCol: true,
         prefTerms: false,
         summarizeBy: 'participant'
@@ -1065,21 +1066,19 @@ function setDefaults(chart) {
     });
 
     ////////////////////////////////////////////////////////////
-    //Render single column if no group variable is specified. //
+    // Convert group levels from string to objects (if needed)//
     ////////////////////////////////////////////////////////////
-    if (!chart.config.variables.group || ['', ' '].indexOf(chart.config.variables.group) > -1) {
-        chart.config.variables.group = 'data_all';
-        chart.config.defaults.totalCol = false;
-        chart.config.groups = [{ key: 'All' }];
-    }
+    chart.config.groups = chart.config.groups.map(function (d) {
+        return typeof d == 'string' ? { key: d } : d;
+    });
 
     ////////////////////////////////////////////////////
     // Include all group levels if none are specified //
     ////////////////////////////////////////////////////
-    var groups = d3.set(chart.raw_data.map(function (d) {
+    var allGroups = d3.set(chart.raw_data.map(function (d) {
         return d[chart.config.variables.group];
     })).values();
-    var groupsObject = groups.map(function (d) {
+    var groupsObject = allGroups.map(function (d) {
         return { key: d };
     });
 
@@ -1108,30 +1107,33 @@ function setDefaults(chart) {
             }
         }
     }
-    /////////////////////////////////////////////////////////////////////////////////
-    //Check that group values defined in settings are actually present in dataset. //
-    /////////////////////////////////////////////////////////////////////////////////
-    chart.config.groups.forEach(function (d) {
-        if (groups.indexOf(d.key) === -1) {
-            errorNote('Error in settings object.');
-            throw new Error("'" + e.key + "' in the Groups setting is not found in the dataset.");
-        }
-    });
 
     /////////////////////////////////////////////////////////////////////////////////
-    //Check that group values defined in settings are actually present in dataset. //
+    //Checks on group columns (if they're being renderered)                        //
     /////////////////////////////////////////////////////////////////////////////////
-    if (chart.config.groups.length > chart.config.defaults.maxGroups) {
-        var errorText = 'Too Many Group Variables specified. You specified ' + chart.config.groups.length + ', but the maximum supported is ' + chart.config.defaults.maxGroups + '.';
-        errorNote(errorText);
-        throw new Error(errorText);
+    console.log(chart.config);
+    if (chart.config.defaults.groupCols) {
+        //Check that group values defined in settings are actually present in dataset. //
+        chart.config.groups.forEach(function (d) {
+            if (allGroups.indexOf(d.key) === -1) {
+                errorNote('Error in settings object.');
+                throw new Error("'" + e.key + "' in the Groups setting is not found in the dataset.");
+            }
+        });
+
+        //Check that group values defined in settings are actually present in dataset. //
+        if (chart.config.defaults.groupCols & chart.config.groups.length > chart.config.defaults.maxGroups) {
+            var errorText = 'Too Many Group Variables specified. You specified ' + chart.config.groups.length + ', but the maximum supported is ' + chart.config.defaults.maxGroups + '.';
+            errorNote(errorText);
+            throw new Error(errorText);
+        }
+
+        //Set the domain for the color scale based on groups. //
+        chart.colorScale.domain(chart.config.groups.map(function (e) {
+            return e.key;
+        }));
     }
-    ////////////////////////////////////////////////////////
-    //Set the domain for the color scale based on groups. //
-    ////////////////////////////////////////////////////////
-    chart.colorScale.domain(chart.config.groups.map(function (e) {
-        return e.key;
-    }));
+
     //Set 'Total' column color to #777.
     if (chart.config.defaults.totalCol) chart.colorScale.range()[chart.config.groups.length] = '#777';
 }
