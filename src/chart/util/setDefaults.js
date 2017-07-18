@@ -132,6 +132,7 @@ export function setDefaults(chart) {
         //Set the domain for the color scale based on groups. //
         chart.colorScale.domain(chart.config.groups.map(e => e.key));
     }
+
     //make sure either group or total columns are being renderered
     if (!chart.config.defaults.groupCols & !chart.config.defaults.totalCol) {
         var errorText =
@@ -139,8 +140,14 @@ export function setDefaults(chart) {
         errorNote(errorText);
         throw new Error(errorText);
     }
-    if (chart.config.defaults.groupCols)
-        if (chart.config.defaults.totalCol)
-            //Set 'Total' column color to #777.
-            chart.colorScale.range()[chart.config.groups.length] = '#777';
+
+    //don't render differences if you're not renderer group columns
+    if (!chart.config.defaults.groupCols) {
+        chart.config.defaults.diffCol = false;
+    }
+
+    //set color for total column
+    if (chart.config.defaults.totalCol)
+        //Set 'Total' column color to #777.
+        chart.colorScale.range()[chart.config.groups.length] = '#777';
 }

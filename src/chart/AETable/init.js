@@ -95,7 +95,7 @@ export function init(chart) {
     }
 
     var tab = chart.wrap.select('.SummaryTable').append('table');
-    var nGroups = chart.config.groups.length + chart.config.defaults.totalCol;
+    var nGroups = chart.config.groups.length;
     var header1 = tab.append('thead').append('tr');
 
     //Expand/collapse control column header
@@ -106,10 +106,7 @@ export function init(chart) {
 
     //Group column headers
     if (chart.config.defaults.groupCols)
-        header1
-            .append('th')
-            .attr('colspan', nGroups - chart.config.defaults.totalCol)
-            .text('Groups');
+        header1.append('th').attr('colspan', nGroups).text('Groups');
 
     //Total column header
     if (chart.config.defaults.totalCol) header1.append('th').text('');

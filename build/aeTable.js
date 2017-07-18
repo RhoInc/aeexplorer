@@ -1147,13 +1147,21 @@ function setDefaults(chart) {
             return e.key;
         }));
     }
+
     //make sure either group or total columns are being renderered
     if (!chart.config.defaults.groupCols & !chart.config.defaults.totalCol) {
         var errorText = 'No data to render. Make sure at least one of chart.config.defaults.groupCols or chart.config.defaults.totalCol is set to true.';
         errorNote(errorText);
         throw new Error(errorText);
     }
-    if (chart.config.defaults.groupCols) if (chart.config.defaults.totalCol)
+
+    //don't render differences if you're not renderer group columns
+    if (!chart.config.defaults.groupCols) {
+        chart.config.defaults.diffCol = false;
+    }
+
+    //set color for total column
+    if (chart.config.defaults.totalCol)
         //Set 'Total' column color to #777.
         chart.colorScale.range()[chart.config.groups.length] = '#777';
 }
@@ -1236,7 +1244,7 @@ function init$6(chart) {
     }
 
     var tab = chart.wrap.select('.SummaryTable').append('table');
-    var nGroups = chart.config.groups.length + chart.config.defaults.totalCol;
+    var nGroups = chart.config.groups.length;
     var header1 = tab.append('thead').append('tr');
 
     //Expand/collapse control column header
@@ -1246,7 +1254,7 @@ function init$6(chart) {
     header1.append('th').attr('rowspan', 2).text('Category');
 
     //Group column headers
-    if (chart.config.defaults.groupCols) header1.append('th').attr('colspan', nGroups - chart.config.defaults.totalCol).text('Groups');
+    if (chart.config.defaults.groupCols) header1.append('th').attr('colspan', nGroups).text('Groups');
 
     //Total column header
     if (chart.config.defaults.totalCol) header1.append('th').text('');
