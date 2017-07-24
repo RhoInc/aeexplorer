@@ -621,17 +621,26 @@ var sort = {
     //Sort by descending frequency.
     maxPer: function maxPer(a, b) {
         var max_a = a.values.map(function (minor) {
-            return d3.max(minor.values.map(function (groups) {
-                return groups.values.per;
+            var n = d3.sum(minor.values.map(function (group) {
+                return group.values.n;
             }));
+            var tot = d3.sum(minor.values.map(function (group) {
+                return group.values.tot;
+            }));
+            return n / tot;
         })[0];
         var max_b = b.values.map(function (minor) {
-            return d3.max(minor.values.map(function (groups) {
-                return groups.values.per;
+            var n = d3.sum(minor.values.map(function (group) {
+                return group.values.n;
             }));
+            var tot = d3.sum(minor.values.map(function (group) {
+                return group.values.tot;
+            }));
+            return n / tot;
         })[0];
+        var diff = max_b - max_a;
 
-        return max_a < max_b ? 1 : max_a > max_b ? -1 : 0;
+        return diff ? diff : a.key < b.key ? -1 : 1;
     }
 };
 
@@ -763,8 +772,8 @@ function fillRow(currentRow, chart, d) {
 
             var leftpoints = [{ x: chart.diffScale(d.diff), y: h / 2 + r }, //bottom
             { x: chart.diffScale(d.diff) - r, y: h / 2 }, //middle-left
-            { x: chart.diffScale(d.diff), y: h / 2 - r } //top
-            ];
+            { x: chart.diffScale(d.diff), y: h / 2 - r //top
+            }];
             return triangle(leftpoints);
         }).attr('class', 'diamond').attr('fill-opacity', function (d) {
             return d.sig === 1 ? 1 : 0.1;
@@ -780,8 +789,8 @@ function fillRow(currentRow, chart, d) {
 
             var rightpoints = [{ x: chart.diffScale(d.diff), y: h / 2 + r }, //bottom
             { x: chart.diffScale(d.diff) + r, y: h / 2 }, //middle-right
-            { x: chart.diffScale(d.diff), y: h / 2 - r } //top
-            ];
+            { x: chart.diffScale(d.diff), y: h / 2 - r //top
+            }];
             return triangle(rightpoints);
         }).attr('class', 'diamond').attr('fill-opacity', function (d) {
             return d.sig === 1 ? 1 : 0.1;
@@ -1217,14 +1226,19 @@ function init$6(chart) {
     chart.data.major = chart.data.major.sort(util.sort.maxPer);
     chart.data.minor.forEach(function (major) {
         major.values.sort(function (a, b) {
-            var max_a = d3.max(a.values.map(function (groups) {
-                return groups.values.per;
+            var max_a = d3.sum(major.values.map(function (group) {
+                return group.values.n;
+            })) / d3.sum(major.values.map(function (group) {
+                return group.values.tot;
             }));
-            var max_b = d3.max(b.values.map(function (groups) {
-                return groups.values.per;
+            var max_b = d3.sum(major.values.map(function (group) {
+                return group.values.n;
+            })) / d3.sum(major.values.map(function (group) {
+                return group.values.tot;
             }));
+            var diff = max_b - max_a;
 
-            return max_a < max_b ? 1 : -1;
+            return diff ? diff : a.key < b.key ? -1 : 1;
         });
     });
 

@@ -59,18 +59,15 @@ export function init(chart) {
     chart.data.major = chart.data.major.sort(util.sort.maxPer);
     chart.data.minor.forEach(function(major) {
         major.values.sort(function(a, b) {
-            var max_a = d3.max(
-                a.values.map(function(groups) {
-                    return groups.values.per;
-                })
-            );
-            var max_b = d3.max(
-                b.values.map(function(groups) {
-                    return groups.values.per;
-                })
-            );
+            var max_a =
+                d3.sum(major.values.map(group => group.values.n)) /
+                d3.sum(major.values.map(group => group.values.tot));
+            var max_b =
+                d3.sum(major.values.map(group => group.values.n)) /
+                d3.sum(major.values.map(group => group.values.tot));
+            var diff = max_b - max_a;
 
-            return max_a < max_b ? 1 : -1;
+            return diff ? diff : a.key < b.key ? -1 : 1;
         });
     });
 

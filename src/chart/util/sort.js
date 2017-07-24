@@ -6,20 +6,17 @@ export const sort = {
     //Sort by descending frequency.
     maxPer: function(a, b) {
         var max_a = a.values.map(function(minor) {
-            return d3.max(
-                minor.values.map(function(groups) {
-                    return groups.values.per;
-                })
-            );
+            var n = d3.sum(minor.values.map(group => group.values.n));
+            var tot = d3.sum(minor.values.map(group => group.values.tot));
+            return n / tot;
         })[0];
         var max_b = b.values.map(function(minor) {
-            return d3.max(
-                minor.values.map(function(groups) {
-                    return groups.values.per;
-                })
-            );
+            var n = d3.sum(minor.values.map(group => group.values.n));
+            var tot = d3.sum(minor.values.map(group => group.values.tot));
+            return n / tot;
         })[0];
+        var diff = max_b - max_a;
 
-        return max_a < max_b ? 1 : max_a > max_b ? -1 : 0;
+        return diff ? diff : a.key < b.key ? -1 : 1;
     }
 };
