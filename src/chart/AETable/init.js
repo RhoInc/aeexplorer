@@ -60,11 +60,11 @@ export function init(chart) {
     chart.data.minor.forEach(function(major) {
         major.values.sort(function(a, b) {
             var max_a =
-                d3.sum(major.values.map(group => group.values.n)) /
-                d3.sum(major.values.map(group => group.values.tot));
+                d3.sum(a.values.map(group => group.values.n)) /
+                d3.sum(a.values.map(group => group.values.tot));
             var max_b =
-                d3.sum(major.values.map(group => group.values.n)) /
-                d3.sum(major.values.map(group => group.values.tot));
+                d3.sum(b.values.map(group => group.values.n)) /
+                d3.sum(b.values.map(group => group.values.tot));
             var diff = max_b - max_a;
 
             return diff ? diff : a.key < b.key ? -1 : 1;

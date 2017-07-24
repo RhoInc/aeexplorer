@@ -1226,14 +1226,14 @@ function init$6(chart) {
     chart.data.major = chart.data.major.sort(util.sort.maxPer);
     chart.data.minor.forEach(function (major) {
         major.values.sort(function (a, b) {
-            var max_a = d3.sum(major.values.map(function (group) {
+            var max_a = d3.sum(a.values.map(function (group) {
                 return group.values.n;
-            })) / d3.sum(major.values.map(function (group) {
+            })) / d3.sum(a.values.map(function (group) {
                 return group.values.tot;
             }));
-            var max_b = d3.sum(major.values.map(function (group) {
+            var max_b = d3.sum(b.values.map(function (group) {
                 return group.values.n;
-            })) / d3.sum(major.values.map(function (group) {
+            })) / d3.sum(b.values.map(function (group) {
                 return group.values.tot;
             }));
             var diff = max_b - max_a;
