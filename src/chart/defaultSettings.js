@@ -38,6 +38,7 @@ const defaultSettings = {
         maxPrevalence: 0,
         maxGroups: 6,
         totalCol: true,
+        groupCols: true,
         diffCol: true,
         prefTerms: false,
         summarizeBy: 'participant'
