@@ -1,6 +1,6 @@
 # Adverse Event Explorer
 
-![alt tag](https://user-images.githubusercontent.com/31038805/30920449-fd3e45b2-a371-11e7-9502-df5f9c7cbace.gif)
+![alt tag](https://user-images.githubusercontent.com/31038805/30922823-4541736a-a378-11e7-9c59-2b6cab4256e5.gif)
 
 ## Overview
 The AE Explorer is a JavaScript library that allows users to dynamically query adverse event (AE) data in real time. A typical AE Explorer looks like this: 
