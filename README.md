@@ -15,23 +15,33 @@ The AE Explorer is an open source project built using standard web technology an
 
 The AE Explorer contains all of the information available in standard listings, but we apply interactive elements common in website design to give users the ability to search the data. The default view is a single-screen display of AEs grouped by the MedDRA System Organ Class. Dot plots portray the incidence in the different treatment groups. 
 
-Users can interact with the display in real time to:
-* Filter by prevalence threshold (e.g., AEs with prevalence >5%)
-* Change the input on the serious event filter, and see an updated chart
-* Change the input on the severity filter, and see an updated chart
-* Change the input on the relationship filter, and see an updated chart
-* Change the input on the outcome filter, and see an updated chart
-* Toggle between participant and event summaries
-* Search/display terms of interest
-* Reset search
-* Display metadata on mouse-hover
-* View adverse event rate by group
-* View confidence intervals for between-group differences
-* Expand the data set to show nested preferred terms
-* Collapse the data set to hide nested preferred terms
-* Show details view
-* Return to summary view from details view
-* Filter the Safety Explorer for selected criteria, and see an updated chart (optional)
-* View treatment groups (optional)
-* Download the data to CSV
+## Typical Usage
+In the simplest case, using a dataset matching all default requirements, the chart can be created with a single line of code.
 
+```javascript
+aeTable('#chartLocation', {}).init(data);
+```
+
+The code to load a comma-delimited data set and initialize a customized chart, with filters and simple data mappings, looks like this: 
+
+```javascript
+   const settings = {
+            'variables': {
+                'group': 'group', //overwrite default value 'ARM'
+                'filters': [
+                    {'value_col': 'SITEID', 'label': 'Site ID', 'type': 'participant' },
+                    {'value_col': 'AESER', 'label': 'Serious?', 'type': 'event' }, 
+                    {'value_col': 'AESEV', 'label': 'Severity', 'type': 'event' }, 
+                    {'value_col': 'AEREL', 'label': 'Relationship','type': 'event' }, 
+                    {'value_col': 'AEOUT', 'label': 'Outcome','type': 'event' }, 
+                 ]
+             },
+        };
+
+        d3.csv('../data/ADAE.csv', function(data) {
+            aeTable.createChart('#chartLocation', settings).init(data);
+        });
+```
+
+## Example
+- [Basic Example](https://rhoinc.github.io/viz-library/examples/0008-safetyExplorer-default/ae-table/index.html)
