@@ -15,7 +15,7 @@ The AE Explorer is an open source project built using standard web technology an
 
 The AE Explorer contains all of the information available in standard listings, but we apply interactive elements common in website design to give users the ability to search the data. The default view is a single-screen display of AEs grouped by the MedDRA System Organ Class. Dot plots portray the incidence in the different treatment groups. 
 
-## Typical Usage
+## Usage
 In the simplest case, using a dataset matching all default requirements, the chart can be created with a single line of code.
 
 ```javascript
