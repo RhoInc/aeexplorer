@@ -1307,7 +1307,7 @@ function init$6(chart) {
     });
     header2.append('th').attr('class', 'prevHeader');
     if (nGroups > 1 && chart.config.defaults.diffCol) {
-        header1.append('th').text('Difference Between Groups').attr('class', 'diffplot');
+        header1.append('th').text('--Difference Between Groups--').attr('class', 'diffplot');
         header2.append('th').attr('class', 'diffplot axis');
     }
 
