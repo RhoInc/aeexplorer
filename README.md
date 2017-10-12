@@ -42,6 +42,9 @@ The code to load a comma-delimited data set and initialize a customized chart, w
             aeTable.createChart('#chartLocation', settings).init(data);
         });
 ```
+## Link to Live Chart
+https://saranaqvi.github.io/aeexplorer/
+
 
 ## Links
 
