@@ -454,7 +454,7 @@ function showCellCounts(chart, rows, group) {
   Calculate differences between groups.
 \------------------------------------------------------------------------------------------------*/
 
-function calculateDifference(major, minor, group1, group2, n1, tot1, n2, tot2) {
+/*function calculateDifference(major, minor, group1, group2, n1, tot1, n2, tot2) {
     var zCrit = 1.96;
     var p1 = n1 / tot1;
     var p2 = n2 / tot2;
@@ -485,7 +485,7 @@ function calculateDifference(major, minor, group1, group2, n1, tot1, n2, tot2) {
 
     return summary;
 }
-
+*/
 /*------------------------------------------------------------------------------------------------\
   Add differences to data object.
 \------------------------------------------------------------------------------------------------*/
