@@ -42,12 +42,15 @@ The code to load a comma-delimited data set and initialize a customized chart, w
             aeTable.createChart('#chartLocation', settings).init(data);
         });
 ```
+## Link to Live Chart
+https://saranaqvi.github.io/aeexplorer/
+
 
 ## Links
 
 More information is available in the project's [wiki](https://github.com/RhoInc/aeexplorer/wiki): 
 
-- [Interactive Example](https://rhoinc.github.io/viz-library/examples/0008-safetyExplorer-default/ae-table/index.html)
+- [Interactive Example]( https://saranaqvi.github.io/aeexplorer/)
 - [Configuration](https://github.com/RhoInc/aeexplorer/wiki/Configuration) 
 - [API](https://github.com/RhoInc/aeexplorer/wiki/API)
 - [Technical Documentation](https://github.com/RhoInc/aeexplorer/wiki/Technical-Documentation) 

@@ -454,7 +454,7 @@ function showCellCounts(chart, rows, group) {
   Calculate differences between groups.
 \------------------------------------------------------------------------------------------------*/
 
-function calculateDifference(major, minor, group1, group2, n1, tot1, n2, tot2) {
+/*function calculateDifference(major, minor, group1, group2, n1, tot1, n2, tot2) {
     var zCrit = 1.96;
     var p1 = n1 / tot1;
     var p2 = n2 / tot2;
@@ -485,7 +485,7 @@ function calculateDifference(major, minor, group1, group2, n1, tot1, n2, tot2) {
 
     return summary;
 }
-
+*/
 /*------------------------------------------------------------------------------------------------\
   Add differences to data object.
 \------------------------------------------------------------------------------------------------*/
@@ -1307,7 +1307,7 @@ function init$6(chart) {
     });
     header2.append('th').attr('class', 'prevHeader');
     if (nGroups > 1 && chart.config.defaults.diffCol) {
-        header1.append('th').text('Difference Between Groups').attr('class', 'diffplot');
+        header1.append('th').text('--Difference Between Groups--').attr('class', 'diffplot');
         header2.append('th').attr('class', 'diffplot axis');
     }
 
