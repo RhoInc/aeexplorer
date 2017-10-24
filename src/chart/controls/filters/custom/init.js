@@ -9,7 +9,7 @@ export function init(chart) {
 
     //add a list of values to each filter object
     chart.config.variables.filters.forEach(function(e) {
-        var currentData = e.type == 'Participant' ? chart.raw_data : chart.raw_event_data;
+        var currentData = e.type == 'participant' ? chart.raw_data : chart.raw_event_data;
         e.values = d3
             .nest()
             .key(function(d) {

@@ -137,7 +137,7 @@ function init$3(chart) {
 
     //add a list of values to each filter object
     chart.config.variables.filters.forEach(function (e) {
-        var currentData = e.type == 'Participant' ? chart.raw_data : chart.raw_event_data;
+        var currentData = e.type == 'participant' ? chart.raw_data : chart.raw_event_data;
         e.values = d3.nest().key(function (d) {
             return d[e.value_col];
         }).entries(currentData).map(function (d) {
@@ -772,8 +772,8 @@ function fillRow(currentRow, chart, d) {
 
             var leftpoints = [{ x: chart.diffScale(d.diff), y: h / 2 + r }, //bottom
             { x: chart.diffScale(d.diff) - r, y: h / 2 }, //middle-left
-            { x: chart.diffScale(d.diff), y: h / 2 - r //top
-            }];
+            { x: chart.diffScale(d.diff), y: h / 2 - r } //top
+            ];
             return triangle(leftpoints);
         }).attr('class', 'diamond').attr('fill-opacity', function (d) {
             return d.sig === 1 ? 1 : 0.1;
@@ -789,8 +789,8 @@ function fillRow(currentRow, chart, d) {
 
             var rightpoints = [{ x: chart.diffScale(d.diff), y: h / 2 + r }, //bottom
             { x: chart.diffScale(d.diff) + r, y: h / 2 }, //middle-right
-            { x: chart.diffScale(d.diff), y: h / 2 - r //top
-            }];
+            { x: chart.diffScale(d.diff), y: h / 2 - r } //top
+            ];
             return triangle(rightpoints);
         }).attr('class', 'diamond').attr('fill-opacity', function (d) {
             return d.sig === 1 ? 1 : 0.1;
