@@ -420,7 +420,7 @@ function redraw(chart) {
 \------------------------------------------------------------------------------------------------*/
 
 function wipe(canvas) {
-    canvas.select('.table-wrapper .SummaryTable .alert').remove();
+    canvas.select('.table-wrapper .SummaryTable .wc-alert').remove();
     canvas.select('.table-wrapper .SummaryTable table').remove();
     canvas.select('.table-wrapper .SummaryTable button').remove();
     canvas.select('.table-wrapper .DetailTable').remove();
@@ -1050,7 +1050,7 @@ var defaultSettings = {
 \------------------------------------------------------------------------------------------------*/
 function setDefaults(chart) {
     function errorNote(msg) {
-        chart.wrap.append('div').attr('class', 'alert').text('Fatal Error: ' + msg);
+        chart.wrap.append('div').attr('class', 'wc-alert').text('Fatal Error: ' + msg);
     }
 
     /////////////////////////////
@@ -1254,7 +1254,7 @@ function init$6(chart) {
     /////////////////////////////////////
     //Check to make sure there is some data
     if (!chart.data.major.length) {
-        chart.wrap.select('.SummaryTable').append('div').attr('class', 'alert').text('Error: No data matches the current filters. Update the filters to see results.');
+        chart.wrap.select('.SummaryTable').append('div').attr('class', 'wc-alert').text('Error: No data matches the current filters. Update the filters to see results.');
         throw new Error('No data found in the column specified for major category. ');
     }
 
@@ -1543,7 +1543,7 @@ function init$7(chart, detailTableSettings) {
         chart.wrap.select('.SummaryTable table').classed('summary', false);
         chart.wrap.select('div.controls').selectAll('div').classed('wc-hidden', false);
         chart.wrap.select('div.controls').select('div.custom-filters').selectAll('select').property('disabled', '');
-        chart.wrap.selectAll('.SummaryTable table tbody tr').classed('active', false);
+        chart.wrap.selectAll('.SummaryTable table tbody tr').classed('wc-active', false);
         chart.detailTable.wrap.remove();
         chart.detailTable.head.remove();
     });

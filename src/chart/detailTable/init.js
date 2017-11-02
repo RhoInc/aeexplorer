@@ -54,7 +54,7 @@ export function init(chart, detailTableSettings) {
             .select('div.custom-filters')
             .selectAll('select')
             .property('disabled', '');
-        chart.wrap.selectAll('.SummaryTable table tbody tr').classed('active', false);
+        chart.wrap.selectAll('.SummaryTable table tbody tr').classed('wc-active', false);
         chart.detailTable.wrap.remove();
         chart.detailTable.head.remove();
     });

@@ -86,7 +86,7 @@ export function init(chart) {
         chart.wrap
             .select('.SummaryTable')
             .append('div')
-            .attr('class', 'alert')
+            .attr('class', 'wc-alert')
             .text('Error: No data matches the current filters. Update the filters to see results.');
         throw new Error('No data found in the column specified for major category. ');
     }
