@@ -48,7 +48,7 @@ export function init(chart, detailTableSettings) {
 
     closeButton.on('click', () => {
         chart.wrap.select('.SummaryTable table').classed('summary', false);
-        chart.wrap.select('div.controls').selectAll('div').classed('hidden', false);
+        chart.wrap.select('div.controls').selectAll('div').classed('wc-hidden', false);
         chart.wrap
             .select('div.controls')
             .select('div.custom-filters')

@@ -139,7 +139,7 @@ export function init(chart) {
         .style('color', d => chart.colorScale(d.key))
         .attr('class', 'values')
         .classed('total', d => d.key == 'Total')
-        .classed('hidden', function(d) {
+        .classed('wc-hidden', function(d) {
             if (d.key == 'Total') {
                 return !chart.config.defaults.totalCol;
             } else {
@@ -326,14 +326,14 @@ export function init(chart) {
             });
 
             //Display CI;
-            d3.select(this.parentNode).select('.ci').classed('hidden', false);
+            d3.select(this.parentNode).select('.ci').classed('wc-hidden', false);
 
             //show cell counts for selected groups
             showCellCounts(chart, currentRow, d.group1);
             showCellCounts(chart, currentRow, d.group2);
         })
         .on('mouseout', function(d) {
-            d3.select(this.parentNode).select('.ci').classed('hidden', true); //hide CI
+            d3.select(this.parentNode).select('.ci').classed('wc-hidden', true); //hide CI
             chart.wrap.selectAll('.annote').remove(); //Delete annotations.
         });
 
