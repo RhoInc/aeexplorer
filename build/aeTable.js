@@ -297,10 +297,10 @@ function init$5(chart) {
             chart.wrap.selectAll('div.SummaryTable table tbody tr').classed('search', false);
 
             //Hide expand/collapse cells.
-            chart.wrap.selectAll('div.SummaryTable table tbody tr td.controls span').classed('hidden', true);
+            chart.wrap.selectAll('div.SummaryTable table tbody tr td.controls span').classed('wc-hidden', true);
 
             //Display 'clear search' icon.
-            chart.wrap.select('span.search-label').classed('hidden', false);
+            chart.wrap.select('span.search-label').classed('wc-hidden', false);
 
             //Flag summary table.
             var tab = chart.wrap.select('div.SummaryTable').classed('search', true);
@@ -1442,7 +1442,7 @@ function init$6(chart) {
         //Update classes (row visibility handeled via css)
         var toggle = !chart.wrap.select('.SummaryTable table').classed('summary');
         chart.wrap.select('.SummaryTable table').classed('summary', toggle);
-        chart.wrap.select('div.controls').selectAll('div').classed('hidden', toggle);
+        chart.wrap.select('div.controls').selectAll('div').classed('wc-hidden', toggle);
 
         //Create/remove the participant level table
         if (toggle) {
@@ -1554,7 +1554,7 @@ function init$7(chart, detailTableSettings) {
     //Details about current population filters
     var filtered = chart.raw_event_data.length != chart.population_event_data.length;
     if (filtered) {
-        chart.wrap.select('div.controls').select('div.custom-filters').classed('hidden', false).selectAll('select').property('disabled', 'disabled');
+        chart.wrap.select('div.controls').select('div.custom-filters').classed('wc-hidden', false).selectAll('select').property('disabled', 'disabled');
         chart.detailTable.head.append('span').html(filtered ? 'The listing is filtered as shown:' : '');
     }
 
