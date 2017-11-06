@@ -91,14 +91,14 @@
             float: left;
         }
 
-        /*Rate Filter*/        
+        /*Rate Filter*/
         div.aeTable span.sectionHead {
             font-weight: bold;
             padding-right: 10px;
         }
 
         div.aeTable .controls .rate-filter .rateFilterDiv > * {
-            font-size: 75%;
+            font-size: small;
             float: left;
             padding: 3px;
             display: table-cell;
@@ -171,7 +171,7 @@
 
         /*Search*/
         div.aeTable span.search-label {
-            padding-left:5px; 
+            padding-left:5px;
             margin-right:5px;
         }
 
@@ -246,17 +246,17 @@
         div.aeTable .SummaryTable th.diffplot.axis {
             padding-bottom: 0px;
             vertical-align:bottom;
-        }	
+        }
 
         div.aeTable .SummaryTable th.prevHeader svg text,
         div.aeTable .SummaryTable th.diffplot.axis svg text {
             font-size: 10px;
-        }	
+        }
 
-        div.aeTable .SummaryTable tfoot, 
+        div.aeTable .SummaryTable tfoot,
         div.aeTable .SummaryTable thead {
             border-top:1px #555 solid;
-            border-bottom:1px #555 solid;	
+            border-bottom:1px #555 solid;
         }
 
         div.aeTable .SummaryTable i {
@@ -266,11 +266,11 @@
         }
 
         /* Handle visibility in various scenarios */
-        div.aeTable .SummaryTable tr.filter, 
+        div.aeTable .SummaryTable tr.filter,
         div.aeTable .SummaryTable table tbody.minorHidden tr.minor,
         div.aeTable .SummaryTable tr.inactive,
         div.aeTable .SummaryTable table.summary {
-            display:none; 
+            display:none;
         }
 
         div.aeTable .hidden,
@@ -278,7 +278,7 @@
         div.aeTable .controls .filterDiv.custom-filters.hidden {
             display: none;
         }
-        
+
         /*using set widths to avoid funky behavior on mouseover - could maybe make the width interactive based on the data? */
         div.aeTable .SummaryTable tr td.values {
             min-width:100px;
