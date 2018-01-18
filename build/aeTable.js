@@ -1476,7 +1476,10 @@ function toggleRows(chart) {
     chart.wrap.selectAll('div.SummaryTable table tbody').each(function (d) {
         var allRows = d3.select(this).selectAll('tr');
         var filterRows = allRows.filter(function (d) {
-            var percents = d.values.map(function (element) {
+            var percents = d.values.filter(function (d) {
+                //only keep the total column if groupColumns are hidden (otherwise keep all columns)
+                return chart.config.defaults.groupCols ? true : d.key == 'Total';
+            }).map(function (element) {
                 return element.values.per;
             });
             var maxPercent = d3.max(percents);
