@@ -58,7 +58,6 @@
         }
 
         div.aeTable .controls .rate-filter > * {
-            height: 100%;
             display: table-cell;
             vertical-align: middle;
             float: left;
@@ -71,13 +70,11 @@
         }
 
         div.aeTable .controls .summary-control > * {
-            height: 100%;
             display: table-cell;
             float: left;
         }
 
         div.aeTable .controls .summary-control div {
-            height: 100%;
             display: table-cell;
             vertical-align: middle;
             float: left;
