@@ -772,8 +772,8 @@ function fillRow(currentRow, chart, d) {
 
             var leftpoints = [{ x: chart.diffScale(d.diff), y: h / 2 + r }, //bottom
             { x: chart.diffScale(d.diff) - r, y: h / 2 }, //middle-left
-            { x: chart.diffScale(d.diff), y: h / 2 - r } //top
-            ];
+            { x: chart.diffScale(d.diff), y: h / 2 - r //top
+            }];
             return triangle(leftpoints);
         }).attr('class', 'diamond').attr('fill-opacity', function (d) {
             return d.sig === 1 ? 1 : 0.1;
@@ -789,8 +789,8 @@ function fillRow(currentRow, chart, d) {
 
             var rightpoints = [{ x: chart.diffScale(d.diff), y: h / 2 + r }, //bottom
             { x: chart.diffScale(d.diff) + r, y: h / 2 }, //middle-right
-            { x: chart.diffScale(d.diff), y: h / 2 - r } //top
-            ];
+            { x: chart.diffScale(d.diff), y: h / 2 - r //top
+            }];
             return triangle(rightpoints);
         }).attr('class', 'diamond').attr('fill-opacity', function (d) {
             return d.sig === 1 ? 1 : 0.1;
@@ -1001,7 +1001,10 @@ var defaultSettings = {
         major: 'AEBODSYS',
         minor: 'AEDECOD',
         group: 'ARM',
-        details: [],
+        details: [{
+            value_col: [],
+            label: []
+        }],
         filters: [{
             value_col: 'AESER',
             label: 'Serious?',
@@ -1026,7 +1029,10 @@ var defaultSettings = {
     },
     groups: [],
     defaults: {
-        placeholderFlag: { value_col: 'AEBODSYS', values: ['NA'] },
+        placeholderFlag: {
+            value_col: 'AEBODSYS',
+            values: ['NA']
+        },
         maxPrevalence: 0,
         maxGroups: 6,
         totalCol: true,
@@ -1038,8 +1044,14 @@ var defaultSettings = {
     plotSettings: {
         h: 15,
         w: 200,
-        margin: { left: 40, right: 40 },
-        diffMargin: { left: 5, right: 5 },
+        margin: {
+            left: 40,
+            right: 40
+        },
+        diffMargin: {
+            left: 5,
+            right: 5
+        },
         r: 7
     },
     validation: false
@@ -1523,12 +1535,13 @@ function init$7(chart, detailTableSettings) {
         return ['data_all', 'placeholderFlag'].indexOf(d) === -1;
     });
 
-    //Keep only those columns specified in settings.variables.details.
+    //Keep only those columns specified in settings.variables.details append
+    //And write over column name with label if it is provided
     var detailVars = vars.details;
     var details = details.map(function (d) {
         var current = {};
         detailVars.forEach(function (currentVar) {
-            return current[currentVar] = d[currentVar];
+            currentVar.label ? current[currentVar.label] = d[currentVar.value_col] : current[currentVar.value_col] = d[currentVar.value_col];
         });
         return current;
     });

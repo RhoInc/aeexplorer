@@ -4,7 +4,12 @@ const defaultSettings = {
         major: 'AEBODSYS',
         minor: 'AEDECOD',
         group: 'ARM',
-        details: [],
+        details: [
+            {
+                value_col: [],
+                label: []
+            }
+        ],
         filters: [
             {
                 value_col: 'AESER',
@@ -34,7 +39,10 @@ const defaultSettings = {
     },
     groups: [],
     defaults: {
-        placeholderFlag: { value_col: 'AEBODSYS', values: ['NA'] },
+        placeholderFlag: {
+            value_col: 'AEBODSYS',
+            values: ['NA']
+        },
         maxPrevalence: 0,
         maxGroups: 6,
         totalCol: true,
@@ -46,8 +54,14 @@ const defaultSettings = {
     plotSettings: {
         h: 15,
         w: 200,
-        margin: { left: 40, right: 40 },
-        diffMargin: { left: 5, right: 5 },
+        margin: {
+            left: 40,
+            right: 40
+        },
+        diffMargin: {
+            left: 5,
+            right: 5
+        },
         r: 7
     },
     validation: false

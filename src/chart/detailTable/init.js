@@ -19,11 +19,16 @@ export function init(chart, detailTableSettings) {
             d => ['data_all', 'placeholderFlag'].indexOf(d) === -1
         );
 
-    //Keep only those columns specified in settings.variables.details.
+    //Keep only those columns specified in settings.variables.details append
+    //And write over column name with label if it is provided
     var detailVars = vars.details;
     var details = details.map(d => {
         var current = {};
-        detailVars.forEach(currentVar => (current[currentVar] = d[currentVar]));
+        detailVars.forEach(currentVar => {
+            currentVar.label
+                ? (current[currentVar.label] = d[currentVar.value_col])
+                : (current[currentVar.value_col] = d[currentVar.value_col]);
+        });
         return current;
     });
 
