@@ -74,7 +74,7 @@ export function init(chart, detailTableSettings) {
         chart.wrap
             .select('div.controls')
             .select('div.custom-filters')
-            .classed('hidden', false)
+            .classed('wc-hidden', false)
             .selectAll('select')
             .property('disabled', 'disabled');
         chart.detailTable.head

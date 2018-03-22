@@ -367,13 +367,16 @@ export function init(chart) {
         //Update classes (row visibility handeled via css)
         var toggle = !chart.wrap.select('.SummaryTable table').classed('summary');
         chart.wrap.select('.SummaryTable table').classed('summary', toggle);
-        chart.wrap.select('div.controls').selectAll('div').classed('hidden', toggle);
+        chart.wrap.select('div.controls').selectAll('div').classed('wc-hidden', toggle);
 
         //Create/remove the participant level table
         if (toggle) {
             var major = d.values[0].values['major'];
             var minor = d.values[0].values['minor'];
-            var detailTableSettings = { major: major, minor: minor };
+            var detailTableSettings = {
+                major: major,
+                minor: minor
+            };
             chart.detailTable.init(chart, detailTableSettings);
         } else {
             chart.wrap.select('.DetailTable').remove();
