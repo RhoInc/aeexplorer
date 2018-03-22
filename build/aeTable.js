@@ -1544,7 +1544,7 @@ function init$7(chart, detailTableSettings) {
                 currentVar.label // if label is provided, write over column name with label
                 ? current[currentVar.label] = d[currentVar.value_col] : current[currentVar.value_col] = d[currentVar.value_col];
             } else {
-                return current[currentVar] = d[currentVar];
+                current[currentVar] = d[currentVar];
             }
         });
         return current;

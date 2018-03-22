@@ -32,7 +32,7 @@ export function init(chart, detailTableSettings) {
                     ? (current[currentVar.label] = d[currentVar.value_col])
                     : (current[currentVar.value_col] = d[currentVar.value_col]);
             } else {
-                return (current[currentVar] = d[currentVar]);
+                current[currentVar] = d[currentVar];
             }
         });
         return current;
