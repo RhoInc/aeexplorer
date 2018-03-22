@@ -4,12 +4,7 @@ const defaultSettings = {
         major: 'AEBODSYS',
         minor: 'AEDECOD',
         group: 'ARM',
-        details: [
-            {
-                value_col: [],
-                label: []
-            }
-        ],
+        details: [],
         filters: [
             {
                 value_col: 'AESER',

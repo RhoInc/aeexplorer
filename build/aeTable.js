@@ -1001,10 +1001,7 @@ var defaultSettings = {
         major: 'AEBODSYS',
         minor: 'AEDECOD',
         group: 'ARM',
-        details: [{
-            value_col: [],
-            label: []
-        }],
+        details: [],
         filters: [{
             value_col: 'AESER',
             label: 'Serious?',
@@ -1536,12 +1533,19 @@ function init$7(chart, detailTableSettings) {
     });
 
     //Keep only those columns specified in settings.variables.details append
-    //And write over column name with label if it is provided
+    //If provided with a details object use that to determine chosen
+    //variables and headers
     var detailVars = vars.details;
     var details = details.map(function (d) {
         var current = {};
         detailVars.forEach(function (currentVar) {
-            currentVar.label ? current[currentVar.label] = d[currentVar.value_col] : current[currentVar.value_col] = d[currentVar.value_col];
+            if (currentVar.value_col) {
+                // only true if a details object is provided
+                currentVar.label // if label is provided, write over column name with label
+                ? current[currentVar.label] = d[currentVar.value_col] : current[currentVar.value_col] = d[currentVar.value_col];
+            } else {
+                return current[currentVar] = d[currentVar];
+            }
         });
         return current;
     });
