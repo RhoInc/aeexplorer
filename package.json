@@ -1,6 +1,6 @@
 {
   "name": "aeexplorer",
-  "version": "3.2.1",
+  "version": "3.2.6",
   "description": "An interactive tool that allows users to dynamically query adverse event data in real time.",
   "keywords": [
     "adverse",
@@ -19,8 +19,8 @@
     "url": "https://github.com/rhoinc/aeexplorer.git"
   },
   "scripts": {
-    "build": "npm run format && npm run es5 && npm run minify",
-    "es5": "rollup -c",
+    "build": "npm run format && npm run bundle && npm run minify",
+    "bundle": "rollup -c",
     "format": "prettier --print-width=100 --tab-width=4 --single-quote --write \"src/**/*.js\"",
     "minify": "npm run minifyjs && npm run minifycss",
     "minifycss": "cleancss -o css/aeTable.min.css css/aeTable.css",
