@@ -59,13 +59,13 @@ export function init(chart, detailTableSettings) {
 
     closeButton.on('click', () => {
         chart.wrap.select('.SummaryTable table').classed('summary', false);
-        chart.wrap.select('div.controls').selectAll('div').classed('hidden', false);
+        chart.wrap.select('div.controls').selectAll('div').classed('wc-hidden', false);
         chart.wrap
             .select('div.controls')
             .select('div.custom-filters')
             .selectAll('select')
             .property('disabled', '');
-        chart.wrap.selectAll('.SummaryTable table tbody tr').classed('active', false);
+        chart.wrap.selectAll('.SummaryTable table tbody tr').classed('wc-active', false);
         chart.detailTable.wrap.remove();
         chart.detailTable.head.remove();
     });
@@ -85,7 +85,7 @@ export function init(chart, detailTableSettings) {
         chart.wrap
             .select('div.controls')
             .select('div.custom-filters')
-            .classed('hidden', false)
+            .classed('wc-hidden', false)
             .selectAll('select')
             .property('disabled', 'disabled');
         chart.detailTable.head

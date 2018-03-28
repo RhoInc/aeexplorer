@@ -47,8 +47,8 @@ var colorScale = d3.scale.ordinal().range(['#377EB8', '#4DAF4A', '#984EA3', '#FF
 \------------------------------------------------------------------------------------------------*/
 
 function layout() {
-    var wrapper = this.wrap.append('div').attr('class', 'aeTable row-fluid').append('div').attr('class', 'table-wrapper');
-    wrapper.append('div').attr('class', 'controls form-inline row-fluid');
+    var wrapper = this.wrap.append('div').attr('class', 'aeTable').append('div').attr('class', 'table-wrapper');
+    wrapper.append('div').attr('class', 'controls');
     wrapper.append('div').attr('class', 'SummaryTable');
     if (this.config.validation) this.wrap.append('a').attr({
         id: 'downloadCSV'
@@ -269,13 +269,13 @@ var summaryControl = { init: init$4 };
 
 function init$5(chart) {
     //draw the search control
-    var selector = chart.controls.wrap.append('div').attr('class', 'searchForm navbar-search pull-right').attr('onsubmit', 'return false;');
+    var selector = chart.controls.wrap.append('div').attr('class', 'searchForm wc-navbar-search pull-right').attr('onsubmit', 'return false;');
 
     //Clear search control.
     selector.selectAll('span.seach-label, input.searchBar').remove();
 
     //Generate search control.
-    var searchLabel = selector.append('span').attr('class', 'search-label label hidden');
+    var searchLabel = selector.append('span').attr('class', 'search-label label wc-hidden');
     searchLabel.append('span').attr('class', 'search-count');
     searchLabel.append('span').attr('class', 'clear-search').html('&#9747;');
     selector.append('input').attr('type', 'text').attr('class', 'searchBar search-query input-medium').attr('placeholder', 'Search');
@@ -297,10 +297,10 @@ function init$5(chart) {
             chart.wrap.selectAll('div.SummaryTable table tbody tr').classed('search', false);
 
             //Hide expand/collapse cells.
-            chart.wrap.selectAll('div.SummaryTable table tbody tr td.controls span').classed('hidden', true);
+            chart.wrap.selectAll('div.SummaryTable table tbody tr td.controls span').classed('wc-hidden', true);
 
             //Display 'clear search' icon.
-            chart.wrap.select('span.search-label').classed('hidden', false);
+            chart.wrap.select('span.search-label').classed('wc-hidden', false);
 
             //Flag summary table.
             var tab = chart.wrap.select('div.SummaryTable').classed('search', true);
@@ -372,7 +372,7 @@ function clear(chart) {
     });
 
     //Remove 'clear search' icon and label.
-    chart.wrap.select('span.search-label').classed('hidden', true);
+    chart.wrap.select('span.search-label').classed('wc-hidden', true);
 
     //Clear search flags.
     chart.wrap.selectAll('div.SummaryTable').classed('search', false);
@@ -420,7 +420,7 @@ function redraw(chart) {
 \------------------------------------------------------------------------------------------------*/
 
 function wipe(canvas) {
-    canvas.select('.table-wrapper .SummaryTable .alert').remove();
+    canvas.select('.table-wrapper .SummaryTable .wc-alert').remove();
     canvas.select('.table-wrapper .SummaryTable table').remove();
     canvas.select('.table-wrapper .SummaryTable button').remove();
     canvas.select('.table-wrapper .DetailTable').remove();
@@ -709,7 +709,7 @@ function fillRow(currentRow, chart, d) {
         return d.key;
     }).enter().append('td').attr('class', 'values').classed('total', function (d) {
         return d.key == 'Total';
-    }).classed('hidden', function (d) {
+    }).classed('wc-hidden', function (d) {
         if (d.key == 'Total') {
             return !chart.config.defaults.totalCol;
         } else {
@@ -732,7 +732,7 @@ function fillRow(currentRow, chart, d) {
         return chart.percentScale(d.values['per']);
     }).attr('cy', chart.config.plotSettings.h / 2).attr('r', chart.config.plotSettings.r - 2).attr('fill', function (d) {
         return table.colorScale(d.values['group']);
-    }).classed('hidden', function (d) {
+    }).classed('wc-hidden', function (d) {
         if (d.key == 'Total') {
             return !chart.config.defaults.totalCol;
         } else {
@@ -757,7 +757,7 @@ function fillRow(currentRow, chart, d) {
             return chart.diffScale(d.upper);
         }).attr('x2', function (d) {
             return chart.diffScale(d.lower);
-        }).attr('y1', chart.config.plotSettings.h / 2).attr('y2', chart.config.plotSettings.h / 2).attr('class', 'ci').classed('hidden', chart.config.groups.length > 2).attr('stroke', '#bbb');
+        }).attr('y1', chart.config.plotSettings.h / 2).attr('y2', chart.config.plotSettings.h / 2).attr('class', 'ci').classed('wc-hidden', chart.config.groups.length > 2).attr('stroke', '#bbb');
 
         //Append graphical rate differences.
         var triangle = d3.svg.line().x(function (d) {
@@ -1059,7 +1059,7 @@ var defaultSettings = {
 \------------------------------------------------------------------------------------------------*/
 function setDefaults(chart) {
     function errorNote(msg) {
-        chart.wrap.append('div').attr('class', 'alert').text('Fatal Error: ' + msg);
+        chart.wrap.append('div').attr('class', 'wc-alert').text('Fatal Error: ' + msg);
     }
 
     /////////////////////////////
@@ -1263,7 +1263,7 @@ function init$6(chart) {
     /////////////////////////////////////
     //Check to make sure there is some data
     if (!chart.data.major.length) {
-        chart.wrap.select('.SummaryTable').append('div').attr('class', 'alert').text('Error: No data matches the current filters. Update the filters to see results.');
+        chart.wrap.select('.SummaryTable').append('div').attr('class', 'wc-alert').text('Error: No data matches the current filters. Update the filters to see results.');
         throw new Error('No data found in the column specified for major category. ');
     }
 
@@ -1307,7 +1307,7 @@ function init$6(chart) {
         return chart.colorScale(d.key);
     }).attr('class', 'values').classed('total', function (d) {
         return d.key == 'Total';
-    }).classed('hidden', function (d) {
+    }).classed('wc-hidden', function (d) {
         if (d.key == 'Total') {
             return !chart.config.defaults.totalCol;
         } else {
@@ -1418,13 +1418,13 @@ function init$6(chart) {
         });
 
         //Display CI;
-        d3.select(this.parentNode).select('.ci').classed('hidden', false);
+        d3.select(this.parentNode).select('.ci').classed('wc-hidden', false);
 
         //show cell counts for selected groups
         showCellCounts(chart, currentRow, d.group1);
         showCellCounts(chart, currentRow, d.group2);
     }).on('mouseout', function (d) {
-        d3.select(this.parentNode).select('.ci').classed('hidden', true); //hide CI
+        d3.select(this.parentNode).select('.ci').classed('wc-hidden', true); //hide CI
         chart.wrap.selectAll('.annote').remove(); //Delete annotations.
     });
 
@@ -1451,13 +1451,16 @@ function init$6(chart) {
         //Update classes (row visibility handeled via css)
         var toggle = !chart.wrap.select('.SummaryTable table').classed('summary');
         chart.wrap.select('.SummaryTable table').classed('summary', toggle);
-        chart.wrap.select('div.controls').selectAll('div').classed('hidden', toggle);
+        chart.wrap.select('div.controls').selectAll('div').classed('wc-hidden', toggle);
 
         //Create/remove the participant level table
         if (toggle) {
             var major = d.values[0].values['major'];
             var minor = d.values[0].values['minor'];
-            var detailTableSettings = { major: major, minor: minor };
+            var detailTableSettings = {
+                major: major,
+                minor: minor
+            };
             chart.detailTable.init(chart, detailTableSettings);
         } else {
             chart.wrap.select('.DetailTable').remove();
@@ -1478,7 +1481,7 @@ function toggleRows(chart) {
 
     //Toggle Difference plots
     var differenceToggle = false;
-    chart.wrap.selectAll('.SummaryTable .diffplot').classed('hidden', differenceToggle);
+    chart.wrap.selectAll('.SummaryTable .diffplot').classed('wc-hidden', differenceToggle);
 
     //Filter based on prevalence.
     var filterVal = chart.wrap.select('div.controls input.rateFilter').property('value');
@@ -1497,7 +1500,7 @@ function toggleRows(chart) {
         });
         filterRows.classed('filter', 'true');
 
-        d3.select(this).select('tr.major td.controls span').classed('hidden', filterRows[0].length + 1 >= allRows[0].length);
+        d3.select(this).select('tr.major td.controls span').classed('wc-hidden', filterRows[0].length + 1 >= allRows[0].length);
     });
 }
 
@@ -1561,9 +1564,9 @@ function init$7(chart, detailTableSettings) {
 
     closeButton.on('click', function () {
         chart.wrap.select('.SummaryTable table').classed('summary', false);
-        chart.wrap.select('div.controls').selectAll('div').classed('hidden', false);
+        chart.wrap.select('div.controls').selectAll('div').classed('wc-hidden', false);
         chart.wrap.select('div.controls').select('div.custom-filters').selectAll('select').property('disabled', '');
-        chart.wrap.selectAll('.SummaryTable table tbody tr').classed('active', false);
+        chart.wrap.selectAll('.SummaryTable table tbody tr').classed('wc-active', false);
         chart.detailTable.wrap.remove();
         chart.detailTable.head.remove();
     });
@@ -1574,7 +1577,7 @@ function init$7(chart, detailTableSettings) {
     //Details about current population filters
     var filtered = chart.raw_event_data.length != chart.population_event_data.length;
     if (filtered) {
-        chart.wrap.select('div.controls').select('div.custom-filters').classed('hidden', false).selectAll('select').property('disabled', 'disabled');
+        chart.wrap.select('div.controls').select('div.custom-filters').classed('wc-hidden', false).selectAll('select').property('disabled', 'disabled');
         chart.detailTable.head.append('span').html(filtered ? 'The listing is filtered as shown:' : '');
     }
 

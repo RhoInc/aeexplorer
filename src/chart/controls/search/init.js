@@ -6,14 +6,14 @@ export function init(chart) {
     //draw the search control
     var selector = chart.controls.wrap
         .append('div')
-        .attr('class', 'searchForm navbar-search pull-right')
+        .attr('class', 'searchForm wc-navbar-search pull-right')
         .attr('onsubmit', 'return false;');
 
     //Clear search control.
     selector.selectAll('span.seach-label, input.searchBar').remove();
 
     //Generate search control.
-    var searchLabel = selector.append('span').attr('class', 'search-label label hidden');
+    var searchLabel = selector.append('span').attr('class', 'search-label label wc-hidden');
     searchLabel.append('span').attr('class', 'search-count');
     searchLabel.append('span').attr('class', 'clear-search').html('&#9747;');
     selector
@@ -41,10 +41,10 @@ export function init(chart) {
             //Hide expand/collapse cells.
             chart.wrap
                 .selectAll('div.SummaryTable table tbody tr td.controls span')
-                .classed('hidden', true);
+                .classed('wc-hidden', true);
 
             //Display 'clear search' icon.
-            chart.wrap.select('span.search-label').classed('hidden', false);
+            chart.wrap.select('span.search-label').classed('wc-hidden', false);
 
             //Flag summary table.
             var tab = chart.wrap.select('div.SummaryTable').classed('search', true);

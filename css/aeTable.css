@@ -6,7 +6,7 @@
       Table layout
     \--------------------------------------------------------------------------------------***/
 
-        div.aeTable div.navbar {
+        div.aeTable div.wc-navbar {
             margin-top:5px;
         }
 
@@ -19,15 +19,15 @@
             font-size:14px;
         }
 
-        div.aeTable div.navbar .dropdown-menu li {
+        div.aeTable div.wc-navbar .wc-dropdown-menu li {
             cursor: pointer;
         }
 
-        div.aeTable div.navbar ul.dropdown-menu li a.disabled {
+        div.aeTable div.wc-navbar ul.wc-dropdown-menu li a.disabled {
             color: #BBB;
         }
 
-        div.aeTable .alert{
+        div.aeTable .wc-alert{
             padding: 20px;
             background-color: #f44336; /* Red */
             color: white;
@@ -138,7 +138,7 @@
             margin: 0 3px 5px 0;
         }
 
-        div.aeTable  .controls .custom-filters ul li.active > a > label,
+        div.aeTable  .controls .custom-filters ul li.wc-active > a > label,
         div.aeTable  .controls .custom-filters ul li:hover > a > label {
             color: white;
         }
@@ -178,7 +178,7 @@
             cursor:pointer;
         }
 
-        div.aeTable .navbar-search .search-query {
+        div.aeTable .wc-navbar-search .search-query {
             line-height: 1.3em;
         }
 
@@ -270,9 +270,9 @@
             display:none;
         }
 
-        div.aeTable .hidden,
-        div.aeTable .controls .hidden,
-        div.aeTable .controls .filterDiv.custom-filters.hidden {
+        div.aeTable .wc-hidden,
+        div.aeTable .controls .wc-hidden,
+        div.aeTable .controls .filterDiv.custom-filters.wc-hidden {
             display: none;
         }
 

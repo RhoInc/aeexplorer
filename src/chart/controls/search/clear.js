@@ -15,7 +15,7 @@ export function clear(chart) {
     });
 
     //Remove 'clear search' icon and label.
-    chart.wrap.select('span.search-label').classed('hidden', true);
+    chart.wrap.select('span.search-label').classed('wc-hidden', true);
 
     //Clear search flags.
     chart.wrap.selectAll('div.SummaryTable').classed('search', false);
