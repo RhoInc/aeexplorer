@@ -9,7 +9,6 @@ if (window.origin !== 'https://rhoinc.github.io') {
     head.appendChild(script);
 
   //...load local stylesheet.
-    console.log(document.styleSheets);
     for (var i = 0; i < document.styleSheets.length; i++) {
         var styleSheet = document.styleSheets[i];
         if (styleSheet.href.indexOf('aeTable') > -1)
