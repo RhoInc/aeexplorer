@@ -66,7 +66,7 @@ export function fillRow(currentRow, chart, d) {
         .classed('total', function(d) {
             return d.key == 'Total';
         })
-        .classed('hidden', function(d) {
+        .classed('wc-hidden', function(d) {
             if (d.key == 'Total') {
                 return !chart.config.defaults.totalCol;
             } else {
@@ -110,7 +110,7 @@ export function fillRow(currentRow, chart, d) {
         .attr('fill', function(d) {
             return table.colorScale(d.values['group']);
         })
-        .classed('hidden', function(d) {
+        .classed('wc-hidden', function(d) {
             if (d.key == 'Total') {
                 return !chart.config.defaults.totalCol;
             } else {
@@ -161,7 +161,7 @@ export function fillRow(currentRow, chart, d) {
             .attr('y1', chart.config.plotSettings.h / 2)
             .attr('y2', chart.config.plotSettings.h / 2)
             .attr('class', 'ci')
-            .classed('hidden', chart.config.groups.length > 2)
+            .classed('wc-hidden', chart.config.groups.length > 2)
             .attr('stroke', '#bbb');
 
         //Append graphical rate differences.

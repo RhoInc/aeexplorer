@@ -13,7 +13,7 @@ export function toggleRows(chart) {
 
     //Toggle Difference plots
     var differenceToggle = false;
-    chart.wrap.selectAll('.SummaryTable .diffplot').classed('hidden', differenceToggle);
+    chart.wrap.selectAll('.SummaryTable .diffplot').classed('wc-hidden', differenceToggle);
 
     //Filter based on prevalence.
     var filterVal = chart.wrap.select('div.controls input.rateFilter').property('value');
@@ -37,6 +37,6 @@ export function toggleRows(chart) {
         d3
             .select(this)
             .select('tr.major td.controls span')
-            .classed('hidden', filterRows[0].length + 1 >= allRows[0].length);
+            .classed('wc-hidden', filterRows[0].length + 1 >= allRows[0].length);
     });
 }

@@ -1,6 +1,6 @@
 {
   "name": "aeexplorer",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "description": "An interactive tool that allows users to dynamically query adverse event data in real time.",
   "keywords": [
     "adverse",
@@ -19,16 +19,18 @@
     "url": "https://github.com/rhoinc/aeexplorer.git"
   },
   "scripts": {
-    "build": "npm run format && npm run es5 && npm run minify",
-    "es5": "rollup -c",
+    "build": "npm run format && npm run bundle && npm run minify && npm run build-md && npm run test-page",
+    "build-md": "node ./scripts/configuration-markdown.js",
+    "bundle": "rollup -c",
     "format": "prettier --print-width=100 --tab-width=4 --single-quote --write \"src/**/*.js\"",
     "minify": "npm run minifyjs && npm run minifycss",
     "minifycss": "cleancss -o css/aeTable.min.css css/aeTable.css",
     "minifyjs": "uglifyjs build/aeTable.js > build/aeTable.min.js",
+    "test-page": "start chrome ./build/test-page/index.html && start firefox ./build/test-page/index.html && start iexplore file://%CD%/build/test-page/index.html",
     "watch": "rollup -c -w"
   },
   "devDependencies": {
-    "babel-plugin-external-helpers":"^6.22.0",
+    "babel-plugin-external-helpers": "^6.22.0",
     "babel-preset-es2015": "^6.0.0",
     "clean-css-cli": "^4.0.0",
     "prettier": "1.4.4",

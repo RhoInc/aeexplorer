@@ -5,7 +5,7 @@ import defaultSettings from '../defaultSettings';
 \------------------------------------------------------------------------------------------------*/
 export function setDefaults(chart) {
     function errorNote(msg) {
-        chart.wrap.append('div').attr('class', 'alert').text('Fatal Error: ' + msg);
+        chart.wrap.append('div').attr('class', 'wc-alert').text('Fatal Error: ' + msg);
     }
 
     /////////////////////////////

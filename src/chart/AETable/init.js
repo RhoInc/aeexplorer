@@ -86,7 +86,7 @@ export function init(chart) {
         chart.wrap
             .select('.SummaryTable')
             .append('div')
-            .attr('class', 'alert')
+            .attr('class', 'wc-alert')
             .text('Error: No data matches the current filters. Update the filters to see results.');
         throw new Error('No data found in the column specified for major category. ');
     }
@@ -139,7 +139,7 @@ export function init(chart) {
         .style('color', d => chart.colorScale(d.key))
         .attr('class', 'values')
         .classed('total', d => d.key == 'Total')
-        .classed('hidden', function(d) {
+        .classed('wc-hidden', function(d) {
             if (d.key == 'Total') {
                 return !chart.config.defaults.totalCol;
             } else {
@@ -326,14 +326,14 @@ export function init(chart) {
             });
 
             //Display CI;
-            d3.select(this.parentNode).select('.ci').classed('hidden', false);
+            d3.select(this.parentNode).select('.ci').classed('wc-hidden', false);
 
             //show cell counts for selected groups
             showCellCounts(chart, currentRow, d.group1);
             showCellCounts(chart, currentRow, d.group2);
         })
         .on('mouseout', function(d) {
-            d3.select(this.parentNode).select('.ci').classed('hidden', true); //hide CI
+            d3.select(this.parentNode).select('.ci').classed('wc-hidden', true); //hide CI
             chart.wrap.selectAll('.annote').remove(); //Delete annotations.
         });
 
@@ -367,13 +367,16 @@ export function init(chart) {
         //Update classes (row visibility handeled via css)
         var toggle = !chart.wrap.select('.SummaryTable table').classed('summary');
         chart.wrap.select('.SummaryTable table').classed('summary', toggle);
-        chart.wrap.select('div.controls').selectAll('div').classed('hidden', toggle);
+        chart.wrap.select('div.controls').selectAll('div').classed('wc-hidden', toggle);
 
         //Create/remove the participant level table
         if (toggle) {
             var major = d.values[0].values['major'];
             var minor = d.values[0].values['minor'];
-            var detailTableSettings = { major: major, minor: minor };
+            var detailTableSettings = {
+                major: major,
+                minor: minor
+            };
             chart.detailTable.init(chart, detailTableSettings);
         } else {
             chart.wrap.select('.DetailTable').remove();

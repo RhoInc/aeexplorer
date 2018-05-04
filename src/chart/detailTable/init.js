@@ -19,11 +19,22 @@ export function init(chart, detailTableSettings) {
             d => ['data_all', 'placeholderFlag'].indexOf(d) === -1
         );
 
-    //Keep only those columns specified in settings.variables.details.
+    //Keep only those columns specified in settings.variables.details append
+    //If provided with a details object use that to determine chosen
+    //variables and headers
     var detailVars = vars.details;
     var details = details.map(d => {
         var current = {};
-        detailVars.forEach(currentVar => (current[currentVar] = d[currentVar]));
+        detailVars.forEach(currentVar => {
+            if (currentVar.value_col) {
+                // only true if a details object is provided
+                currentVar.label // if label is provided, write over column name with label
+                    ? (current[currentVar.label] = d[currentVar.value_col])
+                    : (current[currentVar.value_col] = d[currentVar.value_col]);
+            } else {
+                current[currentVar] = d[currentVar];
+            }
+        });
         return current;
     });
 
@@ -48,13 +59,13 @@ export function init(chart, detailTableSettings) {
 
     closeButton.on('click', () => {
         chart.wrap.select('.SummaryTable table').classed('summary', false);
-        chart.wrap.select('div.controls').selectAll('div').classed('hidden', false);
+        chart.wrap.select('div.controls').selectAll('div').classed('wc-hidden', false);
         chart.wrap
             .select('div.controls')
             .select('div.custom-filters')
             .selectAll('select')
             .property('disabled', '');
-        chart.wrap.selectAll('.SummaryTable table tbody tr').classed('active', false);
+        chart.wrap.selectAll('.SummaryTable table tbody tr').classed('wc-active', false);
         chart.detailTable.wrap.remove();
         chart.detailTable.head.remove();
     });
@@ -74,7 +85,7 @@ export function init(chart, detailTableSettings) {
         chart.wrap
             .select('div.controls')
             .select('div.custom-filters')
-            .classed('hidden', false)
+            .classed('wc-hidden', false)
             .selectAll('select')
             .property('disabled', 'disabled');
         chart.detailTable.head
