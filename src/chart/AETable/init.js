@@ -171,6 +171,10 @@ export function init(chart) {
     chart.percentScale = d3.scale
         .linear()
         .range([0, chart.config.plotSettings.w])
+        .range([
+            chart.config.plotSettings.margin.left,
+            chart.config.plotSettings.w - chart.config.plotSettings.margin.right
+        ])
         .domain([0, d3.max(allPercents)]);
 
     //Add Prevalence Axis
