@@ -181,6 +181,12 @@
             "event"
           ],
           "default":"participant"
+        },
+        "webchartsDetailsTable":{
+          "title":"Data Summary Type",
+          "description":"specifies whether to draw details tables using a webcharts tables object with sort, pagination, data download and search functionality. If true, webcharts becomes a required dependency.",
+          "type":"boolean",
+          "default":"false"
         }
       }
     },

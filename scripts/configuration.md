@@ -141,6 +141,13 @@ Data Summary Type
 
 **default:** `"participant"`
 
+### settings.defaults.webchartsDetailsTable
+`boolean`
+
+Data Summary Type
+
+**default:** `false`
+
 
 
 ## settings.plotSettings
