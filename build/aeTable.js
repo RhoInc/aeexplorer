@@ -1263,7 +1263,7 @@ function init$6(chart) {
     /////////////////////////////////////
     //Check to make sure there is some data
     if (!chart.data.major.length) {
-        chart.wrap.select('.SummaryTable').append('div').attr('class', 'wc-alert').text('Error: No data matches the current filters. Update the filters to see results.');
+        chart.wrap.select('.SummaryTable').append('div').attr('class', 'wc-alert').text('Error: No AEs found for the current filters. Update the filters to see results.');
         throw new Error('No data found in the column specified for major category. ');
     }
 

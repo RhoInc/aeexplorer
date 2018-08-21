@@ -87,7 +87,9 @@ export function init(chart) {
             .select('.SummaryTable')
             .append('div')
             .attr('class', 'wc-alert')
-            .text('Error: No data matches the current filters. Update the filters to see results.');
+            .text(
+                'Error: No AEs found for the current filters. Update the filters to see results.'
+            );
         throw new Error('No data found in the column specified for major category. ');
     }
 
