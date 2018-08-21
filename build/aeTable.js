@@ -95,12 +95,12 @@ function init$2(chart) {
     rateFilter.append('span').attr('class', 'add-on before').html('&#8805;');
     rateFilter.append('input').attr({
         class: 'appendedPrependedInput rateFilter',
-        type: 'text'
+        type: 'number'
     });
     rateFilter.append('span').attr('class', 'add-on after').text('%');
 
     //event listener
-    rateFilter.on('change', function (d) {
+    rateFilter.on('input', function (d) {
         //Clear filter flags.
         chart.wrap.selectAll('.SummaryTable table tbody tr').classed('filter', false);
 
@@ -281,7 +281,7 @@ function init$5(chart) {
     selector.append('input').attr('type', 'text').attr('class', 'searchBar search-query input-medium').attr('placeholder', 'Search');
 
     //event listeners for search
-    chart.wrap.select('input.searchBar').on('change', function (d) {
+    chart.wrap.select('input.searchBar').on('input', function (d) {
         var searchTerm = d3.select(this).property('value').toLowerCase();
 
         if (searchTerm.length > 0) {

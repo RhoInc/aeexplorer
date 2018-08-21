@@ -23,7 +23,7 @@ export function init(chart) {
         .attr('placeholder', 'Search');
 
     //event listeners for search
-    chart.wrap.select('input.searchBar').on('change', function(d) {
+    chart.wrap.select('input.searchBar').on('input', function(d) {
         var searchTerm = d3.select(this).property('value').toLowerCase();
 
         if (searchTerm.length > 0) {

@@ -18,12 +18,12 @@ export function init(chart) {
     rateFilter.append('span').attr('class', 'add-on before').html('&#8805;');
     rateFilter.append('input').attr({
         class: 'appendedPrependedInput rateFilter',
-        type: 'text'
+        type: 'number'
     });
     rateFilter.append('span').attr('class', 'add-on after').text('%');
 
     //event listener
-    rateFilter.on('change', function(d) {
+    rateFilter.on('input', function(d) {
         //Clear filter flags.
         chart.wrap.selectAll('.SummaryTable table tbody tr').classed('filter', false);
 
