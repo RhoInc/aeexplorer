@@ -44,7 +44,8 @@ const defaultSettings = {
         groupCols: true,
         diffCol: true,
         prefTerms: false,
-        summarizeBy: 'participant'
+        summarizeBy: 'participant',
+        webchartsDetailsTable: false
     },
     plotSettings: {
         h: 15,

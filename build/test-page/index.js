@@ -1,5 +1,9 @@
 //If in local environment...
+document.onreadystatechange = function () {
+  if (document.readyState === 'complete') {
+
 if (window.origin !== 'https://rhoinc.github.io') {
+
     var head = document.getElementsByTagName('head')[0];
 
   //...load local build.
@@ -27,7 +31,11 @@ d3.csv(
         if (error)
             console.log(error);
 
-        var settings = {};
+        var settings = {
+         defaults:{
+           webchartsDetailTable:true
+         }
+        };
         var instance = aeTable.createChart(
             '#container',
             settings
@@ -35,3 +43,5 @@ d3.csv(
         instance.init(data);
     }
 );
+}
+}

@@ -1036,7 +1036,8 @@ var defaultSettings = {
         groupCols: true,
         diffCol: true,
         prefTerms: false,
-        summarizeBy: 'participant'
+        summarizeBy: 'participant',
+        webchartsDetailsTable: false
     },
     plotSettings: {
         h: 15,
@@ -1515,10 +1516,7 @@ var AETable = {
     toggleRows: toggleRows
 };
 
-/*------------------------------------------------------------------------------------------------\
-  Generate data listing.
-\------------------------------------------------------------------------------------------------*/
-function init$7(chart, detailTableSettings) {
+function makeDetailData(chart, detailTableSettings) {
     //convenience mappings
     var major = detailTableSettings.major;
     var minor = detailTableSettings.minor;
@@ -1553,6 +1551,24 @@ function init$7(chart, detailTableSettings) {
         return current;
     });
 
+    return details;
+}
+
+function toggleControls(chart) {
+    //Details about current population filters
+    var filtered = chart.raw_event_data.length != chart.population_event_data.length;
+    if (filtered) {
+        chart.wrap.select('div.controls').select('div.custom-filters').classed('wc-hidden', false).selectAll('select').property('disabled', 'disabled');
+        chart.detailTable.head.append('span').html(filtered ? 'The listing is filtered as shown:' : '');
+    }
+}
+
+function makeTitle(chart, detailData, detailTableSettings) {
+    //Add explanatory listing title.
+    chart.detailTable.head.append('h4').html(detailTableSettings.minor === 'All' ? 'Details for ' + detailData.length + ' <b>' + detailTableSettings.major + '</b> records' : 'Details for ' + detailData.length + ' <b>' + detailTableSettings.minor + ' (' + major + ')</b> records');
+}
+
+function layout$1(chart) {
     chart.detailTable.wrap = chart.wrap.select('div.table-wrapper').append('div').attr('class', 'DetailTable');
 
     chart.detailTable.head = chart.wrap.select('div.table-wrapper').insert('div', '.controls').attr('class', 'DetailHeader');
@@ -1567,26 +1583,24 @@ function init$7(chart, detailTableSettings) {
         chart.wrap.select('div.controls').selectAll('div').classed('wc-hidden', false);
         chart.wrap.select('div.controls').select('div.custom-filters').selectAll('select').property('disabled', '');
         chart.wrap.selectAll('.SummaryTable table tbody tr').classed('wc-active', false);
+        if (chart.config.defaults.webchartsDetailTable) {
+            chart.detailTable.table.destroy();
+        }
         chart.detailTable.wrap.remove();
         chart.detailTable.head.remove();
     });
-
-    //Add explanatory listing title.
-    chart.detailTable.head.append('h4').html(minor === 'All' ? 'Details for ' + details.length + ' <b>' + major + '</b> records' : 'Details for ' + details.length + ' <b>' + minor + ' (' + major + ')</b> records');
-
-    //Details about current population filters
-    var filtered = chart.raw_event_data.length != chart.population_event_data.length;
-    if (filtered) {
-        chart.wrap.select('div.controls').select('div.custom-filters').classed('wc-hidden', false).selectAll('select').property('disabled', 'disabled');
-        chart.detailTable.head.append('span').html(filtered ? 'The listing is filtered as shown:' : '');
-    }
-
-    //Generate listing.
-    chart.detailTable.draw(chart.detailTable.wrap, details);
 }
 
-function draw(canvas, data) {
+function draw(chart, data) {
+    chart.detailTable.table = webCharts.createTable(
+    //chart.config.container + ' .aeExplorer .aeTable .table-wrapper .DetailTable',
+    '.DetailTable', {});
+    chart.detailTable.table.init(data);
+}
+
+function draw$1(chart, data) {
     //Generate listing container.
+    var canvas = chart.detailTable.wrap;
     var listing = canvas.append('table').attr('class', 'table');
 
     //Append header to listing container.
@@ -1608,12 +1622,28 @@ function draw(canvas, data) {
 }
 
 /*------------------------------------------------------------------------------------------------\
+  Generate data listing.
+\------------------------------------------------------------------------------------------------*/
+function init$7(chart, detailTableSettings) {
+    var detailData = makeDetailData(chart, detailTableSettings);
+    layout$1(chart);
+    makeTitle(chart, detailData, detailTableSettings);
+    toggleControls(chart);
+
+    //initialize and draw the chart either using webcharts or raw D3
+    if (chart.config.defaults.webchartsDetailTable) {
+        draw(chart, detailData);
+    } else {
+        draw$1(chart, detailData);
+    }
+}
+
+/*------------------------------------------------------------------------------------------------\
   Define detail table object.
 \------------------------------------------------------------------------------------------------*/
 
 var detailTable = {
-    init: init$7,
-    draw: draw
+  init: init$7
 };
 
 function createChart() {
