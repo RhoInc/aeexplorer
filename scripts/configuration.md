@@ -78,6 +78,41 @@ Filters
 
 
 
+## settings.variableOptions
+`object`
+
+An object that specifies valid options for the primary variable mappings (id, major, minor and groups). When 2+ options are specified for any given mapping, a control is drawn so that the user can interactively update chart to use any of the options.
+
+### settings.variableOptions.major
+`array`
+
+Major variable options
+
+**default:** none
+
+### settings.variableOptions.minor
+`array`
+
+Minor variable options
+
+**default:** none
+
+### settings.variableOptions.group
+`array`
+
+Group variable options
+
+**default:** none
+
+### settings.variableOptions.id
+`array`
+
+ID variable options
+
+**default:** none
+
+
+
 ## settings.groups
 `array`
 
