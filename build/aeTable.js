@@ -64,7 +64,15 @@ function init$1(chart) {
     chart.controls.wrap.attr('onsubmit', 'return false;');
     chart.controls.wrap.selectAll('*').remove(); //Clear controls.
 
-    //Draw UI components
+    //Draw variable controls if options are specified
+    var optionList = ['id', 'major', 'minor', 'group'];
+    optionList.forEach(function (option) {
+        if (chart.config.variableOptions[option].length > 1) {
+            chart.controls.variableSelect.init(chart, option);
+        }
+    });
+
+    //Draw standard UI components
     chart.controls.filters.rate.init(chart);
     chart.controls.summaryControl.init(chart);
     chart.controls.search.init(chart);
@@ -263,11 +271,62 @@ function init$4(chart) {
 
 var summaryControl = { init: init$4 };
 
+function init$5(chart, variable) {
+    var selector = chart.controls.wrap.append('div').attr('class', 'variable-control variable');
+
+    //Clear summary control.
+    selector.selectAll('div.summaryDiv').remove();
+
+    //Generate summary control.
+    var labels = {
+        major: 'Major Category Variable:',
+        minor: 'Minor Category Variable:',
+        group: 'Group Variable:',
+        id: 'ID Variable:'
+    };
+    selector.append('span').attr('class', 'sectionHead').text(labels[variable]);
+
+    var variableControl = selector.append('select');
+
+    variableControl.selectAll('option').data(chart.config.variableOptions[variable]).enter().append('option').text(function (d) {
+        return d;
+    }).property('selected', function (d) {
+        return d === chart.config.variables[variable];
+    });
+
+    //initialize event listener
+    variableControl.on('change', function (d) {
+        var current = this.value;
+        chart.config.variables[variable] = current;
+
+        //update config.groups if needed
+        if (variable == 'group') {
+            var allGroups = d3.set(chart.raw_data.map(function (d) {
+                return d[chart.config.variables.group];
+            })).values();
+            var groupsObject = allGroups.map(function (d) {
+                return { key: d };
+            });
+            chart.config.groups = groupsObject.sort(function (a, b) {
+                return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
+            });
+        }
+
+        chart.AETable.redraw(chart);
+    });
+}
+
+/*------------------------------------------------------------------------------------------------\
+  Define search control object.
+\------------------------------------------------------------------------------------------------*/
+
+var variableSelect = { init: init$5 };
+
 /*------------------------------------------------------------------------------------------------\
   Initialize search control.
 \------------------------------------------------------------------------------------------------*/
 
-function init$5(chart) {
+function init$6(chart) {
     //draw the search control
     var selector = chart.controls.wrap.append('div').attr('class', 'searchForm wc-navbar-search pull-right').attr('onsubmit', 'return false;');
 
@@ -388,7 +447,7 @@ function clear(chart) {
 \------------------------------------------------------------------------------------------------*/
 
 var search = {
-    init: init$5,
+    init: init$6,
     clear: clear
 };
 
@@ -400,6 +459,7 @@ var controls = {
     init: init$1,
     filters: filters,
     summaryControl: summaryControl,
+    variableSelect: variableSelect,
     search: search
 };
 
@@ -1024,6 +1084,12 @@ var defaultSettings = {
             start: []
         }]
     },
+    variableOptions: {
+        id: [],
+        major: [],
+        minor: [],
+        group: []
+    },
     groups: [],
     defaults: {
         placeholderFlag: {
@@ -1068,14 +1134,31 @@ function setDefaults(chart) {
     /////////////////////////////
     //variables
     chart.config.variables = chart.config.variables || {};
-    var variables = ['id', 'major', 'minor', 'group', 'details'];
+
+    var variables = ['id', 'major', 'minor', 'group'];
     variables.forEach(function (varName) {
         chart.config.variables[varName] = chart.config.variables[varName] || defaultSettings.variables[varName];
     });
+
+    //details, filters and groups
+    chart.config.variables.details = chart.config.variables.details || defaultSettings.variables.filters;
+
     chart.config.variables.filters = chart.config.variables.filters || defaultSettings.variables.filters;
 
-    //groups
     chart.config.groups = chart.config.groups || defaultSettings.groups;
+
+    //variableOptions
+
+    chart.config.variableOptions = chart.config.variableOptions || defaultSettings.variableOptions;
+
+    variables.forEach(function (varName) {
+        //confirm that specified variables are included as options
+        chart.config.variableOptions[varName] = chart.config.variableOptions[varName] ? chart.config.variableOptions[varName] : [];
+        var options = chart.config.variableOptions[varName];
+        if (options.indexOf(chart.config.variables[varName]) == -1) {
+            options.push(chart.config.variables[varName]);
+        }
+    });
 
     //defaults
     chart.config.defaults = chart.config.defaults || {};
@@ -1207,7 +1290,7 @@ var util = {
   table.
 \------------------------------------------------------------------------------------------------*/
 
-function init$6(chart) {
+function init$7(chart) {
     //convinience mappings
     var vars = chart.config.variables;
 
@@ -1512,7 +1595,7 @@ function toggleRows(chart) {
 var AETable = {
     redraw: redraw,
     wipe: wipe,
-    init: init$6,
+    init: init$7,
     toggleRows: toggleRows
 };
 
@@ -1624,7 +1707,7 @@ function draw$1(chart, data) {
 /*------------------------------------------------------------------------------------------------\
   Generate data listing.
 \------------------------------------------------------------------------------------------------*/
-function init$7(chart, detailTableSettings) {
+function init$8(chart, detailTableSettings) {
     var detailData = makeDetailData(chart, detailTableSettings);
     layout$1(chart);
     makeTitle(chart, detailData, detailTableSettings);
@@ -1643,7 +1726,7 @@ function init$7(chart, detailTableSettings) {
 \------------------------------------------------------------------------------------------------*/
 
 var detailTable = {
-  init: init$7
+  init: init$8
 };
 
 function createChart() {

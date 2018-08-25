@@ -7,7 +7,15 @@ export function init(chart) {
     chart.controls.wrap.attr('onsubmit', 'return false;');
     chart.controls.wrap.selectAll('*').remove(); //Clear controls.
 
-    //Draw UI components
+    //Draw variable controls if options are specified
+    const optionList = ['id', 'major', 'minor', 'group'];
+    optionList.forEach(function(option) {
+        if (chart.config.variableOptions[option].length > 1) {
+            chart.controls.variableSelect.init(chart, option);
+        }
+    });
+
+    //Draw standard UI components
     chart.controls.filters.rate.init(chart);
     chart.controls.summaryControl.init(chart);
     chart.controls.search.init(chart);

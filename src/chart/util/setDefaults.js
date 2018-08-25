@@ -13,16 +13,36 @@ export function setDefaults(chart) {
     /////////////////////////////
     //variables
     chart.config.variables = chart.config.variables || {};
-    var variables = ['id', 'major', 'minor', 'group', 'details'];
+
+    var variables = ['id', 'major', 'minor', 'group'];
     variables.forEach(function(varName) {
         chart.config.variables[varName] =
             chart.config.variables[varName] || defaultSettings.variables[varName];
     });
+
+    //details, filters and groups
+    chart.config.variables.details =
+        chart.config.variables.details || defaultSettings.variables.filters;
+
     chart.config.variables.filters =
         chart.config.variables.filters || defaultSettings.variables.filters;
 
-    //groups
     chart.config.groups = chart.config.groups || defaultSettings.groups;
+
+    //variableOptions
+
+    chart.config.variableOptions = chart.config.variableOptions || defaultSettings.variableOptions;
+
+    variables.forEach(function(varName) {
+        //confirm that specified variables are included as options
+        chart.config.variableOptions[varName] = chart.config.variableOptions[varName]
+            ? chart.config.variableOptions[varName]
+            : [];
+        var options = chart.config.variableOptions[varName];
+        if (options.indexOf(chart.config.variables[varName]) == -1) {
+            options.push(chart.config.variables[varName]);
+        }
+    });
 
     //defaults
     chart.config.defaults = chart.config.defaults || {};
