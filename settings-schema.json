@@ -108,6 +108,45 @@
         }
       }
     },
+    "variableOptions":{
+      "title":"Variable Options",
+      "description":"An object that specifies valid options for the primary variable mappings (id, major, minor and groups). When 2+ options are specified for any given mapping, a control is drawn so that the user can interactively update chart to use any of the options.",
+      "type": "object",
+      "properties":{
+        "major":{
+          "title":"Major variable options",
+          "description":"Major variable options",
+          "type": "array",
+          "items":{
+              "type":"string"
+          }
+        },
+        "minor":{
+          "title":"Minor variable options",
+          "description":"Minor variable options",
+          "type": "array",
+          "items":{
+              "type":"string"
+          }
+        },
+        "group":{
+          "title":"Group variable options",
+          "description":"Group variable options",
+          "type": "array",
+          "items":{
+              "type":"string"
+          }
+        },
+        "id":{
+          "title":"ID variable options",
+          "description":"ID variable options",
+          "type": "array",
+          "items":{
+              "type":"string"
+          }
+        }
+      }
+    },
     "groups": {
       "title":"Group Levels",
       "description": "An array specifying which levels of settings.variables.groups will appear as columns in the table.",

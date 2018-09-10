@@ -32,6 +32,12 @@ const defaultSettings = {
             }
         ]
     },
+    variableOptions: {
+        id: [],
+        major: [],
+        minor: [],
+        group: []
+    },
     groups: [],
     defaults: {
         placeholderFlag: {
