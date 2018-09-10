@@ -14,7 +14,7 @@ export function setDefaults(chart) {
     //variables
     chart.config.variables = chart.config.variables || {};
 
-    var variables = ['id', 'major', 'minor', 'group'];
+    const variables = ['id', 'major', 'minor', 'group'];
     variables.forEach(function(varName) {
         chart.config.variables[varName] =
             chart.config.variables[varName] || defaultSettings.variables[varName];
@@ -22,22 +22,23 @@ export function setDefaults(chart) {
 
     //details, filters and groups
     chart.config.variables.details =
-        chart.config.variables.details || defaultSettings.variables.filters;
+        chart.config.variables.details || defaultSettings.variables.details || [];
 
     chart.config.variables.filters =
-        chart.config.variables.filters || defaultSettings.variables.filters;
+        chart.config.variables.filters || defaultSettings.variables.filters || [];
 
-    chart.config.groups = chart.config.groups || defaultSettings.groups;
+    chart.config.groups = chart.config.groups || defaultSettings.groups || [];
 
     //variableOptions
-
-    chart.config.variableOptions = chart.config.variableOptions || defaultSettings.variableOptions;
-
+    chart.config.variableOptions =
+        chart.config.variableOptions || defaultSettings.variableOptions || {};
     variables.forEach(function(varName) {
-        //confirm that specified variables are included as options
+        //initialize options for each mapping variable
         chart.config.variableOptions[varName] = chart.config.variableOptions[varName]
             ? chart.config.variableOptions[varName]
             : [];
+
+        //confirm that specified variables are included as options
         var options = chart.config.variableOptions[varName];
         if (options.indexOf(chart.config.variables[varName]) == -1) {
             options.push(chart.config.variables[varName]);
@@ -162,7 +163,7 @@ export function setDefaults(chart) {
         throw new Error(errorText);
     }
 
-    //don't render differences if you're not renderer group columns
+    //don't render differences if you're not renderering group columns
     if (!chart.config.defaults.groupCols) {
         chart.config.defaults.diffCol = false;
     }

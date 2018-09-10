@@ -1061,36 +1061,31 @@ var defaultSettings = {
         major: 'AEBODSYS',
         minor: 'AEDECOD',
         group: 'ARM',
-        details: [],
+        details: null,
         filters: [{
             value_col: 'AESER',
             label: 'Serious?',
             type: 'event',
-            start: []
+            start: null
         }, {
             value_col: 'AESEV',
             label: 'Severity',
             type: 'event',
-            start: []
+            start: null
         }, {
             value_col: 'AEREL',
             label: 'Relationship',
             type: 'event',
-            start: []
+            start: null
         }, {
             value_col: 'AEOUT',
             label: 'Outcome',
             type: 'event',
-            start: []
+            start: null
         }]
     },
-    variableOptions: {
-        id: [],
-        major: [],
-        minor: [],
-        group: []
-    },
-    groups: [],
+    variableOptions: null,
+    groups: null,
     defaults: {
         placeholderFlag: {
             value_col: 'AEBODSYS',
@@ -1141,19 +1136,19 @@ function setDefaults(chart) {
     });
 
     //details, filters and groups
-    chart.config.variables.details = chart.config.variables.details || defaultSettings.variables.filters;
+    chart.config.variables.details = chart.config.variables.details || defaultSettings.variables.details || [];
 
-    chart.config.variables.filters = chart.config.variables.filters || defaultSettings.variables.filters;
+    chart.config.variables.filters = chart.config.variables.filters || defaultSettings.variables.filters || [];
 
-    chart.config.groups = chart.config.groups || defaultSettings.groups;
+    chart.config.groups = chart.config.groups || defaultSettings.groups || [];
 
     //variableOptions
-
-    chart.config.variableOptions = chart.config.variableOptions || defaultSettings.variableOptions;
-
+    chart.config.variableOptions = chart.config.variableOptions || defaultSettings.variableOptions || {};
     variables.forEach(function (varName) {
-        //confirm that specified variables are included as options
+        //initialize options for each mapping variable
         chart.config.variableOptions[varName] = chart.config.variableOptions[varName] ? chart.config.variableOptions[varName] : [];
+
+        //confirm that specified variables are included as options
         var options = chart.config.variableOptions[varName];
         if (options.indexOf(chart.config.variables[varName]) == -1) {
             options.push(chart.config.variables[varName]);
@@ -1253,7 +1248,7 @@ function setDefaults(chart) {
         throw new Error(errorText);
     }
 
-    //don't render differences if you're not renderer group columns
+    //don't render differences if you're not renderering group columns
     if (!chart.config.defaults.groupCols) {
         chart.config.defaults.diffCol = false;
     }
