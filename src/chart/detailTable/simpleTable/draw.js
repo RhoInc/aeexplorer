@@ -1,5 +1,6 @@
-export function draw(canvas, data) {
+export function draw(chart, data) {
     //Generate listing container.
+    var canvas = chart.detailTable.wrap;
     var listing = canvas.append('table').attr('class', 'table');
 
     //Append header to listing container.
