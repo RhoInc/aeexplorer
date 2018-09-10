@@ -95,12 +95,12 @@ function init$2(chart) {
     rateFilter.append('span').attr('class', 'add-on before').html('&#8805;');
     rateFilter.append('input').attr({
         class: 'appendedPrependedInput rateFilter',
-        type: 'text'
+        type: 'number'
     });
     rateFilter.append('span').attr('class', 'add-on after').text('%');
 
     //event listener
-    rateFilter.on('change', function (d) {
+    rateFilter.on('input', function (d) {
         //Clear filter flags.
         chart.wrap.selectAll('.SummaryTable table tbody tr').classed('filter', false);
 
@@ -281,7 +281,7 @@ function init$5(chart) {
     selector.append('input').attr('type', 'text').attr('class', 'searchBar search-query input-medium').attr('placeholder', 'Search');
 
     //event listeners for search
-    chart.wrap.select('input.searchBar').on('change', function (d) {
+    chart.wrap.select('input.searchBar').on('input', function (d) {
         var searchTerm = d3.select(this).property('value').toLowerCase();
 
         if (searchTerm.length > 0) {
@@ -1263,7 +1263,7 @@ function init$6(chart) {
     /////////////////////////////////////
     //Check to make sure there is some data
     if (!chart.data.major.length) {
-        chart.wrap.select('.SummaryTable').append('div').attr('class', 'wc-alert').text('Error: No data matches the current filters. Update the filters to see results.');
+        chart.wrap.select('.SummaryTable').append('div').attr('class', 'wc-alert').text('Error: No AEs found for the current filters. Update the filters to see results.');
         throw new Error('No data found in the column specified for major category. ');
     }
 
@@ -1328,7 +1328,7 @@ function init$6(chart) {
             }));
         }));
     }));
-    chart.percentScale = d3.scale.linear().range([0, chart.config.plotSettings.w]).domain([0, d3.max(allPercents)]);
+    chart.percentScale = d3.scale.linear().range([0, chart.config.plotSettings.w]).range([chart.config.plotSettings.margin.left, chart.config.plotSettings.w - chart.config.plotSettings.margin.right]).domain([0, d3.max(allPercents)]);
 
     //Add Prevalence Axis
     var percentAxis = d3.svg.axis().scale(chart.percentScale).orient('top').ticks(6);
