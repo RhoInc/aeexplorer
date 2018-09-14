@@ -9,7 +9,7 @@ if (window.origin !== 'https://rhoinc.github.io') {
   //...load local build.
     var script = document.createElement('script');
     script.type = 'text/javascript';
-    script.src = '../aeTable.js';
+    script.src = '../build/aeTable.js';
     head.appendChild(script);
 
   //...load local stylesheet.
@@ -21,7 +21,7 @@ if (window.origin !== 'https://rhoinc.github.io') {
     var link = document.createElement('link');
     link.type = 'text/css';
     link.rel = 'stylesheet';
-    link.href = '../../css/aeTable.css';
+    link.href = '../css/aeTable.css';
     head.appendChild(link);
 }
 

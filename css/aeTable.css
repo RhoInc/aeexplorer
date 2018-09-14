@@ -125,7 +125,7 @@
 
         div.aeTable .controls .rate-filter input {
             text-align: right;
-            width: 15%;
+            width: 40px;
             border: 1px solid #ccc;
         }
 
