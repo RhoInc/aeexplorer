@@ -87,7 +87,9 @@ export function init(chart) {
             .select('.SummaryTable')
             .append('div')
             .attr('class', 'wc-alert')
-            .text('Error: No data matches the current filters. Update the filters to see results.');
+            .text(
+                'Error: No AEs found for the current filters. Update the filters to see results.'
+            );
         throw new Error('No data found in the column specified for major category. ');
     }
 
@@ -169,6 +171,10 @@ export function init(chart) {
     chart.percentScale = d3.scale
         .linear()
         .range([0, chart.config.plotSettings.w])
+        .range([
+            chart.config.plotSettings.margin.left,
+            chart.config.plotSettings.w - chart.config.plotSettings.margin.right
+        ])
         .domain([0, d3.max(allPercents)]);
 
     //Add Prevalence Axis

@@ -4,35 +4,36 @@ const defaultSettings = {
         major: 'AEBODSYS',
         minor: 'AEDECOD',
         group: 'ARM',
-        details: [],
+        details: null,
         filters: [
             {
                 value_col: 'AESER',
                 label: 'Serious?',
                 type: 'event',
-                start: []
+                start: null
             },
             {
                 value_col: 'AESEV',
                 label: 'Severity',
                 type: 'event',
-                start: []
+                start: null
             },
             {
                 value_col: 'AEREL',
                 label: 'Relationship',
                 type: 'event',
-                start: []
+                start: null
             },
             {
                 value_col: 'AEOUT',
                 label: 'Outcome',
                 type: 'event',
-                start: []
+                start: null
             }
         ]
     },
-    groups: [],
+    variableOptions: null,
+    groups: null,
     defaults: {
         placeholderFlag: {
             value_col: 'AEBODSYS',
@@ -44,7 +45,8 @@ const defaultSettings = {
         groupCols: true,
         diffCol: true,
         prefTerms: false,
-        summarizeBy: 'participant'
+        summarizeBy: 'participant',
+        webchartsDetailsTable: false
     },
     plotSettings: {
         h: 15,

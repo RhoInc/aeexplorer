@@ -1,9 +1,7 @@
 /*------------------------------------------------------------------------------------------------\
-  Define detail table object.
+  Define search control object.
 \------------------------------------------------------------------------------------------------*/
 
-import { init } from './detailTable/init';
+import { init } from './variableSelect/init';
 
-export const detailTable = {
-    init: init
-};
+export const variableSelect = { init: init };

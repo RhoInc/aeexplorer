@@ -125,7 +125,7 @@
 
         div.aeTable .controls .rate-filter input {
             text-align: right;
-            width: 15%;
+            width: 40px;
             border: 1px solid #ccc;
         }
 
@@ -309,8 +309,8 @@
         }
 
         div.aeTable span.search {
-            background:#FFFFCC;
-            color:#bbb;
+            background:#feb24c;
+            color:black;
         }
 
         div.aeTable span.icon.toggle {

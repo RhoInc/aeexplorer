@@ -40,7 +40,7 @@ function init(data) {
   Set colors.
 \------------------------------------------------------------------------------------------------*/
 
-var colorScale = d3.scale.ordinal().range(['#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#A65628', '#F781BF', '#FFFF33', '#E41A1C']);
+var colorScale = d3.scale.ordinal().range(['#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#A65628', '#F781BF', '#E41A1C']);
 
 /*------------------------------------------------------------------------------------------------\
   Generate HTML containers.
@@ -64,7 +64,15 @@ function init$1(chart) {
     chart.controls.wrap.attr('onsubmit', 'return false;');
     chart.controls.wrap.selectAll('*').remove(); //Clear controls.
 
-    //Draw UI components
+    //Draw variable controls if options are specified
+    var optionList = ['id', 'major', 'minor', 'group'];
+    optionList.forEach(function (option) {
+        if (chart.config.variableOptions[option].length > 1) {
+            chart.controls.variableSelect.init(chart, option);
+        }
+    });
+
+    //Draw standard UI components
     chart.controls.filters.rate.init(chart);
     chart.controls.summaryControl.init(chart);
     chart.controls.search.init(chart);
@@ -95,12 +103,12 @@ function init$2(chart) {
     rateFilter.append('span').attr('class', 'add-on before').html('&#8805;');
     rateFilter.append('input').attr({
         class: 'appendedPrependedInput rateFilter',
-        type: 'text'
+        type: 'number'
     });
     rateFilter.append('span').attr('class', 'add-on after').text('%');
 
     //event listener
-    rateFilter.on('change', function (d) {
+    rateFilter.on('input', function (d) {
         //Clear filter flags.
         chart.wrap.selectAll('.SummaryTable table tbody tr').classed('filter', false);
 
@@ -263,11 +271,62 @@ function init$4(chart) {
 
 var summaryControl = { init: init$4 };
 
+function init$5(chart, variable) {
+    var selector = chart.controls.wrap.append('div').attr('class', 'variable-control variable');
+
+    //Clear summary control.
+    selector.selectAll('div.summaryDiv').remove();
+
+    //Generate summary control.
+    var labels = {
+        major: 'Major Category Variable:',
+        minor: 'Minor Category Variable:',
+        group: 'Group Variable:',
+        id: 'ID Variable:'
+    };
+    selector.append('span').attr('class', 'sectionHead').text(labels[variable]);
+
+    var variableControl = selector.append('select');
+
+    variableControl.selectAll('option').data(chart.config.variableOptions[variable]).enter().append('option').text(function (d) {
+        return d;
+    }).property('selected', function (d) {
+        return d === chart.config.variables[variable];
+    });
+
+    //initialize event listener
+    variableControl.on('change', function (d) {
+        var current = this.value;
+        chart.config.variables[variable] = current;
+
+        //update config.groups if needed
+        if (variable == 'group') {
+            var allGroups = d3.set(chart.raw_data.map(function (d) {
+                return d[chart.config.variables.group];
+            })).values();
+            var groupsObject = allGroups.map(function (d) {
+                return { key: d };
+            });
+            chart.config.groups = groupsObject.sort(function (a, b) {
+                return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
+            });
+        }
+
+        chart.AETable.redraw(chart);
+    });
+}
+
+/*------------------------------------------------------------------------------------------------\
+  Define search control object.
+\------------------------------------------------------------------------------------------------*/
+
+var variableSelect = { init: init$5 };
+
 /*------------------------------------------------------------------------------------------------\
   Initialize search control.
 \------------------------------------------------------------------------------------------------*/
 
-function init$5(chart) {
+function init$6(chart) {
     //draw the search control
     var selector = chart.controls.wrap.append('div').attr('class', 'searchForm wc-navbar-search pull-right').attr('onsubmit', 'return false;');
 
@@ -281,7 +340,7 @@ function init$5(chart) {
     selector.append('input').attr('type', 'text').attr('class', 'searchBar search-query input-medium').attr('placeholder', 'Search');
 
     //event listeners for search
-    chart.wrap.select('input.searchBar').on('change', function (d) {
+    chart.wrap.select('input.searchBar').on('input', function (d) {
         var searchTerm = d3.select(this).property('value').toLowerCase();
 
         if (searchTerm.length > 0) {
@@ -388,7 +447,7 @@ function clear(chart) {
 \------------------------------------------------------------------------------------------------*/
 
 var search = {
-    init: init$5,
+    init: init$6,
     clear: clear
 };
 
@@ -400,6 +459,7 @@ var controls = {
     init: init$1,
     filters: filters,
     summaryControl: summaryControl,
+    variableSelect: variableSelect,
     search: search
 };
 
@@ -1001,30 +1061,31 @@ var defaultSettings = {
         major: 'AEBODSYS',
         minor: 'AEDECOD',
         group: 'ARM',
-        details: [],
+        details: null,
         filters: [{
             value_col: 'AESER',
             label: 'Serious?',
             type: 'event',
-            start: []
+            start: null
         }, {
             value_col: 'AESEV',
             label: 'Severity',
             type: 'event',
-            start: []
+            start: null
         }, {
             value_col: 'AEREL',
             label: 'Relationship',
             type: 'event',
-            start: []
+            start: null
         }, {
             value_col: 'AEOUT',
             label: 'Outcome',
             type: 'event',
-            start: []
+            start: null
         }]
     },
-    groups: [],
+    variableOptions: null,
+    groups: null,
     defaults: {
         placeholderFlag: {
             value_col: 'AEBODSYS',
@@ -1036,7 +1097,8 @@ var defaultSettings = {
         groupCols: true,
         diffCol: true,
         prefTerms: false,
-        summarizeBy: 'participant'
+        summarizeBy: 'participant',
+        webchartsDetailsTable: false
     },
     plotSettings: {
         h: 15,
@@ -1067,14 +1129,31 @@ function setDefaults(chart) {
     /////////////////////////////
     //variables
     chart.config.variables = chart.config.variables || {};
-    var variables = ['id', 'major', 'minor', 'group', 'details'];
+
+    var variables = ['id', 'major', 'minor', 'group'];
     variables.forEach(function (varName) {
         chart.config.variables[varName] = chart.config.variables[varName] || defaultSettings.variables[varName];
     });
-    chart.config.variables.filters = chart.config.variables.filters || defaultSettings.variables.filters;
 
-    //groups
-    chart.config.groups = chart.config.groups || defaultSettings.groups;
+    //details, filters and groups
+    chart.config.variables.details = chart.config.variables.details || defaultSettings.variables.details || [];
+
+    chart.config.variables.filters = chart.config.variables.filters || defaultSettings.variables.filters || [];
+
+    chart.config.groups = chart.config.groups || defaultSettings.groups || [];
+
+    //variableOptions
+    chart.config.variableOptions = chart.config.variableOptions || defaultSettings.variableOptions || {};
+    variables.forEach(function (varName) {
+        //initialize options for each mapping variable
+        chart.config.variableOptions[varName] = chart.config.variableOptions[varName] ? chart.config.variableOptions[varName] : [];
+
+        //confirm that specified variables are included as options
+        var options = chart.config.variableOptions[varName];
+        if (options.indexOf(chart.config.variables[varName]) == -1) {
+            options.push(chart.config.variables[varName]);
+        }
+    });
 
     //defaults
     chart.config.defaults = chart.config.defaults || {};
@@ -1169,7 +1248,7 @@ function setDefaults(chart) {
         throw new Error(errorText);
     }
 
-    //don't render differences if you're not renderer group columns
+    //don't render differences if you're not renderering group columns
     if (!chart.config.defaults.groupCols) {
         chart.config.defaults.diffCol = false;
     }
@@ -1206,7 +1285,7 @@ var util = {
   table.
 \------------------------------------------------------------------------------------------------*/
 
-function init$6(chart) {
+function init$7(chart) {
     //convinience mappings
     var vars = chart.config.variables;
 
@@ -1263,7 +1342,7 @@ function init$6(chart) {
     /////////////////////////////////////
     //Check to make sure there is some data
     if (!chart.data.major.length) {
-        chart.wrap.select('.SummaryTable').append('div').attr('class', 'wc-alert').text('Error: No data matches the current filters. Update the filters to see results.');
+        chart.wrap.select('.SummaryTable').append('div').attr('class', 'wc-alert').text('Error: No AEs found for the current filters. Update the filters to see results.');
         throw new Error('No data found in the column specified for major category. ');
     }
 
@@ -1328,7 +1407,7 @@ function init$6(chart) {
             }));
         }));
     }));
-    chart.percentScale = d3.scale.linear().range([0, chart.config.plotSettings.w]).domain([0, d3.max(allPercents)]);
+    chart.percentScale = d3.scale.linear().range([0, chart.config.plotSettings.w]).range([chart.config.plotSettings.margin.left, chart.config.plotSettings.w - chart.config.plotSettings.margin.right]).domain([0, d3.max(allPercents)]);
 
     //Add Prevalence Axis
     var percentAxis = d3.svg.axis().scale(chart.percentScale).orient('top').ticks(6);
@@ -1511,14 +1590,11 @@ function toggleRows(chart) {
 var AETable = {
     redraw: redraw,
     wipe: wipe,
-    init: init$6,
+    init: init$7,
     toggleRows: toggleRows
 };
 
-/*------------------------------------------------------------------------------------------------\
-  Generate data listing.
-\------------------------------------------------------------------------------------------------*/
-function init$7(chart, detailTableSettings) {
+function makeDetailData(chart, detailTableSettings) {
     //convenience mappings
     var major = detailTableSettings.major;
     var minor = detailTableSettings.minor;
@@ -1553,6 +1629,24 @@ function init$7(chart, detailTableSettings) {
         return current;
     });
 
+    return details;
+}
+
+function toggleControls(chart) {
+    //Details about current population filters
+    var filtered = chart.raw_event_data.length != chart.population_event_data.length;
+    if (filtered) {
+        chart.wrap.select('div.controls').select('div.custom-filters').classed('wc-hidden', false).selectAll('select').property('disabled', 'disabled');
+        chart.detailTable.head.append('span').html(filtered ? 'The listing is filtered as shown:' : '');
+    }
+}
+
+function makeTitle(chart, detailData, detailTableSettings) {
+    //Add explanatory listing title.
+    chart.detailTable.head.append('h4').html(detailTableSettings.minor === 'All' ? 'Details for ' + detailData.length + ' <b>' + detailTableSettings.major + '</b> records' : 'Details for ' + detailData.length + ' <b>' + detailTableSettings.minor + ' (' + major + ')</b> records');
+}
+
+function layout$1(chart) {
     chart.detailTable.wrap = chart.wrap.select('div.table-wrapper').append('div').attr('class', 'DetailTable');
 
     chart.detailTable.head = chart.wrap.select('div.table-wrapper').insert('div', '.controls').attr('class', 'DetailHeader');
@@ -1567,26 +1661,24 @@ function init$7(chart, detailTableSettings) {
         chart.wrap.select('div.controls').selectAll('div').classed('wc-hidden', false);
         chart.wrap.select('div.controls').select('div.custom-filters').selectAll('select').property('disabled', '');
         chart.wrap.selectAll('.SummaryTable table tbody tr').classed('wc-active', false);
+        if (chart.config.defaults.webchartsDetailTable) {
+            chart.detailTable.table.destroy();
+        }
         chart.detailTable.wrap.remove();
         chart.detailTable.head.remove();
     });
-
-    //Add explanatory listing title.
-    chart.detailTable.head.append('h4').html(minor === 'All' ? 'Details for ' + details.length + ' <b>' + major + '</b> records' : 'Details for ' + details.length + ' <b>' + minor + ' (' + major + ')</b> records');
-
-    //Details about current population filters
-    var filtered = chart.raw_event_data.length != chart.population_event_data.length;
-    if (filtered) {
-        chart.wrap.select('div.controls').select('div.custom-filters').classed('wc-hidden', false).selectAll('select').property('disabled', 'disabled');
-        chart.detailTable.head.append('span').html(filtered ? 'The listing is filtered as shown:' : '');
-    }
-
-    //Generate listing.
-    chart.detailTable.draw(chart.detailTable.wrap, details);
 }
 
-function draw(canvas, data) {
+function draw(chart, data) {
+    chart.detailTable.table = webCharts.createTable(
+    //chart.config.container + ' .aeExplorer .aeTable .table-wrapper .DetailTable',
+    chart.detailTable.wrap.node(), {});
+    chart.detailTable.table.init(data);
+}
+
+function draw$1(chart, data) {
     //Generate listing container.
+    var canvas = chart.detailTable.wrap;
     var listing = canvas.append('table').attr('class', 'table');
 
     //Append header to listing container.
@@ -1608,12 +1700,28 @@ function draw(canvas, data) {
 }
 
 /*------------------------------------------------------------------------------------------------\
+  Generate data listing.
+\------------------------------------------------------------------------------------------------*/
+function init$8(chart, detailTableSettings) {
+    var detailData = makeDetailData(chart, detailTableSettings);
+    layout$1(chart);
+    makeTitle(chart, detailData, detailTableSettings);
+    toggleControls(chart);
+
+    //initialize and draw the chart either using webcharts or raw D3
+    if (chart.config.defaults.webchartsDetailTable) {
+        draw(chart, detailData);
+    } else {
+        draw$1(chart, detailData);
+    }
+}
+
+/*------------------------------------------------------------------------------------------------\
   Define detail table object.
 \------------------------------------------------------------------------------------------------*/
 
 var detailTable = {
-    init: init$7,
-    draw: draw
+  init: init$8
 };
 
 function createChart() {
