@@ -32,8 +32,11 @@ d3.csv(
             console.log(error);
 
         var settings = {
+        variables:{
+          //group:"AGE"
+        },
          variableOptions:{
-           group:["RACE","SEX"]
+           group:["RACE","SEX","AGE"]
          },
          defaults:{
            webchartsDetailTable:true

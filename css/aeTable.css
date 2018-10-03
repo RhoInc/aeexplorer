@@ -27,11 +27,12 @@
             color: #BBB;
         }
 
-        div.aeTable .wc-alert{
+        div.aeExplorer .wc-alert{
             padding: 20px;
             background-color: #f44336; /* Red */
             color: white;
             margin-bottom: 15px;
+            border-radius:5px;
         }
     /***--------------------------------------------------------------------------------------\
       Controls layout

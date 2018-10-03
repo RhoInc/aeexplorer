@@ -61,6 +61,30 @@ export function init(chart, variable) {
             chart.colorScale.range(colors).domain(levels);
         }
 
-        chart.AETable.redraw(chart);
+        //Check to see if there are too many levels in the new group variable
+        if (chart.config.groups.length > chart.config.defaults.maxGroups) {
+            chart.wrap
+                .select('.aeTable')
+                .select('.table-wrapper')
+                .select('.SummaryTable')
+                .style('display', 'none');
+            var errorText =
+                'Too Many Group Variables specified. You specified ' +
+                chart.config.groups.length +
+                ', but the maximum supported is ' +
+                chart.config.defaults.maxGroups +
+                '.';
+            chart.wrap.selectAll('div.wc-alert').remove();
+            chart.wrap.append('div').attr('class', 'wc-alert').text('Fatal Error: ' + errorText);
+            throw new Error(errorText);
+        } else {
+            chart.wrap
+                .select('.aeTable')
+                .select('.table-wrapper')
+                .select('.SummaryTable')
+                .style('display', null);
+            chart.wrap.selectAll('div.wc-alert').remove();
+            chart.AETable.redraw(chart);
+        }
     });
 }
