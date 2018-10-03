@@ -1,3 +1,5 @@
+import { colorScale as originalColorScale } from '../../colorScale';
+
 export function init(chart, variable) {
     var selector = chart.controls.wrap.append('div').attr('class', 'variable-control variable');
 
@@ -30,6 +32,7 @@ export function init(chart, variable) {
 
         //update config.groups if needed
         if (variable == 'group') {
+            //update the groups setting
             var allGroups = d3
                 .set(chart.raw_data.map(d => d[chart.config.variables.group]))
                 .values();
@@ -39,6 +42,23 @@ export function init(chart, variable) {
             chart.config.groups = groupsObject.sort(
                 (a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0)
             );
+
+            //update the color scale
+            var levels = chart.config.groups.map(e => e.key);
+            var colors = [
+                '#377EB8',
+                '#4DAF4A',
+                '#984EA3',
+                '#FF7F00',
+                '#A65628',
+                '#F781BF',
+                '#E41A1C'
+            ];
+            if (chart.config.defaults.totalCol)
+                //Set 'Total' column color to #777.
+                colors[chart.config.groups.length] = '#777';
+
+            chart.colorScale.range(colors).domain(levels);
         }
 
         chart.AETable.redraw(chart);

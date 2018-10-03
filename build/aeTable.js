@@ -301,6 +301,7 @@ function init$5(chart, variable) {
 
         //update config.groups if needed
         if (variable == 'group') {
+            //update the groups setting
             var allGroups = d3.set(chart.raw_data.map(function (d) {
                 return d[chart.config.variables.group];
             })).values();
@@ -310,6 +311,17 @@ function init$5(chart, variable) {
             chart.config.groups = groupsObject.sort(function (a, b) {
                 return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
             });
+
+            //update the color scale
+            var levels = chart.config.groups.map(function (e) {
+                return e.key;
+            });
+            var colors = ['#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#A65628', '#F781BF', '#E41A1C'];
+            if (chart.config.defaults.totalCol)
+                //Set 'Total' column color to #777.
+                colors[chart.config.groups.length] = '#777';
+
+            chart.colorScale.range(colors).domain(levels);
         }
 
         chart.AETable.redraw(chart);
