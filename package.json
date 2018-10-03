@@ -19,7 +19,7 @@
     "url": "https://github.com/rhoinc/aeexplorer.git"
   },
   "scripts": {
-    "build": "npm run format && npm run bundle && npm run minify && npm run build-md && npm run test-page",
+    "build": "npm run format && npm run bundle && npm run minify && npm run build-md",
     "build-md": "node ./scripts/configuration-markdown.js",
     "bundle": "rollup -c",
     "format": "prettier --print-width=100 --tab-width=4 --single-quote --write \"src/**/*.js\"",
