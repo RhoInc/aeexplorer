@@ -40,7 +40,8 @@ d3.csv(
          },
          defaults:{
            webchartsDetailTable:true
-         }
+           //groupCols:false
+         },
         };
         var instance = aeTable.createChart(
             '#container',

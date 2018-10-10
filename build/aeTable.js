@@ -297,10 +297,20 @@ function init$5(chart, variable) {
     //initialize event listener
     variableControl.on('change', function (d) {
         var current = this.value;
-        chart.config.variables[variable] = current;
+        if (current != 'None') chart.config.variables[variable] = current;
 
         //update config.groups if needed
+        console.log(chart);
         if (variable == 'group') {
+            if (current == 'None') {
+                chart.config.defaults.diffCol = false;
+                chart.config.defaults.groupCols = false;
+                chart.config.defaults.totalCol = true;
+            } else {
+                chart.config.defaults.groupCols = true;
+                chart.config.defaults.diffCol = true;
+            }
+
             //update the groups setting
             var allGroups = d3.set(chart.raw_data.map(function (d) {
                 return d[chart.config.variables.group];
@@ -325,7 +335,7 @@ function init$5(chart, variable) {
         }
 
         //Check to see if there are too many levels in the new group variable
-        if (chart.config.groups.length > chart.config.defaults.maxGroups) {
+        if (chart.config.groups.length > chart.config.defaults.maxGroups & current != 'None') {
             chart.wrap.select('.aeTable').select('.table-wrapper').select('.SummaryTable').style('display', 'none');
             var errorText = 'Too Many Group Variables specified. You specified ' + chart.config.groups.length + ', but the maximum supported is ' + chart.config.defaults.maxGroups + '.';
             chart.wrap.selectAll('div.wc-alert').remove();
@@ -1167,6 +1177,7 @@ function setDefaults(chart) {
 
     //variableOptions
     chart.config.variableOptions = chart.config.variableOptions || defaultSettings.variableOptions || {};
+
     variables.forEach(function (varName) {
         //initialize options for each mapping variable
         chart.config.variableOptions[varName] = chart.config.variableOptions[varName] ? chart.config.variableOptions[varName] : [];
@@ -1175,6 +1186,12 @@ function setDefaults(chart) {
         var options = chart.config.variableOptions[varName];
         if (options.indexOf(chart.config.variables[varName]) == -1) {
             options.push(chart.config.variables[varName]);
+        }
+
+        //add "None" option for group dropdown
+
+        if (varName == 'group' & options.indexOf('None') == -1) {
+            options.push('None');
         }
     });
 

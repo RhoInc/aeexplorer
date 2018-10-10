@@ -1,5 +1,3 @@
-import { colorScale as originalColorScale } from '../../colorScale';
-
 export function init(chart, variable) {
     var selector = chart.controls.wrap.append('div').attr('class', 'variable-control variable');
 
@@ -28,10 +26,20 @@ export function init(chart, variable) {
     //initialize event listener
     variableControl.on('change', function(d) {
         const current = this.value;
-        chart.config.variables[variable] = current;
+        if (current != 'None') chart.config.variables[variable] = current;
 
         //update config.groups if needed
+        console.log(chart);
         if (variable == 'group') {
+            if (current == 'None') {
+                chart.config.defaults.diffCol = false;
+                chart.config.defaults.groupCols = false;
+                chart.config.defaults.totalCol = true;
+            } else {
+                chart.config.defaults.groupCols = true;
+                chart.config.defaults.diffCol = true;
+            }
+
             //update the groups setting
             var allGroups = d3
                 .set(chart.raw_data.map(d => d[chart.config.variables.group]))
@@ -62,7 +70,7 @@ export function init(chart, variable) {
         }
 
         //Check to see if there are too many levels in the new group variable
-        if (chart.config.groups.length > chart.config.defaults.maxGroups) {
+        if ((chart.config.groups.length > chart.config.defaults.maxGroups) & (current != 'None')) {
             chart.wrap
                 .select('.aeTable')
                 .select('.table-wrapper')
