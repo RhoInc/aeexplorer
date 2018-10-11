@@ -22,11 +22,9 @@ export function init(chart, variable) {
         .append('option')
         .text(d => d)
         .property('selected', function(d) {
-            if ((variable == 'group') & !chart.config.groupCols) {
-                console.log('None check');
+            if ((variable == 'group') & !chart.config.defaults.groupCols) {
                 return d == 'None';
             } else {
-                console.log('other check');
                 return d === chart.config.variables[variable];
             }
         });

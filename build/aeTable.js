@@ -65,12 +65,14 @@ function init$1(chart) {
     chart.controls.wrap.selectAll('*').remove(); //Clear controls.
 
     //Draw variable controls if options are specified
-    var optionList = ['id', 'major', 'minor', 'group'];
-    optionList.forEach(function (option) {
-        if (chart.config.variableOptions[option].length > 1) {
-            chart.controls.variableSelect.init(chart, option);
-        }
-    });
+    if (chart.config.defaults.useVariableControls) {
+        var optionList = ['id', 'major', 'minor', 'group'];
+        optionList.forEach(function (option) {
+            if (chart.config.variableOptions[option].length > 1) {
+                chart.controls.variableSelect.init(chart, option);
+            }
+        });
+    }
 
     //Draw standard UI components
     chart.controls.filters.rate.init(chart);
@@ -291,11 +293,9 @@ function init$5(chart, variable) {
     variableControl.selectAll('option').data(chart.config.variableOptions[variable]).enter().append('option').text(function (d) {
         return d;
     }).property('selected', function (d) {
-        if (variable == 'group' & !chart.config.groupCols) {
-            console.log('None check');
+        if (variable == 'group' & !chart.config.defaults.groupCols) {
             return d == 'None';
         } else {
-            console.log('other check');
             return d === chart.config.variables[variable];
         }
     });
@@ -1137,7 +1137,8 @@ var defaultSettings = {
         diffCol: true,
         prefTerms: false,
         summarizeBy: 'participant',
-        webchartsDetailsTable: false
+        webchartsDetailsTable: false,
+        useVariableControls: true
     },
     plotSettings: {
         h: 15,

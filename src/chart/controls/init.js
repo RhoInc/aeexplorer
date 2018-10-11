@@ -8,13 +8,13 @@ export function init(chart) {
     chart.controls.wrap.selectAll('*').remove(); //Clear controls.
 
     //Draw variable controls if options are specified
-    if(chart.config.defaults.useVariableControls){
-      const optionList = ['id', 'major', 'minor', 'group'];
-      optionList.forEach(function(option) {
-          if (chart.config.variableOptions[option].length > 1) {
-              chart.controls.variableSelect.init(chart, option);
-          }
-      });      
+    if (chart.config.defaults.useVariableControls) {
+        const optionList = ['id', 'major', 'minor', 'group'];
+        optionList.forEach(function(option) {
+            if (chart.config.variableOptions[option].length > 1) {
+                chart.controls.variableSelect.init(chart, option);
+            }
+        });
     }
 
     //Draw standard UI components
