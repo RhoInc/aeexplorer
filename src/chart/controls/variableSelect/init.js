@@ -21,7 +21,15 @@ export function init(chart, variable) {
         .enter()
         .append('option')
         .text(d => d)
-        .property('selected', d => d === chart.config.variables[variable]);
+        .property('selected', function(d) {
+            if ((variable == 'group') & !chart.config.groupCols) {
+                console.log('None check');
+                return d == 'None';
+            } else {
+                console.log('other check');
+                return d === chart.config.variables[variable];
+            }
+        });
 
     //initialize event listener
     variableControl.on('change', function(d) {

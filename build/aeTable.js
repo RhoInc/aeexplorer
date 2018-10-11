@@ -291,7 +291,13 @@ function init$5(chart, variable) {
     variableControl.selectAll('option').data(chart.config.variableOptions[variable]).enter().append('option').text(function (d) {
         return d;
     }).property('selected', function (d) {
-        return d === chart.config.variables[variable];
+        if (variable == 'group' & !chart.config.groupCols) {
+            console.log('None check');
+            return d == 'None';
+        } else {
+            console.log('other check');
+            return d === chart.config.variables[variable];
+        }
     });
 
     //initialize event listener
