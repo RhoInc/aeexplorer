@@ -39,8 +39,12 @@ d3.csv(
            group:["RACE","SEX","AGE"]
          },
          defaults:{
-           webchartsDetailTable:true
-         }
+           webchartsDetailTable:true,
+           placeholderFlag: {
+               value_col: 'AEBODSYS',
+               values: ['']
+           }
+         },
         };
         var instance = aeTable.createChart(
             '#container',

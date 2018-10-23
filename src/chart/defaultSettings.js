@@ -46,7 +46,8 @@ const defaultSettings = {
         diffCol: true,
         prefTerms: false,
         summarizeBy: 'participant',
-        webchartsDetailsTable: false
+        webchartsDetailsTable: false,
+        useVariableControls: true
     },
     plotSettings: {
         h: 15,
