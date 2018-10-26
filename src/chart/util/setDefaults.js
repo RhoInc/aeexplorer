@@ -32,6 +32,7 @@ export function setDefaults(chart) {
     //variableOptions
     chart.config.variableOptions =
         chart.config.variableOptions || defaultSettings.variableOptions || {};
+
     variables.forEach(function(varName) {
         //initialize options for each mapping variable
         chart.config.variableOptions[varName] = chart.config.variableOptions[varName]
@@ -42,6 +43,12 @@ export function setDefaults(chart) {
         var options = chart.config.variableOptions[varName];
         if (options.indexOf(chart.config.variables[varName]) == -1) {
             options.push(chart.config.variables[varName]);
+        }
+
+        //add "None" option for group dropdown
+
+        if ((varName == 'group') & (options.indexOf('None') == -1)) {
+            options.push('None');
         }
     });
 
