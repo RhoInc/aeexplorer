@@ -14,7 +14,7 @@ export function makeTitle(chart, detailData, detailTableSettings) {
                       ' <b>' +
                       detailTableSettings.minor +
                       ' (' +
-                      major +
+                      detailTableSettings.major +
                       ')</b> records'
         );
 }
