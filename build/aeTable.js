@@ -2197,7 +2197,7 @@
                           ' <b>' +
                           detailTableSettings.minor +
                           ' (' +
-                          major +
+                          detailTableSettings.major +
                           ')</b> records'
             );
     }
