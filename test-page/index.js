@@ -26,7 +26,7 @@ if (window.origin !== 'https://rhoinc.github.io') {
 }
 
 d3.csv(
-    'https://rawgit.com/RhoInc/viz-library/master/data/safetyData/ADAE.csv',
+  'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/adam/adae.csv',
     function(error,data) {
         if (error)
             console.log(error);
