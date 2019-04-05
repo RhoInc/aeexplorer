@@ -1,5 +1,6 @@
 var dataElement = '.graphic-wrapper';
-var dataPath = 'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/renderer-specific/leap-adae1.csv';
+var dataPath =
+    'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/renderer-specific/leap-adae1.csv';
 var settings = {
     variables: {
         id: 'A_ID',
@@ -34,11 +35,12 @@ var settings = {
         ],
         details: []
     },
-    defaults:{
-      placeholderFlag: {
-          value_col: 'SEQNO',
-          values: ['']
-      }}
+    defaults: {
+        placeholderFlag: {
+            value_col: 'SEQNO',
+            values: ['']
+        }
+    }
 };
 
 d3.csv(dataPath, function(error, data) {

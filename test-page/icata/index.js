@@ -1,5 +1,6 @@
 var dataElement = '.graphic-wrapper';
-var dataPath = 'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/renderer-specific/icata-aes.csv';
+var dataPath =
+    'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/renderer-specific/icata-aes.csv';
 var settings = {
     variables: {
         id: 'ID',
