@@ -35,10 +35,6 @@ var settings = {
         ],
         details: []
     },
-    groups: [
-        { key: 'Peanut Avoidance', n: 321, selected: true },
-        { key: 'Peanut Consumption', n: 319, selected: true }
-    ],
     defaults: {
         placeholderFlag: {
             value_col: 'SEQNO',
