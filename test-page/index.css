@@ -1,7 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
 * {
-    padding: 0;
-    margin: 0;
     font-family: 'Open Sans';
 }
 #title {
@@ -22,4 +20,11 @@
     width: 96%;
     margin: 1% 2%;
     display: inline-block;
+}
+#summary{
+  border:1px solid #999;
+  border-radius:0.2em;
+  padding:1em;
+  background:#ddd;
+  margin-bottom:1em;
 }
