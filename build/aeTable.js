@@ -360,7 +360,6 @@
             if (current != 'None') chart.config.variables[variable] = current;
 
             //update config.groups if needed
-            console.log(chart);
             if (variable == 'group') {
                 if (current == 'None') {
                     chart.config.defaults.diffCol = false;
@@ -390,15 +389,7 @@
                 var levels = chart.config.groups.map(function(e) {
                     return e.key;
                 });
-                var colors = [
-                    '#377EB8',
-                    '#4DAF4A',
-                    '#984EA3',
-                    '#FF7F00',
-                    '#A65628',
-                    '#F781BF',
-                    '#E41A1C'
-                ];
+                var colors = chart.config.colors.slice();
                 if (chart.config.defaults.totalCol)
                     //Set 'Total' column color to #777.
                     colors[chart.config.groups.length] = '#777';
@@ -1511,7 +1502,6 @@
                     chart.config.plotSettings[varName] || defaultSettings.plotSettings[varName];
             });
         } else {
-            // data-driven settings
             var allGroups;
             var groupsObject;
             var x;
@@ -1520,6 +1510,7 @@
             var errorText;
 
             (function() {
+                // data-driven settings
                 var errorNote = function errorNote(msg) {
                     chart.wrap.append('div').attr('class', 'wc-alert').text('Fatal Error: ' + msg);
                 };
@@ -2329,7 +2320,7 @@
 
         chart.wrap = d3.select(element).append('div').classed('aeExplorer', true);
         util.setDefaults(chart);
-        chart.colorScale = colorScale(chart.config.colors);
+        chart.colorScale = colorScale(chart.config.colors.slice());
         chart.layout();
 
         return chart;

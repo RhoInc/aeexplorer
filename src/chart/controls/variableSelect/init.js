@@ -35,7 +35,6 @@ export function init(chart, variable) {
         if (current != 'None') chart.config.variables[variable] = current;
 
         //update config.groups if needed
-        console.log(chart);
         if (variable == 'group') {
             if (current == 'None') {
                 chart.config.defaults.diffCol = false;
@@ -59,15 +58,7 @@ export function init(chart, variable) {
 
             //update the color scale
             var levels = chart.config.groups.map(e => e.key);
-            var colors = [
-                '#377EB8',
-                '#4DAF4A',
-                '#984EA3',
-                '#FF7F00',
-                '#A65628',
-                '#F781BF',
-                '#E41A1C'
-            ];
+            var colors = chart.config.colors.slice();
             if (chart.config.defaults.totalCol)
                 //Set 'Total' column color to #777.
                 colors[chart.config.groups.length] = '#777';

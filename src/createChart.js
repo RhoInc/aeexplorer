@@ -20,7 +20,7 @@ export function createChart(element = 'body', config) {
 
     chart.wrap = d3.select(element).append('div').classed('aeExplorer', true);
     util.setDefaults(chart);
-    chart.colorScale = colorScale(chart.config.colors);
+    chart.colorScale = colorScale(chart.config.colors.slice());
     chart.layout();
 
     return chart;
