@@ -1,30 +1,35 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
 * {
+    padding: 0;
+    margin: 0;
     font-family: 'Open Sans';
 }
-#title {
+body > * {
     width: 96%;
-    padding: 0 0 1% 0;
+    margin: 12px 2%;
+}
+#title {
+    padding: 0 0 12px 0;
     border-bottom: 2px solid lightgray;
-    margin: 2% 2% 1% 2%;
+    margin-top: 24px;
     font-size: 32px;
     font-weight: normal;
 }
 #subtitle {
-    width: 96%;
-    margin: 0 2% 1% 2%;
+    margin-top: 0;
     font-size: 24px;
     font-weight: lighter;
 }
 #container {
-    width: 96%;
-    margin: 1% 2%;
     display: inline-block;
 }
-#summary{
-  border:1px solid #999;
-  border-radius:0.2em;
-  padding:1em;
-  background:#ddd;
-  margin-bottom:1em;
+#summary {
+    width: calc(96% - 26px);
+    border: 1px solid #999;
+    border-radius: 0.2em;
+    padding: 12px;
+    background: #ddd;
+}
+#summary ul {
+    margin: 12px 24px;
 }

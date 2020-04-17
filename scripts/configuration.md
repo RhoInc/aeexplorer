@@ -148,6 +148,13 @@ Maximum Group Count
 
 **default:** `6`
 
+### settings.defaults.groupColors
+`undefined`
+
+undefined
+
+**default:** none
+
 ### settings.defaults.totalCol
 `boolean`
 

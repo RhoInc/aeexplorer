@@ -3,18 +3,9 @@
 \------------------------------------------------------------------------------------------------*/
 
 export function init(data) {
-    var settings = this.config;
-
-    //create chart wrapper in specified div
-    this.wrap = d3.select(this.element).append('div');
-    this.wrap.attr('class', 'aeExplorer');
-
     //save raw data
     this.raw_data = data;
-
-    //settings and defaults
     this.util.setDefaults(this);
-    this.layout();
 
     //Flag placeholder rows in raw data save a separate event-only data set
     var placeholderCol = this.config.defaults.placeholderFlag.value_col;
