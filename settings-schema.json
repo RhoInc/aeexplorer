@@ -1,7 +1,7 @@
 {
     "title": "config",
     "description": "JSON Schema for AE Explorer configuration. Last updated with v3.1.1 release.",
-    "version": "3.2.6",
+    "version": "3.4.0",
     "type": "object",
     "properties": {
         "variables": {

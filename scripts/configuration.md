@@ -1,5 +1,5 @@
 # Renderer-specific settings
-The sections below describe each aeexplorer setting as of version 3.2.6.
+The sections below describe each aeexplorer setting as of version 3.4.0.
 
 ## settings.variables
 `object`
