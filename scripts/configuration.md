@@ -122,6 +122,26 @@ An array specifying which levels of settings.variables.groups will appear as col
 
 
 
+## settings.colors
+`array`
+
+an array of colors that control the color of each group in the table
+
+**default:** 
+```
+[
+  "#377EB8",
+  "#4DAF4A",
+  "#984EA3",
+  "#FF7F00",
+  "#A65628",
+  "#F781BF",
+  "#E41A1C"
+]
+```
+
+
+
 ## settings.defaults
 `object`
 
@@ -147,13 +167,6 @@ Maximum Prevelance
 Maximum Group Count
 
 **default:** `6`
-
-### settings.defaults.groupColors
-`undefined`
-
-undefined
-
-**default:** none
 
 ### settings.defaults.totalCol
 `boolean`
