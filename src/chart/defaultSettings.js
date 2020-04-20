@@ -66,4 +66,5 @@ const defaultSettings = {
     validation: false
 };
 
+export const colors = defaultSettings.colors;
 export default defaultSettings;
