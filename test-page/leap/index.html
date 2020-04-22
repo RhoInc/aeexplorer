@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>AE Explorer</title>
+        <title>AE Explorer - LEAP</title>
         <meta http-equiv = 'Content-Type' content = 'text/html; charset = utf-8'>
 
         <script type = 'text/javascript' src = 'https://d3js.org/d3.v3.min.js'></script>
@@ -16,19 +16,17 @@
     <body>
         <div id = 'title'>AE Explorer</div>
         <div id = 'subtitle'>LEAP</div>
-        <div id= 'container'>
-            <div id="summary">
-                <span>This table summarizes adverse events from the <a target = '_blank' href="https://www.nejm.org/doi/full/10.1056/NEJMoa1414850">LEAP trial</a> by system organ class and preferred term. The table displays three columns of adverse event rates: one for Peanut Avoidance, one for Peanut Consumption, and one for both treatments. The display is fully interactive:</span>
-                <ul>
-                    <li>Collapse/expand nested data rows using the <strong>+</strong> and <strong>-</strong>.</li>
-                    <li>Filter the table by adverse event prevalence.
-                    <li>Search for adverse event system organ classes and preferred terms of interest.</li>
-                    <li>Filter the data by adverse event outcome, treatment requirement, relation to treatment, and seriousness. Hold "control" or "shift" and click to select multiple options.</li>
-                </ul>
-                <span>More information about this tool can be found <a target = '_blank' href="https://github.com/RhoInc/aeexplorer">on GitHub</a>.</span>
-            </div>
-            <div class="graphic-wrapper"></div>
+        <div id = 'summary'>
+            This table summarizes adverse events from the <a target = '_blank' href="https://www.nejm.org/doi/full/10.1056/NEJMoa1414850">LEAP trial</a> by system organ class and preferred term. The table displays three columns of adverse event rates: one for Peanut Avoidance, one for Peanut Consumption, and one for both treatments. The display is fully interactive:
+            <ul>
+                <li>Collapse/expand nested data rows using the <strong>+</strong> and <strong>-</strong>.</li>
+                <li>Filter the table by adverse event prevalence.
+                <li>Search for adverse event system organ classes and preferred terms of interest.</li>
+                <li>Filter the data by adverse event outcome, treatment requirement, relation to treatment, and seriousness. Hold "control" or "shift" and click to select multiple options.</li>
+            </ul>
+            More information about this tool can be found <a target = '_blank' href="https://github.com/RhoInc/aeexplorer">on GitHub</a>.
         </div>
+        <div id = 'container'></div>
     </body>
 
     <script type = 'text/javascript' src = './index.js'></script>

@@ -1,298 +1,319 @@
 {
-  "title": "config",
-  "description":"JSON Schema for AE Explorer configuration. Last updated with v3.1.1 release.",
-  "version": "3.2.6",
-  "type": "object",
-  "properties": {
-    "variables": {
-      "description":"an object that specifies how to map columns from the data file to the chart settings",
-      "type": "object",
-      "properties":{
-        "id":{
-          "title":"ID",
-          "description":"participant ID variable name",
-          "type": "string",
-          "default":"USUBJID"
-        },
-        "major":{
-          "title":"Major Category",
-          "description":"higher-level term variable name",
-          "type": "string",
-          "default":"AEBODSYS"
-        },
-        "minor":{
-          "title":"Minor Category",
-          "description":"lower-level term variable name",
-          "type": "string",
-          "default":"AEDECOD"
-        },
-        "group":{
-          "title":"Group",
-          "description":"group variable name, each value of which displays in its own column in the AE table unless settings.groups is defined.",
-          "type": "string",
-          "default":"ARM"
-        },
-        "details":{
-          "title":"Details",
-          "description":"an array listing each variable to display in the detail listing; if empty or unspecified, all variables in input data file will appear in detail listing",
-          "type": "array",
-          "items":{
-            "type":"object",
-            "properties":{
-              "value_col":{
-                "title":"Value Column",
-                "type":"string"
-              },
-              "label":{
-                "title":"Label",
-                "type":"string"
-              }
-            }
-          }
-        },
-        "filters":{
-          "title":"Filters",
-          "description":"An array of objects specifying categorical data filters to be included with the histogram.",
-          "type": "array",
-          "items":{
-            "type":"object",
-            "properties":{
-              "value_col":{
-                "title":"Value Column",
-                "type":"string"
-              },
-              "label":{
-                "title":"Label",
-                "type":"string"
-              },
-              "type":{
-                "title":"Type",
-                "type":"string",
-                "enum":["","event","participant"]
-              },
-              "start":{
-                "type":"array",
-                "title":"Start Values",
-                "items":{
-                  "type":"string"
+    "title": "config",
+    "description": "JSON Schema for AE Explorer configuration. Last updated with v3.1.1 release.",
+    "version": "3.4.0",
+    "type": "object",
+    "properties": {
+        "variables": {
+            "description": "an object that specifies how to map columns from the data file to the chart settings",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "description": "participant ID variable name",
+                    "type": "string",
+                    "default": "USUBJID"
+                },
+                "major": {
+                    "title": "Major Category",
+                    "description": "higher-level term variable name",
+                    "type": "string",
+                    "default": "AEBODSYS"
+                },
+                "minor": {
+                    "title": "Minor Category",
+                    "description": "lower-level term variable name",
+                    "type": "string",
+                    "default": "AEDECOD"
+                },
+                "group": {
+                    "title": "Group",
+                    "description": "group variable name, each value of which displays in its own column in the AE table unless settings.groups is defined.",
+                    "type": "string",
+                    "default": "ARM"
+                },
+                "details": {
+                    "title": "Details",
+                    "description": "an array listing each variable to display in the detail listing; if empty or unspecified, all variables in input data file will appear in detail listing",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "value_col": {
+                                "title": "Value Column",
+                                "type": "string"
+                            },
+                            "label": {
+                                "title": "Label",
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "filters": {
+                    "title": "Filters",
+                    "description": "An array of objects specifying categorical data filters to be included with the histogram.",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "value_col": {
+                                "title": "Value Column",
+                                "type": "string"
+                            },
+                            "label": {
+                                "title": "Label",
+                                "type": "string"
+                            },
+                            "type": {
+                                "title": "Type",
+                                "type": "string",
+                                "enum": [
+                                    "",
+                                    "event",
+                                    "participant"
+                                ]
+                            },
+                            "start": {
+                                "type": "array",
+                                "title": "Start Values",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "defaultObject": [
+                        {
+                            "value_col": "AESER",
+                            "label": "Serious?",
+                            "type": "event",
+                            "start": null
+                        },
+                        {
+                            "value_col": "AESEV",
+                            "label": "Severity",
+                            "type": "event",
+                            "start": null
+                        },
+                        {
+                            "value_col": "AEREL",
+                            "label": "Relationship",
+                            "type": "event",
+                            "start": null
+                        },
+                        {
+                            "value_col": "AEOUT",
+                            "label": "Outcome",
+                            "type": "event",
+                            "start": null
+                        }
+                    ]
                 }
-              }
             }
-          },
-          "defaultObject": [
-            {
-                "value_col": "AESER",
-                "label": "Serious?",
-                "type": "event",
-                "start": null
-            },
-            {
-                "value_col": "AESEV",
-                "label": "Severity",
-                "type": "event",
-                "start": null
-            },
-            {
-                "value_col": "AEREL",
-                "label": "Relationship",
-                "type": "event",
-                "start": null
-            },
-            {
-                "value_col": "AEOUT",
-                "label": "Outcome",
-                "type": "event",
-                "start": null
+        },
+        "variableOptions": {
+            "title": "Variable Options",
+            "description": "An object that specifies valid options for the primary variable mappings (id, major, minor and groups). When 2+ options are specified for any given mapping, a control is drawn so that the user can interactively update chart to use any of the options.",
+            "type": "object",
+            "properties": {
+                "major": {
+                    "title": "Major variable options",
+                    "description": "Major variable options",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "minor": {
+                    "title": "Minor variable options",
+                    "description": "Minor variable options",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "group": {
+                    "title": "Group variable options",
+                    "description": "Group variable options",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "title": "ID variable options",
+                    "description": "ID variable options",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
             }
-          ]
+        },
+        "groups": {
+            "title": "Group Levels",
+            "description": "An array specifying which levels of settings.variables.groups will appear as columns in the table.",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "colors": {
+            "title": "Group Colors",
+            "description": "an array of colors that control the color of each group in the table",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "defaultObject": [
+                "#377EB8",
+                "#4DAF4A",
+                "#984EA3",
+                "#FF7F00",
+                "#A65628",
+                "#F781BF",
+                "#E41A1C"
+            ]
+        },
+        "defaults": {
+            "title": "Defaults",
+            "description": "an object containing default settings regarding appearance of the tables",
+            "type": "object",
+            "properties": {
+                "placeholderFlag": {
+                    "title": "Placeholder Rows Definition",
+                    "description": "Object to specify how to identify placeholder rows for participants with no AEs.",
+                    "type": "object",
+                    "properties": {
+                        "value_col": {
+                            "title": "Value Column",
+                            "type": "string",
+                            "default": "AEBODSYS"
+                        },
+                        "values": {
+                            "title": "Placeholder Values",
+                            "type": "array",
+                            "items": {
+                                "title": "Value",
+                                "type": "string",
+                                "default": "NA"
+                            }
+                        }
+                    }
+                },
+                "maxPrevalence": {
+                    "title": "Maximum Prevelance",
+                    "description": "filters out any higher- and lower-level rows without at least one group rate above specified value.",
+                    "type": "number",
+                    "default": 0
+                },
+                "maxGroups": {
+                    "title": "Maximum Group Count",
+                    "description": "Maximum number of group levels allowed.",
+                    "type": "number",
+                    "default": 6
+                },
+                "totalCol": {
+                    "title": "Show Total Column?",
+                    "description": "specifies whether or not to render a column showing overall rates across all groups",
+                    "type": "boolean",
+                    "default": true
+                },
+                "diffCol": {
+                    "title": "Show Difference Column?",
+                    "description": "specifies whether or not to render a column of graphical differences",
+                    "type": "boolean",
+                    "default": "true"
+                },
+                "prefTerms": {
+                    "title": "Show All Preferred Terms?",
+                    "description": "specifies whether or not to initially display all lower-level rows",
+                    "type": "boolean",
+                    "default": false
+                },
+                "summarizeBy": {
+                    "title": "Data Summary Type",
+                    "description": "specifies whether to show participant or event rates by default",
+                    "type": "string",
+                    "enum": [
+                        "participant",
+                        "event"
+                    ],
+                    "default": "participant"
+                },
+                "webchartsDetailsTable": {
+                    "title": "Data Summary Type",
+                    "description": "specifies whether to draw details tables using a webcharts tables object with sort, pagination, data download and search functionality. If true, webcharts becomes a required dependency.",
+                    "type": "boolean",
+                    "default": "false"
+                }
+            }
+        },
+        "plotSettings": {
+            "title": "Plot Settings",
+            "description": "Object to specify the appearance of the plots embedded in the table rows.",
+            "type": "object",
+            "properties": {
+                "h": {
+                    "title": "Height",
+                    "description": "height of the plot svg in pixels",
+                    "type": "number",
+                    "default": 15
+                },
+                "w": {
+                    "title": "Width",
+                    "description": "width of the plot svg in pixels",
+                    "type": "number",
+                    "default": 200
+                },
+                "r": {
+                    "title": "Radius",
+                    "description": "radius of the plotted points in pixels",
+                    "type": "number",
+                    "default": 7
+                },
+                "margin": {
+                    "title": "Dot Plot Margins",
+                    "description": "object specifying the dot plot margins",
+                    "type": "object",
+                    "properties": {
+                        "left": {
+                            "title": "Left",
+                            "type": "number",
+                            "default": 40
+                        },
+                        "right": {
+                            "title": "Right",
+                            "type": "number",
+                            "default": 40
+                        }
+                    }
+                },
+                "diffMargin": {
+                    "title": "Difference Plot Margins",
+                    "description": "object specifying the margins for the difference diamonds plot",
+                    "type": "object",
+                    "properties": {
+                        "left": {
+                            "title": "Left",
+                            "type": "number",
+                            "default": 5
+                        },
+                        "right": {
+                            "title": "Right",
+                            "type": "number",
+                            "default": 5
+                        }
+                    }
+                }
+            }
+        },
+        "validation": {
+            "title": "Show Download Link?",
+            "description": "adds a link to download the summarized data in a comma-separated format",
+            "type": "boolean",
+            "default": false
         }
-      }
-    },
-    "variableOptions":{
-      "title":"Variable Options",
-      "description":"An object that specifies valid options for the primary variable mappings (id, major, minor and groups). When 2+ options are specified for any given mapping, a control is drawn so that the user can interactively update chart to use any of the options.",
-      "type": "object",
-      "properties":{
-        "major":{
-          "title":"Major variable options",
-          "description":"Major variable options",
-          "type": "array",
-          "items":{
-              "type":"string"
-          }
-        },
-        "minor":{
-          "title":"Minor variable options",
-          "description":"Minor variable options",
-          "type": "array",
-          "items":{
-              "type":"string"
-          }
-        },
-        "group":{
-          "title":"Group variable options",
-          "description":"Group variable options",
-          "type": "array",
-          "items":{
-              "type":"string"
-          }
-        },
-        "id":{
-          "title":"ID variable options",
-          "description":"ID variable options",
-          "type": "array",
-          "items":{
-              "type":"string"
-          }
-        }
-      }
-    },
-    "groups": {
-      "title":"Group Levels",
-      "description": "An array specifying which levels of settings.variables.groups will appear as columns in the table.",
-      "type": "array",
-      "items":{
-        "type":"string"
-      }
-    },
-    "defaults": {
-      "title":"Defaults",
-      "description": "an object containing default settings regarding appearance of the tables",
-      "type": "object",
-      "properties":{
-        "placeholderFlag":{
-          "title":"Placeholder Rows Definition",
-          "description":"Object to specify how to identify placeholder rows for participants with no AEs.",
-          "type": "object",
-          "properties":{
-            "value_col":{
-              "title":"Value Column",
-              "type":"string",
-              "default": "AEBODSYS"
-            },
-            "values":{
-              "title":"Placeholder Values",
-              "type":"array",
-              "items":{
-                "title":"Value",
-                "type":"string",
-                "default": "NA"
-              }
-            }
-          }
-        },
-        "maxPrevalence":{
-          "title":"Maximum Prevelance",
-          "description":"filters out any higher- and lower-level rows without at least one group rate above specified value.",
-          "type": "number",
-          "default": 0
-        },
-        "maxGroups":{
-          "title":"Maximum Group Count",
-          "description":"Maximum number of group levels allowed.",
-          "type": "number",
-          "default":6
-        },
-        "totalCol":{
-          "title":"Show Total Column?",
-          "description":"specifies whether or not to render a column showing overall rates across all groups",
-          "type":"boolean",
-          "default":true
-        },
-        "diffCol":{
-          "title":"Show Difference Column?",
-          "description":"specifies whether or not to render a column of graphical differences",
-          "type":"boolean",
-          "default":"true"
-        },
-        "prefTerms":{
-          "title":"Show All Preferred Terms?",
-          "description":"specifies whether or not to initially display all lower-level rows",
-          "type":"boolean",
-          "default":false
-        },
-        "summarizeBy":{
-          "title":"Data Summary Type",
-          "description":"specifies whether to show participant or event rates by default",
-          "type":"string",
-          "enum":[
-            "participant",
-            "event"
-          ],
-          "default":"participant"
-        },
-        "webchartsDetailsTable":{
-          "title":"Data Summary Type",
-          "description":"specifies whether to draw details tables using a webcharts tables object with sort, pagination, data download and search functionality. If true, webcharts becomes a required dependency.",
-          "type":"boolean",
-          "default":"false"
-        }
-      }
-    },
-    "plotSettings":{
-      "title":"Plot Settings",
-      "description": "Object to specify the appearance of the plots embedded in the table rows.",
-      "type": "object",
-      "properties":{
-        "h":{
-          "title":"Height",
-          "description":"height of the plot svg in pixels",
-          "type":"number",
-          "default":15
-        },
-        "w":{
-          "title":"Width",
-          "description":"width of the plot svg in pixels",
-          "type":"number",
-          "default":200
-        },
-        "r":{
-          "title":"Radius",
-          "description":"radius of the plotted points in pixels",
-          "type":"number",
-          "default":7
-        },
-        "margin":{
-          "title":"Dot Plot Margins",
-          "description":"object specifying the dot plot margins",
-          "type":"object",
-          "properties":{
-            "left":{
-              "title":"Left",
-              "type":"number",
-              "default":40
-            },
-            "right":{
-              "title":"Right",
-              "type":"number",
-              "default":40
-            }
-          }
-        },
-        "diffMargin":{
-          "title":"Difference Plot Margins",
-          "description":"object specifying the margins for the difference diamonds plot",
-          "type":"object",
-          "properties":{
-            "left":{
-              "title":"Left",
-              "type":"number",
-              "default":5
-            },
-            "right":{
-              "title":"Right",
-              "type":"number",
-              "default":5
-            }
-          }
-        }
-      }
-    },
-    "validation":{
-      "title":"Show Download Link?",
-      "description": "adds a link to download the summarized data in a comma-separated format",
-      "type": "boolean",
-      "default":false
     }
-  }
 }

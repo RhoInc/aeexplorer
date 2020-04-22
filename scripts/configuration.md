@@ -1,5 +1,5 @@
 # Renderer-specific settings
-The sections below describe each aeexplorer setting as of version 3.2.6.
+The sections below describe each aeexplorer setting as of version 3.4.0.
 
 ## settings.variables
 `object`
@@ -119,6 +119,26 @@ ID variable options
 An array specifying which levels of settings.variables.groups will appear as columns in the table.
 
 **default:** none
+
+
+
+## settings.colors
+`array`
+
+an array of colors that control the color of each group in the table
+
+**default:** 
+```
+[
+  "#377EB8",
+  "#4DAF4A",
+  "#984EA3",
+  "#FF7F00",
+  "#A65628",
+  "#F781BF",
+  "#E41A1C"
+]
+```
 
 
 

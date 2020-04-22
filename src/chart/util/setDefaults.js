@@ -28,6 +28,7 @@ export function setDefaults(chart) {
         chart.config.variables.filters || defaultSettings.variables.filters || [];
 
     chart.config.groups = chart.config.groups || defaultSettings.groups || [];
+    chart.config.colors = chart.config.colors || defaultSettings.colors;
 
     //variableOptions
     chart.config.variableOptions =

@@ -34,6 +34,7 @@ const defaultSettings = {
     },
     variableOptions: null,
     groups: null,
+    colors: ['#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#A65628', '#F781BF', '#E41A1C'],
     defaults: {
         placeholderFlag: {
             value_col: 'AEBODSYS',
@@ -65,4 +66,5 @@ const defaultSettings = {
     validation: false
 };
 
+export const colors = defaultSettings.colors;
 export default defaultSettings;

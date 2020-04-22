@@ -1,54 +1,54 @@
 {
-  "name": "aeexplorer",
-  "version": "3.3.5",
-  "description": "An interactive tool that allows users to dynamically query adverse event data in real time.",
-  "keywords": [
-    "adverse",
-    "events",
-    "interactive",
-    "aes",
-    "data",
-    "visualization"
-  ],
-  "homepage": "https://github.com/rhoinc/aeexplorer#readme",
-  "license": "ISC",
-  "author": "Rho, Inc.",
-  "main": "build/aeTable.js",
-  "module": "./src/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rhoinc/aeexplorer.git"
-  },
-  "scripts": {
-    "build": "npm audit fix && npm run bundle && npm run format && npm run minify && npm run build-md",
-    "build-md": "node ./scripts/configuration-markdown.js",
-    "bundle": "rollup -c",
-    "format": "npm run format-src && npm run format-bundle && npm run format-examples",
-    "format-examples": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./test-page/**/*.js\"",
-    "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./build/aeTable.js\"",
-    "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./src/**/*.js\"",
-    "minify": "npm run minifyjs && npm run minifycss",
-    "minifycss": "cleancss -o css/aeTable.min.css css/aeTable.css",
-    "minifyjs": "uglifyjs build/aeTable.js > build/aeTable.min.js",
-    "test-page": "start chrome ./test-page/index.html && start firefox ./test-page/index.html && start iexplore file://%CD%/test-page/index.html",
-    "watch": "rollup -c -w"
-  },
-  "devDependencies": {
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-preset-env": "^1.7.0",
-    "clean-css-cli": "^4.2.1",
-    "prettier": "1.4.4",
-    "rollup": "^0.66.6",
-    "rollup-plugin-babel": "^2.7.1",
-    "uglify-js": "^2.5.0"
-  },
-  "dependencies": {
-    "d3": "~3"
-  },
-  "optionalDependencies": {
-    "webcharts": ">1.9"
-  },
-  "bugs": {
-    "url": "https://github.com/rhoinc/aeexplorer/issues"
-  }
+    "name": "aeexplorer",
+    "version": "3.4.0",
+    "description": "An interactive tool that allows users to dynamically query adverse event data in real time.",
+    "keywords": [
+        "adverse",
+        "events",
+        "interactive",
+        "aes",
+        "data",
+        "visualization"
+    ],
+    "homepage": "https://github.com/rhoinc/aeexplorer#readme",
+    "license": "ISC",
+    "author": "Rho, Inc.",
+    "main": "build/aeTable.js",
+    "module": "./src/index.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rhoinc/aeexplorer.git"
+    },
+    "scripts": {
+        "build": "npm audit fix && npm run bundle && npm run format && npm run minify && npm run build-md",
+        "build-md": "node ./scripts/configuration-markdown.js",
+        "bundle": "rollup -c",
+        "format": "npm run format-src && npm run format-bundle && npm run format-examples",
+        "format-examples": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./test-page/**/*.js\"",
+        "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./build/aeTable.js\"",
+        "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./src/**/*.js\"",
+        "minify": "npm run minifyjs && npm run minifycss",
+        "minifycss": "cleancss -o css/aeTable.min.css css/aeTable.css",
+        "minifyjs": "uglifyjs build/aeTable.js > build/aeTable.min.js",
+        "test-page": "start chrome ./test-page/index.html && start firefox ./test-page/index.html && start iexplore file://%CD%/test-page/index.html",
+        "watch": "rollup -c -w"
+    },
+    "devDependencies": {
+        "babel-plugin-external-helpers": "^6.22.0",
+        "babel-preset-env": "^1.7.0",
+        "clean-css-cli": "^4.2.1",
+        "prettier": "1.4.4",
+        "rollup": "^0.66.6",
+        "rollup-plugin-babel": "^2.7.1",
+        "uglify-js": "^2.5.0"
+    },
+    "dependencies": {
+        "d3": "~3"
+    },
+    "optionalDependencies": {
+        "webcharts": ">1.9"
+    },
+    "bugs": {
+        "url": "https://github.com/rhoinc/aeexplorer/issues"
+    }
 }
