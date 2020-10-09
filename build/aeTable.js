@@ -1747,13 +1747,19 @@
         /////////////////////////////////////
         //Check to make sure there is some data
         if (!chart.data.major.length) {
-            chart.wrap
-                .select('.SummaryTable')
-                .append('div')
-                .attr('class', 'wc-alert')
-                .text(
-                    'Error: No AEs found for the current filters. Update the filters to see results.'
-                );
+            chart.wrap.select('.SummaryTable').append('div').attr('class', 'wc-alert').text(
+                !chart.population_data.length
+                    ? 'Error: No subjects found for the current filters. Update the filters to see results.'
+                    : 'Error: No AEs found for the ' +
+                          d3
+                              .set(
+                                  chart.population_data.map(function(d) {
+                                      return d[chart.config.variables.id];
+                                  })
+                              )
+                              .values().length +
+                          ' subjects selected by the current filters. Update the filters to see results.'
+            );
             throw new Error('No data found in the column specified for major category. ');
         }
 

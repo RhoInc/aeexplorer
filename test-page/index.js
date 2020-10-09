@@ -5,7 +5,19 @@ d3.csv(
 
         var settings = {
             variables: {
-                group: 'ARM'
+                group: 'ARM',
+                filters: [
+                    {
+                        value_col: 'SITE',
+                        label: 'Site',
+                        type: 'participant'
+                    },
+                    {
+                        value_col: 'AESER',
+                        label: 'Serious',
+                        type: 'event'
+                    }
+                ]
             },
             variableOptions: {
                 group: ['SEX', 'RACE', 'SITE', 'ARM']

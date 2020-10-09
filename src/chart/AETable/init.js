@@ -88,7 +88,12 @@ export function init(chart) {
             .append('div')
             .attr('class', 'wc-alert')
             .text(
-                'Error: No AEs found for the current filters. Update the filters to see results.'
+                !chart.population_data.length
+                    ? 'Error: No subjects found for the current filters. Update the filters to see results.'
+                    : `Error: No AEs found for the ${d3
+                          .set(chart.population_data.map(d => d[chart.config.variables.id]))
+                          .values()
+                          .length} subjects selected by the current filters. Update the filters to see results.`
             );
         throw new Error('No data found in the column specified for major category. ');
     }
